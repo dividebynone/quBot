@@ -1,5 +1,5 @@
 from discord.ext import commands
-from main import lang, json_data, bot_starttime
+from main import lang, bot_starttime
 from main import modules as loaded_modules
 from datetime import datetime
 import discord

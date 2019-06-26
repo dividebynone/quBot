@@ -98,10 +98,11 @@ servers_connector.close()
 
 #-----------------------------------#
 #JSON files initialization/writing/loading
+
 json_data_input = {
-        "appVersion": "0.1.1a",
-        "hidden_modules": ("HelpFormatter", "ErrorHandler"),
-        }
+                "appVersion": "0.1.1a",
+                "hidden_modules": ["HelpFormatter", "ErrorHandler"],
+                }#To be deleted at a later date
 
 json_lang_en = {
         "core_module_load_fail": "This module has either already been loaded or does not exist.",
@@ -119,19 +120,25 @@ json_lang_en = {
         "core_serverid_msg": "{}'s ID is: **{}**",
         "core_channelid_msg": "{} | #{}'s ID is: **{}**",
         "core_leave_msg": "Thank you for having me on this server. Have a nice day!",
-        }
+        "core_latencies": "Shard **{}** ({} Servers) | Latency: {}ms\n",
+        "core_latencies_msg": "Shards Overview",
+        "core_module_hide_success": 'Module **{}** successfully hidden.',
+        "core_module_hide_hidden": 'This module is already hidden!',
+        "core_module_hide_fail": "Failed to hide module. Please check if said module has been loaded or is spelled correctly",
+        "core_module_unhide_success": 'Module **{}** successfully unhidden.',
+        "core_module_unhide_visible": 'This module is already visible!',
+        "core_module_unhide_fail": "Failed to unhide module. Please check if said module has been loaded or is spelled correctly",
+        }#To be deleted at a later date
 
+'''To be deleted at a later date
 with open('./data/data.json', 'w') as json_file: 
-    json_file.write(json.dumps(json_data_input, indent=4, sort_keys=True,separators=(',', ': ')))
-json_file.close()#To be deleted in the future
-
-with open('./data/data.json', 'r') as json_file:
-    json_data = json.load(json_file)
+        json.dump(json_data_input, json_file, indent=4, sort_keys=True,separators=(',', ': '))
 json_file.close()
+'''
 
 with open('./data/localization/language_{}.json'.format(languagecode), 'w') as json_file:
     json_file.write(json.dumps(json_lang_en, indent=4, sort_keys=True,separators=(',', ': ')))
-json_file.close()#To be deleted in the future
+json_file.close()#To be deleted at a later date
 
 with open('./data/localization/language_{}.json'.format(languagecode), 'r') as json_file:
     lang = json.load(json_file)
