@@ -128,6 +128,15 @@ json_lang_en = {
         "core_module_unhide_success": 'Module **{}** successfully unhidden.',
         "core_module_unhide_visible": 'This module is already visible!',
         "core_module_unhide_fail": "Failed to unhide module. Please check if said module has been loaded or is spelled correctly",
+        "utility_avatar_msg": "{}'s Avatar:",
+        "utility_roll_msg": "You rolled **{}**.",
+        "utility_uptime_msg": "Bot has been running for **{}** days, **{}** hours, **{}** minutes and **{}** seconds.",
+        "utility_uinfo_id": "ID",
+        "utility_uinfo_nickname": "Nickname",
+        "utility_uinfo_activity": "Activity",
+        "utility_uinfo_created": "Account Created",
+        "utility_uinfo_joined": "Joined Server",
+        "utility_uinfo_sroles": "Server Roles ({})",
         }#To be deleted at a later date
 
 '''To be deleted at a later date

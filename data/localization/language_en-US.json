@@ -21,5 +21,14 @@
     "core_module_unload_success": "Module **{}** successfully unloaded.",
     "core_modules_list": "List of modules:",
     "core_serverid_msg": "{}'s ID is: **{}**",
-    "core_userid_msg": "{}'s Discord ID is: **{}**"
+    "core_userid_msg": "{}'s Discord ID is: **{}**",
+    "utility_avatar_msg": "{}'s Avatar:",
+    "utility_roll_msg": "You rolled **{}**.",
+    "utility_uinfo_activity": "Activity",
+    "utility_uinfo_created": "Account Created",
+    "utility_uinfo_id": "ID",
+    "utility_uinfo_joined": "Joined Server",
+    "utility_uinfo_nickname": "Nickname",
+    "utility_uinfo_sroles": "Server Roles ({})",
+    "utility_uptime_msg": "Bot has been running for **{}** days, **{}** hours, **{}** minutes and **{}** seconds."
 }
