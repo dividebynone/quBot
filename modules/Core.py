@@ -182,7 +182,27 @@ class Core(commands.Cog):
         embed = discord.Embed(title=lang["core_latencies_msg"], description=string_output, color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
+    @commands.command(name='setname', hidden=True)
+    @commands.is_owner()
+    async def setname(self, ctx, *, input_name: str):
+        await self.bot.user.edit(username=input_name)
     
-
+    @commands.command(name='setstatus', hidden=True)
+    @commands.is_owner()
+    async def setstatus(self, ctx, input_status: str):
+        if input_status in ('online', 'offline', 'idle', 'dnd', 'invisible'):
+            await self.bot.change_presence(status=input_status, shard_id=None)
+    
+    @commands.command(name='setactivity', hidden=True)
+    @commands.is_owner()
+    async def setactivity(self, ctx, input_activity:str = None, *, input_string:str = None):
+        if input_activity:
+            if input_activity in ('playing', 'streaming', 'listening', 'watching'):
+                type_dict= {'playing': 0, 'listening': 2, 'watching': 3}
+                activity = discord.Activity(type=type_dict[input_activity],name = input_string)
+                await ctx.bot.change_presence(activity=activity, shard_id=None)
+        else:
+            await ctx.bot.change_presence(activity=None, shard_id=None)
+    
 def setup(bot):
     bot.add_cog(Core(bot))
