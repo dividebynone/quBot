@@ -100,10 +100,25 @@ servers_connector.close()
 #JSON files initialization/writing/loading
 json_data_input = {
         "appVersion": "0.1.1a",
+        "hidden_modules": ("HelpFormatter", "ErrorHandler"),
         }
 
 json_lang_en = {
-        "temp": "temp",
+        "core_module_load_fail": "This module has either already been loaded or does not exist.",
+        "core_module_load_success": "Module **{}** successfully loaded.",
+        "core_module_unload_fail": "This module has either already been unloaded or does not exist.",
+        "core_module_unload_success": "Module **{}** successfully unloaded.",
+        "core_module_reload_fail": "This module could not be reloaded as it has not been loaded yet.",
+        "core_module_reload_success": "Module **{}** successfully reloaded.",
+        "core_modules_list": "List of modules:",
+        "core_cmds_list_empty": "Either **{}** does not have any commands or all of them are hidden.",
+        "core_cmds_list": "List of commands for **{}**:",
+        "core_cmds_list_not_found": "**{}** module not found.",
+        "core_cmds_list_marg": "Please specify a module.",
+        "core_userid_msg": "{}'s Discord ID is: **{}**",
+        "core_serverid_msg": "{}'s ID is: **{}**",
+        "core_channelid_msg": "{} | #{}'s ID is: **{}**",
+        "core_leave_msg": "Thank you for having me on this server. Have a nice day!",
         }
 
 with open('./data/data.json', 'w') as json_file: 
@@ -119,7 +134,7 @@ with open('./data/localization/language_{}.json'.format(languagecode), 'w') as j
 json_file.close()#To be deleted in the future
 
 with open('./data/localization/language_{}.json'.format(languagecode), 'r') as json_file:
-    json_lang = json.load(json_file)
+    lang = json.load(json_file)
 json_file.close()
 
 #-----------------------------------#
