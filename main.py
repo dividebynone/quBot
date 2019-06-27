@@ -165,7 +165,7 @@ json_lang_en = {
         "command_modules_unhide_description": "Reveals a hidden module from the list of loaded modules.",
         "command_cmds_description": "Displays all commands in a given module",
         "command_userid_help": "If no argument is given, the bot will use the author of the message.\nThis command can only be used by the **BOT OWNER**.",
-        "command_userid_description": "Returns the given individual's Discord ID.",
+        "command_userid_description": "Returns the target individual's Discord ID.",
         "command_serverid_description": "Returns the server's ID for the server the command was typed in.",
         "command_channelid_description": "Returns the channel's ID for the channel the command was typed in.",
         "command_leave_description": "Politely kicks the bot off your server. We are polite, mkay?",
@@ -175,6 +175,13 @@ json_lang_en = {
         "command_setstatus_description": "Changes the bot's status. (Online by default)",
         "command_setactivity_help": "This command requires two arguments: the type of activity(playing, streaming, listening, watching) and the message itself.\nThis command can only be used by the **BOT OWNER**.",
         "command_setactivity_description": "Changes the bot's activity",
+        "command_avatar_help": "If no argument is parsed, the bot will instead return your avatar.",
+        "command_avatar_description": "Returns the target individual's avatar.",
+        "command_roll_help": "If no argument is parsed, the bot will roll a number between 1 and 100.",
+        "command_roll_description": "Rolls a number in a given range.",
+        "command_uptime_description": "Returns the bot's uptime.",
+        "command_uinfo_help": "If no argument is parsed, the bot will return your information instead.",
+        "command_uinfo_description": "Shows the target individual's user information.",
         }#To be deleted at a later date
 
 '''To be deleted at a later date
