@@ -137,6 +137,9 @@ json_lang_en = {
         "utility_uinfo_created": "Account Created",
         "utility_uinfo_joined": "Joined Server",
         "utility_uinfo_sroles": "Server Roles ({})",
+        "errorhandler_dcmd": "This command ({})has been disabled.",
+        "errorhandler_cooldown":"This command ({}) is currently on cooldown. Please try again after **{}** seconds.",
+        "errorhandler_missing_perms":"The bot is missing the following permissions to execute this command: {}",
         }#To be deleted at a later date
 
 '''To be deleted at a later date
