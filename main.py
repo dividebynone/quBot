@@ -105,6 +105,9 @@ json_data_input = {
                 }#To be deleted at a later date
 
 json_lang_en = {
+        "module_string": "Module",
+        "notes_string": "Note(s)",
+        "usage_string": "Usage",
         "core_module_load_fail": "This module has either already been loaded or does not exist.",
         "core_module_load_success": "Module **{}** successfully loaded.",
         "core_module_unload_fail": "This module has either already been unloaded or does not exist.",
@@ -140,6 +143,15 @@ json_lang_en = {
         "errorhandler_dcmd": "This command ({})has been disabled.",
         "errorhandler_cooldown":"This command ({}) is currently on cooldown. Please try again after **{}** seconds.",
         "errorhandler_missing_perms":"The bot is missing the following permissions to execute this command: {}",
+        "helpformatter_help": "**General Help Command**",
+        "helpformatter_help_description": ("You can use **!modules** to see a list of all available modules.\n"
+                                           "You can use **!commands <Module>** to see all commands inside a certain module.\n\n"
+                                           "You could also view a detailed profile of every command using **!h <command>**\n\n"
+                                           "You can add me to your server using this link: https://discordapp.com/oauth2/authorize?client_id=593082021325045760&scope=bot&permissions=8\n\n"
+                                           "If you have any inquiries, suggestions or just want to chat, you could join\nthe **quBot Support Server** here: https://discord.gg/4tXTp2\n\n"
+                                           "Have a nice day!"),
+        "helpformatter_nohelp_parameter": "This command does not have a description/help string attached to it yet.",
+        "helpformatter_cmd_not_found": "This command either does not exist or your spelling is incorrect.",
         }#To be deleted at a later date
 
 '''To be deleted at a later date

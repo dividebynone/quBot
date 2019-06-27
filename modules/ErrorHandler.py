@@ -1,7 +1,5 @@
 from discord.ext import commands
-from main import lang, bot_starttime
-from main import modules as loaded_modules
-from datetime import datetime
+from main import lang
 import discord
 
 class ErrorHandler(commands.Cog):

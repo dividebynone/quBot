@@ -74,7 +74,7 @@ class Core(commands.Cog):
                 embed = discord.Embed(title=lang["core_module_reload_success"].format(input_module), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=20)
     
-    @commands.group(name='modules', aliases=['mdls'])
+    @commands.group(name='modules', aliases=['mdls'], help='modules help', description='modules desc')
     async def modules(self, ctx):
         if not ctx.invoked_subcommand:
             modules_list = ''
@@ -102,7 +102,7 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_hide_fail"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @modules.command()
+    @modules.command(help='unhide subcommand help', description='unhide subcommand description', usage='<module>')
     @commands.is_owner()
     async def unhide(self, ctx, *, input_module: str):
         input_module_path = f'modules.{input_module}'
