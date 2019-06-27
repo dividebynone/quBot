@@ -51,6 +51,5 @@ class Utility(commands.Cog):
         embed.add_field(name=lang["utility_uinfo_sroles"].format(len(user_roles)), value=user_roles, inline=False)
         await ctx.send(embed=embed)
 
-
 def setup(bot):
     bot.add_cog(Utility(bot))

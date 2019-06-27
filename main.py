@@ -34,19 +34,14 @@ if not os.path.exists('./modules'):
 #-----------------------------------#
 #Main config file initialization 
 if not os.path.isfile('config.ini'):
-    config = configparser.ConfigParser(allow_no_value=True)
+    config = configparser.ConfigParser(allow_no_value=False)
     config.optionxform = str
-    config['Credentials'] = {'Token': '<Enter token here>',
-                                '## You can find your token key here: https://discordapp.com/developers/applications/': None,
-                                '# The token is necessary in order to establish a connection between your bot application and this software.': None}
-    config['Commands'] = {'CommandPrefix': '!',
-                            '## The prefix is what triggers the bot to execute commands. Consider changing it if conflicts with other bots occur.': None}
+    config['Credentials'] = {'Token': '<Enter token here>'}
+    config['Commands'] = {'CommandPrefix': '!'}
     config['Language'] = {'CommandLanguageCode': 'en-US',
                             'ConsoleLanguageCode': 'en-US'}
     config['Logging'] = {'LoggerLevel': 'DEBUG',
-                            'LogsAutoDeleteDays': 7,
-                            '## This software auto-deletes all logs older than the days specified above.': None,
-                            '# By default this value is 7(it deletes all logs older than a week)': None}
+                         'LogsAutoDeleteDays': '7'}
 
     with open('config.ini', 'w', encoding="utf_8") as config_file:
         config.write(config_file)
@@ -55,6 +50,7 @@ if not os.path.isfile('config.ini'):
         sys.exit()
 else:
     config = configparser.ConfigParser(allow_no_value=True)
+    config.optionxform = str
     with open('config.ini', 'r', encoding="utf_8") as config_file:
         config.read_file(config_file)
         tokenid = config.get('Credentials', 'Token')
@@ -153,6 +149,18 @@ json_lang_en = {
                                            "Have a nice day!"),
         "helpformatter_nohelp_parameter": "This command does not have a description/help string attached to it yet.",
         "helpformatter_cmd_not_found": "This command either does not exist or your spelling is incorrect.",
+        "economy_daily_claimed": "You already claimed your daily reward! Next daily reward available in {} hour(s) {} minute(s) and {} second(s).",
+        "economy_daily_received": "**{}**, you claimed your daily reward of {} {}.",
+        "economy_daily_gifted": "**{}**, you gifted your daily reward of {} {} to **{}**.",
+        "economy_currency_return_msg": "**{}** has {} {}.",
+        "economy_adjust_award_msg": "**{}** was awarded {} {}.",
+        "economy_adjust_subtract_msg": "**{}** was withheld {} {}.",
+        "economy_insufficient_funds": "You have insufficient funds to use this command. Please make sure you have enough!",
+        "economy_give_self": "You can't transfer money to yourself!",
+        "economy_give_success": "**{}** has given **{}**   {} {}",
+        "economy_betroll_fail_msg": "Oops! You rolled {} but did not win anything. Please try again.",
+        "economy_betroll_msg":"Congratulations, you rolled {} and won {} {}.",
+        "economy_betroll_jackpot": "**JACKPOT!!!** Congratulations, you rolled {} and won {} {}.",
         "command_owner_only": "This command can only be used by the **BOT OWNER**.",
         "command_module_help": "The module file needs to be present in the modules folder of the bot.\nThis command can only be used by the **BOT OWNER**.",
         "command_load_description": "Loads new modules into the bot application.",
@@ -182,6 +190,16 @@ json_lang_en = {
         "command_uptime_description": "Returns the bot's uptime.",
         "command_uinfo_help": "If no argument is parsed, the bot will return your information instead.",
         "command_uinfo_description": "Shows the target individual's user information.",
+        "command_daily_help": "If you wish to gift your daily reward instead of claiming it for yourself, you can mention the individual when using the command.",
+        "command_daily_description": "Lets you claim a set sum of money on a daily basis.",
+        "command_currency_help": "If no argument is parsed, the bot will display the sum of money that you have on your profile.",
+        "command_currency_description": "Displays the sum of money the target individual has on their profile.",
+        "command_adjust_help": "This command requires two arguments - the target user and the amount of money.\nThis command can only be used by the **BOT OWNER**.",
+        "command_adjust_description": "Awards/Subtracts a set amount of money to/from the target individual.",
+        "command_give_help": "This command requires two arguments - the target user and the amount of money.",
+        "command_give_description": "Transfers a set amount of money to another user.",
+        "command_betroll_help": "This command requires one argument - the amount you are willing to bet.",
+        "command_betroll_description": "Lets you bet a certain amount of money.",
         }#To be deleted at a later date
 
 '''To be deleted at a later date
