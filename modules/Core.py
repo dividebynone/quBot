@@ -13,7 +13,7 @@ class Core(commands.Cog):
         self.module_embed_color =  0xf0f3f4
         print(f'Module {self.__class__.__name__} loaded')
 
-    @commands.command(name='load', hidden=True)
+    @commands.command(name='load', help=lang["command_module_help"], description=lang["command_load_description"], usage="<module name>", hidden=True)
     @commands.is_owner()
     async def module_load(self, ctx, *, input_module: str):
         try:
@@ -32,7 +32,7 @@ class Core(commands.Cog):
                         modules_file.write(f'{input_module}\n')             
         await ctx.send(embed=embed, delete_after=20)
 
-    @commands.command(name='unload', hidden=True)
+    @commands.command(name='unload', help=lang["command_module_help"], description=lang["command_unload_description"], usage="<module name>", hidden=True)
     @commands.is_owner()
     async def module_unload(self, ctx, *, input_module: str):
         try:
@@ -57,7 +57,7 @@ class Core(commands.Cog):
                     modules_file.close()
         await ctx.send(embed=embed, delete_after=20)
 
-    @commands.command(name='reload', hidden=True)
+    @commands.command(name='reload', help=lang["command_module_help"], description=lang["command_reload_description"], usage="<module name>", hidden=True)
     @commands.is_owner()
     async def module_reload(self, ctx, *, input_module: str):
         try:
@@ -74,7 +74,7 @@ class Core(commands.Cog):
                 embed = discord.Embed(title=lang["core_module_reload_success"].format(input_module), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=20)
     
-    @commands.group(name='modules', aliases=['mdls'], help='modules help', description='modules desc')
+    @commands.group(name='modules', aliases=['mdls'], help=lang["empty_string"], description=lang["command_modules_description"])
     async def modules(self, ctx):
         if not ctx.invoked_subcommand:
             modules_list = ''
@@ -86,7 +86,7 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_modules_list"],description=modules_list, color=self.module_embed_color)
             await ctx.author.send(embed=embed)
     
-    @modules.command()
+    @modules.command(help=lang["command_modules_hide_help"], description=lang["command_modules_hide_description"], usage="<module name>")
     @commands.is_owner()
     async def hide(self, ctx, *, input_module: str):
         input_module_path = f'modules.{input_module}'
@@ -102,7 +102,7 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_hide_fail"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @modules.command(help='unhide subcommand help', description='unhide subcommand description', usage='<module>')
+    @modules.command(help=lang["command_modules_unhide_help"], description=lang["command_modules_unhide_description"], usage="<module name>")
     @commands.is_owner()
     async def unhide(self, ctx, *, input_module: str):
         input_module_path = f'modules.{input_module}'
@@ -118,7 +118,7 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_unhide_fail"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.command(name='commands', aliases=['cmds'])
+    @commands.command(name='commands', aliases=['cmds'], help=lang["empty_string"], description=lang["command_cmds_description"], usage="<module name>")
     async def cmds_list(self, ctx, *, input_module: str = None):
         if input_module:
             loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
@@ -141,35 +141,35 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_cmds_list_marg"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @commands.command(name='userid', hidden=True)
+    @commands.command(name='userid', help=lang["command_userid_help"], description=lang["command_userid_description"], usage="@somebody", hidden=True)
     @commands.is_owner()
     async def userid(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         embed = discord.Embed(title=lang["core_userid_msg"].format(user.name,user.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.command(name='serverid', hidden=True, ignore_extra=True)
+    @commands.command(name='serverid', help=lang["command_owner_only"], description=lang["command_serverid_description"], hidden=True, ignore_extra=True)
     @commands.is_owner()
     @commands.guild_only()
     async def serverid(self, ctx):
         embed = discord.Embed(title=lang["core_serverid_msg"].format(ctx.guild.name,ctx.guild.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @commands.command(name='channelid', hidden=True, ignore_extra=True)
+    @commands.command(name='channelid', help=lang["command_owner_only"], description=lang["command_channelid_description"], hidden=True, ignore_extra=True)
     @commands.is_owner()
     @commands.guild_only()
     async def channelid(self, ctx):
-        embed = discord.Embed(title=lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.module_embed_color)
+        embed = discord.Embed(title=lang["command_owner_only"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.command(name='leave', hidden=True, ignore_extra=True)
+    @commands.command(name='leave', help=lang["empty_string"], description=lang["command_leave_description"], hidden=True, ignore_extra=True)
     @commands.has_permissions(kick_members=True)
     async def leave(self, ctx):
         embed = discord.Embed(title=lang["core_leave_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
         await ctx.guild.leave()
 
-    @commands.command(name='latencies', hidden=True, ignore_extra=True)
+    @commands.command(name='latencies', help=lang["command_owner_only"], description=lang["command_latencies_description"], hidden=True, ignore_extra=True)
     @commands.is_owner()
     async def latencies(self, ctx):
         string_output = ''
@@ -182,18 +182,18 @@ class Core(commands.Cog):
         embed = discord.Embed(title=lang["core_latencies_msg"], description=string_output, color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @commands.command(name='setname', hidden=True)
+    @commands.command(name='setname', help=lang["command_owner_only"], description=lang["command_setname_description"], usage="<new name>", hidden=True)
     @commands.is_owner()
     async def setname(self, ctx, *, input_name: str):
         await self.bot.user.edit(username=input_name)
     
-    @commands.command(name='setstatus', hidden=True)
+    @commands.command(name='setstatus', help=lang["command_setstatus_help"], description=lang["command_setstatus_description"], usage="dnd", hidden=True)
     @commands.is_owner()
     async def setstatus(self, ctx, input_status: str):
         if input_status in ('online', 'offline', 'idle', 'dnd', 'invisible'):
             await self.bot.change_presence(status=input_status, shard_id=None)
     
-    @commands.command(name='setactivity', hidden=True)
+    @commands.command(name='setactivity', help=lang["command_setactivity_help"], description=lang["command_setactivity_description"], usage="playing with corgis", hidden=True)
     @commands.is_owner()
     async def setactivity(self, ctx, input_activity:str = None, *, input_string:str = None):
         if input_activity:

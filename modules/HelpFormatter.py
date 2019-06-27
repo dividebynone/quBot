@@ -24,9 +24,14 @@ class HelpFormatter(commands.Cog):
                         subcommands_list = list(dict.fromkeys(subcommands_list))
                         if subcommand in subcommands_list:
                             command = self.bot.get_command(f'{command} {subcommand}')
+                    if command.aliases:
+                        aliases = '|'.join(command.aliases)
+                        aliases = f'[{aliases}]'
+                    else:
+                        aliases = ''
                     embed = discord.Embed(title=f'**{self.bot.command_prefix}{command.qualified_name}**', description=command.description, color=self.module_embed_color)
                     embed.add_field(name=f'{lang["notes_string"]}:', value=command.help)
-                    embed.add_field(name=f'{lang["usage_string"]}:', value=f'```CSS\n{self.bot.command_prefix}{command.qualified_name} {command.signature}\n```', inline=False)
+                    embed.add_field(name=f'{lang["usage_string"]}:', value=f'```CSS\n{self.bot.command_prefix}{command.qualified_name}{aliases} {command.signature}\n```', inline=False)
                     embed.set_footer(text=f'{lang["module_string"]}: {command.cog_name}')
             else:
                 embed = discord.Embed(title=lang["helpformatter_cmd_not_found"], color=self.module_embed_color)
