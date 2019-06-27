@@ -145,7 +145,7 @@ json_lang_en = {
                                            "You can use **!commands <Module>** to see all commands inside a certain module.\n\n"
                                            "You could also view a detailed profile of every command using **!h <command>**\n\n"
                                            "You can add me to your server using this link: https://discordapp.com/oauth2/authorize?client_id=593082021325045760&scope=bot&permissions=8\n\n"
-                                           "If you have any inquiries, suggestions or just want to chat, you could join\nthe **quBot Support Server** here: https://discord.gg/4tXTp2\n\n"
+                                           "If you have any inquiries, suggestions or just want to chat, you could join\nthe **quBot Support Server** here: https://discord.gg/TGnfsH2\n\n"
                                            "Have a nice day!"),
         "helpformatter_nohelp_parameter": "This command does not have a description/help string attached to it yet.",
         "helpformatter_cmd_not_found": "This command either does not exist or your spelling is incorrect.",
