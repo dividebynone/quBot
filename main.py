@@ -98,7 +98,15 @@ servers_connector.close()
 json_data_input = {
                 "appVersion": "0.1.1a",
                 "hidden_modules": ["HelpFormatter", "ErrorHandler"],
+                "Conquest":
+                    {
+                        "settlement_image_1": "https://i.imgur.com/8F2hnOS.png",
+                    }
                 }#To be deleted at a later date
+
+with open('./data/data.json', 'w') as json_file: 
+        json.dump(json_data_input, json_file, indent=4, sort_keys=True,separators=(',', ': '))
+json_file.close()
 
 json_lang_en = {
         "module_string": "Module",
@@ -161,6 +169,32 @@ json_lang_en = {
         "economy_betroll_fail_msg": "Oops! You rolled {} but did not win anything. Please try again.",
         "economy_betroll_msg":"Congratulations, you rolled {} and won {} {}.",
         "economy_betroll_jackpot": "**JACKPOT!!!** Congratulations, you rolled {} and won {} {}.",
+        "conquest_create_args": "Failed to create a settlement. Please check if all arguments are correctly structured and try again.",
+        "conquest_create_success": "Settlement has been successfully created.",
+        "conquest_create_already_has": "You already have a settlement.",
+        "conquest_entry_requirement": "The entry fee doesn't meet the minimal entry fee requirement!",
+        "conquest_insufficient_funds": "Funds not sufficient to deposit for the settlement's starting fee.",
+        "conquest_info_args": "No settlement name detected. Please try again.",
+        "conquest_info_fail": "This settlement could not be found. Either it does not exist or your spelling is incorrect.",
+        "conquest_wins": "Wins",
+        "conquest_losses": "Losses",
+        "conquest_info_info": "Settlement Information:",
+        "conquest_info_name": "Settlement Name",
+        "conquest_info_founder": "Founder",
+        "conquest_info_created": "Date Created",
+        "conquest_info_population": "Population",
+        "conquest_info_treasury": "Treasury",
+        "conquest_info_type": "Settlement Type",
+        "conquest_info_level": "Settlement Level",
+        "conquest_info_wins_losses": "Settlement Wins & Losses",
+        "conquest_info_win_ratio": "win ratio",
+        "conquest_join_args": "Please check all of your arguments and try again.",
+        "conquest_join_not_found": "Failed to join settlement. Settlement not found.",
+        "conquest_join_min_entry": "The written value is lower than the minimal entry fee for this settlement.",
+        "conquest_join_success": "You successfully joined {}",
+        "conquest_join_part_of": "You are already part of this settlement.",
+        "conquest_code_success": "Your settlement's invite code is {}",
+        "conquest_code_fail": "You aren't a founder or leader of any settlement.",
         "command_owner_only": "This command can only be used by the **BOT OWNER**.",
         "command_module_help": "The module file needs to be present in the modules folder of the bot.\nThis command can only be used by the **BOT OWNER**.",
         "command_load_description": "Loads new modules into the bot application.",

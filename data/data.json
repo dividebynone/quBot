@@ -1,4 +1,7 @@
 {
+    "Conquest": {
+        "settlement_image_1": "https://i.imgur.com/8F2hnOS.png"
+    },
     "appVersion": "0.1.1a",
     "hidden_modules": [
         "HelpFormatter",
