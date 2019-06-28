@@ -101,6 +101,16 @@ json_data_input = {
                 "Conquest":
                     {
                         "settlement_image_1": "https://i.imgur.com/8F2hnOS.png",
+                        "fight": "https://i.imgur.com/ZYBlee5.png",
+                        "defeat_string_1": ("Your settlement's army failed in the attempt to attack **{}**."
+                                    " A valley of arrows struck your army's shields. Once your soldiers reached the enemy walls, they swiftly scaled up using ladders."
+                                    " A fierce battle erupted on the top. Despite your army's efforts, enemy priests and mages tipped the scales in their favour."
+                                    " Their magic managed to pierce your units' armour, fully weakening them. Most of your solders were killed in the process."
+                                    " Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom."),
+                        "win_string_1": ("Your settlement's army successfully pillaged **{}**."
+                                    " Your soldiers reached the enemy walls without much difficulty. A fierce battle erupted."
+                                    " A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands."
+                                    " You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat."),
                     }
                 }#To be deleted at a later date
 
@@ -170,6 +180,7 @@ json_lang_en = {
         "economy_betroll_msg":"Congratulations, you rolled {} and won {} {}.",
         "economy_betroll_jackpot": "**JACKPOT!!!** Congratulations, you rolled {} and won {} {}.",
         "conquest_create_args": "Failed to create a settlement. Please check if all arguments are correctly structured and try again.",
+        "conquest_create_public_private": "The settlement's type can either be **public** or **private**.",
         "conquest_create_success": "Settlement has been successfully created.",
         "conquest_create_already_has": "You already have a settlement.",
         "conquest_entry_requirement": "The entry fee doesn't meet the minimal entry fee requirement!",
@@ -190,11 +201,25 @@ json_lang_en = {
         "conquest_info_win_ratio": "win ratio",
         "conquest_join_args": "Please check all of your arguments and try again.",
         "conquest_join_not_found": "Failed to join settlement. Settlement not found.",
-        "conquest_join_min_entry": "The written value is lower than the minimal entry fee for this settlement.",
+        "conquest_join_min_entry": "The written value is lower than the minimal entry fee of **{}** for this settlement.",
         "conquest_join_success": "You successfully joined {}",
         "conquest_join_part_of": "You are already part of this settlement.",
-        "conquest_code_success": "Your settlement's invite code is {}",
+        "conquest_code_success": "Your settlement's invite code is **{}**",
         "conquest_code_fail": "You aren't a founder or leader of any settlement.",
+        "conquest_attack_args": "No target user was specified.",
+        "conquest_attack_self": "You can't attack your own settlement.",
+        "conquest_attack_enemy_no": "The settlement you're trying to attack does not exist!",
+        "conquest_attack_you_no": "You can not attack without a settlement.",
+        "conquest_attack_result_victory": "Result: **VICTORY**",
+        "conquest_attack_result_defeat": "Result: **DEFEAT**",
+        "conquest_roll": "**Roll**",
+        "conquest_summary": "Summary",
+        "conquest_experience": "Experience Points",
+        "conquest_exp": "EXP",
+        "conquest_chances": "Your chance of winning this battle was **{}%**",
+        "conquest_win_percentage": "*Win Percentage*",
+        "conquest_attack_wd": "Your Wins/Defeats",
+        "conquest_pillaged_gold": "Pillaged Gold",
         "command_owner_only": "This command can only be used by the **BOT OWNER**.",
         "command_module_help": "The module file needs to be present in the modules folder of the bot.\nThis command can only be used by the **BOT OWNER**.",
         "command_load_description": "Loads new modules into the bot application.",
@@ -234,6 +259,17 @@ json_lang_en = {
         "command_give_description": "Transfers a set amount of money to another user.",
         "command_betroll_help": "This command requires one argument - the amount you are willing to bet.",
         "command_betroll_description": "Lets you bet a certain amount of money.",
+        "command_ccreate_help": ("This command requires three arguments - settlement name (should be in quotes),"
+                                 " settlement type (either *public* or *private) and entry fee (minimum 100)"),
+        "command_ccreate_description": "Creates a settlement.",
+        "command_cinfo_help": "This command requires one argument - settlement name (without quotes).",
+        "command_cinfo_description": "Displays a settlement's public information.",
+        "command_cjoin_help": "This command requires two arguments - the settlement's invite code and entry fee (minimum the settlement's entry fee).",
+        "command_cjoin_description": "Joins another individual's settlement",
+        "command_ccode_help": "This command can also be used directly in the bot's direct messages.",
+        "command_ccode_description": "Displays your settlement's invite code. Be careful where you use the command!",
+        "command_cattack_help": "Use it wisely!",
+        "command_cattack_description": "Attacks the target individual's settlement.",
         }#To be deleted at a later date
 
 '''To be deleted at a later date

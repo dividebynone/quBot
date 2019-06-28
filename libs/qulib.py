@@ -73,7 +73,7 @@ async def conquest_get(get_string:str, input_data):
                 db_output = list(db_output)
                 return_dict = dict(settlement_id=db_output[0], invite_string=db_output[1], date_created=db_output[2], founderid=db_output[3],
                                 leaderid=db_output[4], settlement_name=db_output[5], treasury=db_output[6], tech_attack=db_output[7],
-                                tech_defense=db_output[8], member_list=db_output[9], settlement_size=db_output[10], settlement_level=db_output[11],
+                                tech_defence=db_output[8], member_list=db_output[9], settlement_size=db_output[10], settlement_level=db_output[11],
                                 tech_tree=db_output[12],settlement_type=db_output[13],entry_fee=db_output[14],settlement_wins=db_output[15],
                                 settlement_losses=db_output[16],settlement_xp=db_output[17])
                 return return_dict
@@ -87,11 +87,11 @@ async def conquest_set(get_string:str, input_data, dict_input):
         elif get_string is 'user':
                 conquest_cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, settlement_name=?, settlement_level=?, tech_tree=?, settlement_type=?, settlement_size=?, member_list=?, settlement_wins=?, settlement_losses=?, settlement_xp=? WHERE founderid=? OR leaderid=?",
                                  [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
-                                  dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defense"], dict_input["settlement_name"], dict_input["settlement_level"], '0000000000', dict_input["settlement_type"],
-                                  dict_input["settlement_size"],','.join(dict_input["member_list"]), dict_input["settlement_wins"], dict_input["settlement_losses"], dict_input["settlement_xp"], input_data, input_data])
+                                  dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["settlement_name"], dict_input["settlement_level"], '0000000000', dict_input["settlement_type"],
+                                  dict_input["settlement_size"], dict_input["member_list"], dict_input["settlement_wins"], dict_input["settlement_losses"], dict_input["settlement_xp"], input_data, input_data])
         elif get_string is 'invite':
                 conquest_cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, settlement_name=?, settlement_level=?, tech_tree=?, settlement_type=?, settlement_size=?, member_list=?, settlement_wins=?, settlement_losses=?, settlement_xp=? WHERE invite_string=?",
                                  [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
-                                  dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defense"], dict_input["settlement_name"], dict_input["settlement_level"], '0000000000', dict_input["settlement_type"],
-                                  dict_input["settlement_size"],','.join(dict_input["member_list"]), dict_input["settlement_wins"], dict_input["settlement_losses"], dict_input["settlement_xp"], input_data])
+                                  dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["settlement_name"], dict_input["settlement_level"], '0000000000', dict_input["settlement_type"],
+                                  dict_input["settlement_size"], dict_input["member_list"], dict_input["settlement_wins"], dict_input["settlement_losses"], dict_input["settlement_xp"], input_data])
         conquest_connector.commit()
