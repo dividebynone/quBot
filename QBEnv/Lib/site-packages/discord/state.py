@@ -47,6 +47,7 @@ from .role import Role
 from .enums import ChannelType, try_enum, Status, Enum
 from . import utils
 from .embeds import Embed
+from .object import Object
 
 class ListenerType(Enum):
     chunk = 0
@@ -260,15 +261,16 @@ class ConnectionState:
             yield self.receive_chunk(guild.id)
 
     def _get_guild_channel(self, data):
+        channel_id = int(data['channel_id'])
         try:
             guild = self._get_guild(int(data['guild_id']))
         except KeyError:
-            channel = self.get_channel(int(data['channel_id']))
+            channel = self.get_channel(channel_id)
             guild = None
         else:
-            channel = guild and guild.get_channel(int(data['channel_id']))
+            channel = guild and guild.get_channel(channel_id)
 
-        return channel, guild
+        return channel or Object(id=channel_id), guild
 
     async def request_offline_members(self, guilds):
         # get all the chunks
@@ -402,9 +404,9 @@ class ConnectionState:
             self.dispatch('raw_message_edit', raw)
 
     def parse_message_reaction_add(self, data):
-        emoji_data = data['emoji']
-        emoji_id = utils._get_as_snowflake(emoji_data, 'id')
-        emoji = PartialEmoji.with_state(self, animated=emoji_data['animated'], id=emoji_id, name=emoji_data['name'])
+        emoji = data['emoji']
+        emoji_id = utils._get_as_snowflake(emoji, 'id')
+        emoji = PartialEmoji.with_state(self, animated=emoji.get('animated', False), id=emoji_id, name=emoji['name'])
         raw = RawReactionActionEvent(data, emoji)
         self.dispatch('raw_reaction_add', raw)
 
@@ -428,9 +430,9 @@ class ConnectionState:
             self.dispatch('reaction_clear', message, old_reactions)
 
     def parse_message_reaction_remove(self, data):
-        emoji_data = data['emoji']
-        emoji_id = utils._get_as_snowflake(emoji_data, 'id')
-        emoji = PartialEmoji.with_state(self, animated=emoji_data['animated'], id=emoji_id, name=emoji_data['name'])
+        emoji = data['emoji']
+        emoji_id = utils._get_as_snowflake(emoji, 'id')
+        emoji = PartialEmoji.with_state(self, animated=emoji.get('animated', False), id=emoji_id, name=emoji['name'])
         raw = RawReactionActionEvent(data, emoji)
         self.dispatch('raw_reaction_remove', raw)
 
@@ -891,7 +893,7 @@ class ConnectionState:
         try:
             return self._emojis[emoji_id]
         except KeyError:
-            return PartialEmoji(animated=data['animated'], id=emoji_id, name=data['name'])
+            return PartialEmoji(animated=data.get('animated', False), id=emoji_id, name=data['name'])
 
     def _upgrade_partial_emoji(self, emoji):
         emoji_id = emoji.id
