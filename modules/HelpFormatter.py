@@ -10,7 +10,7 @@ class HelpFormatter(commands.Cog):
         bot.remove_command('help')
         print(f'Module {self.__class__.__name__} loaded')
 
-    @commands.command(name='help')
+    @commands.command(name='help', aliases=['h'])
     async def help(self, ctx, command = None, subcommand = None):
         if command:
             cmds_list = [x.name for x in self.bot.commands]
