@@ -36,35 +36,32 @@ pause
 #### 1 | Intalling Python 3.7
 
 First, you will need to install Python 3.7. In order to do that, you need to type the following commands in your UNIX Terminal in the order you see them.
-> 1.1 | ~$ sudo apt-get update
 
-> 1.2 | ~$ sudo apt install software-properties-common
-
-> 1.3 | ~$ sudo add-apt-repository ppa:deadsnakes/ppa
-
-> 1.4 | ~$ sudo apt install python3.7
+    1.1 | ~$ sudo apt-get update
+    1.2 | ~$ sudo apt install software-properties-common
+    1.3 | ~$ sudo add-apt-repository ppa:deadsnakes/ppa
+    1.4 | ~$ sudo apt install python3.7
 
 Feel free to verify if Python 3.7 was successfully installed on your machine by typing:
 
-> 1.5 (Optional) | ~$ python 3.7 --version
+    1.5 (Optional) | ~$ python 3.7 --version
 
 #### 2 | Installing Git (Optional)
 
 Since it is possible to directly download the files from GitHub, you can skip this step if you want to.
 
-> 2.1 | ~$ sudo apt-get update
-
-> 2.2 | ~$ sudo apt-get install git
+    2.1 | ~$ sudo apt-get update
+    2.2 | ~$ sudo apt-get install git
 
 To verify if Git was successfully installed on your machine, use:
 
-> 2.3 (Optional) | ~$  git --version
+    2.3 (Optional) | ~$  git --version
 
 #### 3 | Downloading bot from GitHub
 
 If you decided to use Git, use the following command to clone the repository to a directory of your choosing.
 
-> 3.1 | ~$ git clone https://github.com/martin-r-georgiev/quBot.git
+    3.1 | ~$ git clone https://github.com/martin-r-georgiev/quBot.git
 
 #### 4 | Creating virtual environment
 
