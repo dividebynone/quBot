@@ -1,5 +1,6 @@
 import sqlite3
 import discord
+import os
 import sys
 import random
 import string
@@ -22,9 +23,14 @@ async def data_set(json_dump: dict):
                 json.dump(json_dump, json_file, indent=4, sort_keys=True,separators=(',', ': '))
         json_file.close()
 
+#Database folder creation
+if not os.path.exists('./Databases'):
+    os.makedirs('./databases')
+
 #user.db database functions
 db_connector = sqlite3.connect('./Databases/users.db')
 db_cursor = db_connector.cursor()
+db_cursor.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KEY , currency INTEGER, daily_time BLOB)")
 
 async def user_init(user: discord.User):
     db_cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user.id, '0'))
@@ -52,8 +58,10 @@ def conquest_database_init():
         conquest_cursor.close()
         conquest_connector.close()
 
+#conquest.db database connection
 conquest_connector = sqlite3.connect('./Databases/conquest.db')
 conquest_cursor = conquest_connector.cursor()
+conquest_cursor.execute("CREATE TABLE IF NOT EXISTS conquest(settlement_id INTEGER PRIMARY KEY ,invite_string BLOB,date_created BLOB,founderid BLOB,leaderid BLOB,settlement_name BLOB,treasury INTEGER,tech_attack INTEGER,tech_defence INTEGER,member_list BLOB,settlement_size INTEGER,settlement_level INTEGER,tech_tree BLOB,settlement_type TEXT,entry_fee INTEGER,settlement_wins INTEGER,settlement_losses INTEGER, settlement_xp INTEGER)")
 
 async def conquest_get(get_string:str, input_data):
         if get_string is 'user':
