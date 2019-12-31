@@ -1,5 +1,5 @@
 from discord.ext import commands
-from main import lang
+import main
 import discord
 
 class HelpFormatter(commands.Cog):
@@ -17,7 +17,7 @@ class HelpFormatter(commands.Cog):
             if command.lower() in cmds_list:
                 command = self.bot.get_command(command)
                 if not (command.description or command.help):
-                     embed = discord.Embed(title=lang["helpformatter_nohelp_parameter"], color=self.module_embed_color)
+                     embed = discord.Embed(title=main.lang["helpformatter_nohelp_parameter"], color=self.module_embed_color)
                 else:
                     if subcommand:
                         subcommands_list = [x.name for x in self.bot.walk_commands() if x.name not in cmds_list]
@@ -30,13 +30,13 @@ class HelpFormatter(commands.Cog):
                     else:
                         aliases = ''
                     embed = discord.Embed(title=f'**{self.bot.command_prefix}{command.qualified_name}**', description=command.description, color=self.module_embed_color)
-                    embed.add_field(name=f'{lang["notes_string"]}:', value=command.help)
-                    embed.add_field(name=f'{lang["usage_string"]}:', value=f'```CSS\n{self.bot.command_prefix}{command.qualified_name}{aliases} {command.signature}\n```', inline=False)
-                    embed.set_footer(text=f'{lang["module_string"]}: {command.cog_name}')
+                    embed.add_field(name=f'{main.lang["notes_string"]}:', value=command.help)
+                    embed.add_field(name=f'{main.lang["usage_string"]}:', value=f'```CSS\n{self.bot.command_prefix}{command.qualified_name}{aliases} {command.signature}\n```', inline=False)
+                    embed.set_footer(text=f'{main.lang["module_string"]}: {command.cog_name}')
             else:
-                embed = discord.Embed(title=lang["helpformatter_cmd_not_found"], color=self.module_embed_color)
+                embed = discord.Embed(title=main.lang["helpformatter_cmd_not_found"], color=self.module_embed_color)
         else:
-            embed = discord.Embed(title=lang["helpformatter_help"], description=lang["helpformatter_help_description"], color=self.module_embed_color)
+            embed = discord.Embed(title=main.lang["helpformatter_help"], description=main.lang["helpformatter_help_description"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
 def setup(bot):

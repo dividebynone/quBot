@@ -146,6 +146,11 @@ json_lang_en = {
         "core_module_unhide_success": 'Module **{}** successfully unhidden.',
         "core_module_unhide_visible": 'This module is already visible!',
         "core_module_unhide_fail": "Failed to unhide module. Please check if said module has been loaded or is spelled correctly",
+        "core_langs_title": "Available language pack(s)",
+        "core_langs_footer": "Current bot language",
+        "core_langset_success": "Language was set to **{}**. Reloading modules...",
+        "core_langset_same": "The language you're trying to set the bot to is already being used.",
+        "core_langset_notfound": "This language does not seem to exist in the system. Please make sure your spelling is correct.",
         "utility_avatar_msg": "{}'s Avatar:",
         "utility_roll_msg": "You rolled **{}**.",
         "utility_uptime_msg": "Bot has been running for **{}** days, **{}** hours, **{}** minutes and **{}** seconds.",
@@ -242,6 +247,10 @@ json_lang_en = {
         "command_setstatus_description": "Changes the bot's status. (Online by default)",
         "command_setactivity_help": "This command requires two arguments: the type of activity(playing, streaming, listening, watching) and the message itself.\nThis command can only be used by the **BOT OWNER**.",
         "command_setactivity_description": "Changes the bot's activity",
+        "command_restart_description": "Restarts the bot",
+        "command_shutdown_description": "Shutdowns the bot",
+        "command_langs_description": "Returns a list of locally detected language(localization) packages",
+        "command_langset_description": "Changes the language of the bot",
         "command_avatar_help": "If no argument is parsed, the bot will instead return your avatar.",
         "command_avatar_description": "Returns the target individual's avatar.",
         "command_roll_help": "If no argument is parsed, the bot will roll a number between 1 and 100.",
@@ -280,9 +289,9 @@ json_file.close()
 
 with open('./data/localization/language_{}.json'.format(languagecode), 'w') as json_file:
     json_file.write(json.dumps(json_lang_en, indent=4, sort_keys=True,separators=(',', ': ')))
-json_file.close()#To be deleted at a later date
+json_file.close()#To be deleted at a later date(Used to update json file)
 
-with open('./data/localization/language_{}.json'.format(languagecode), 'r') as json_file:
+with open('./data/localization/language_{}.json'.format(languagecode), 'r', encoding="utf_8") as json_file:
     lang = json.load(json_file)
 json_file.close()
 

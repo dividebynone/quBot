@@ -6,7 +6,7 @@ import random
 import string
 import json
 
-#Check if the bot 
+#Check if the bot is running inside a virtual environment
 def is_venv():
         return (hasattr(sys, 'real_prefix') or
                 (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
