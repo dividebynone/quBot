@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.7.1b-blue.svg">
+  <img src="https://img.shields.io/badge/version-0.8.0b-blue.svg">
   <img src="https://img.shields.io/badge/dev-DivideByNone%239640-brightgreen.svg">
 </p>
 
@@ -74,7 +74,7 @@ While not necessary, it is strongly recommended to use a virtual environment to 
           ~$ source activate
     4.5 | Move the requirements.txt file from the main directory to to ./QBEnv/bin/
     4.6 | ~$ pip3 install -r requirements.txt --no-index
-    
+
 #### 5 | Creating an executable bash file
 
     5.1 | Go back to the bot's main directory (Where main.py is located)
@@ -84,12 +84,12 @@ While not necessary, it is strongly recommended to use a virtual environment to 
               ./QBEnv/bin/python main.py
 
 	           ------ Upper bit for users with virtual environment, lower - no virtual environment
-              
+
               #!/bin/bash
               python3 main.py
-              
+
  #### 6 | Running the bot for the first time
- 
+
      6.1 | ~$ source run
 
 If no problems occur during the execution of the file, you will be prompted to enter your token in config.ini before running the script again. After you're done adding your token, use the command again in your Terminal.
