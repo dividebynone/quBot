@@ -18,8 +18,6 @@ class Conquest(commands.Cog):
         self.module_embed_color =  0xd59c6d
         print(f'Module {self.__class__.__name__} loaded')
 
-        qulib.conquest_database_init()
-
         if 'Conquest' not in config.sections():
             config.add_section('Conquest')
             if 'MinEntryFee' not in config['Conquest']:
@@ -214,6 +212,27 @@ class Conquest(commands.Cog):
             else:
                 embed = discord.Embed(title=main.lang["conquest_attack_enemy_no"], color = self.module_embed_color)
         await ctx.send(embed=embed)
+
+    @commands.command(name="cboard")
+    async def conquest_leaderboard(self, ctx, page: int = 1):
+        if page >= 1:
+            page_index = page - 1
+            leaderboard_data = await qulib.conquest_get_leaderboard()
+            if page <= len(leaderboard_data): #This line is not correct. To be fixed (Each page stores 10 elements)
+                counter = 1
+                embed = discord.Embed(title="Settlements Leaderboard", color = self.module_embed_color)
+                embed.set_footer(text=f'Page {page}')
+                for item in leaderboard_data[(page_index*10):(page_index*10 + 9)]:
+                    inline_bool = False if page%2 == 0 else True
+                    embed.add_field(name=f'#{counter} {item[1]}(ID:{item[0]})', value=f'{item[2]} EXP', inline=inline_bool)
+                    counter += 1
+                await ctx.send(embed=embed)
+            else:
+                print(f"[{page}]The page you're trying to reach does not exist.")
+        else:
+            print("The page value should be more or equal to 1.")
+
+
         
 def setup(bot):
     bot.add_cog(Conquest(bot))
