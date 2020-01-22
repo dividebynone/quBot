@@ -96,7 +96,7 @@ servers_connector.close()
 #JSON files initialization/writing/loading
 
 json_data_input = {
-                "appVersion": "0.1.1a",
+                "appVersion": "0.8.1",
                 "hidden_modules": ["HelpFormatter", "ErrorHandler"],
                 "Conquest":
                     {
@@ -123,6 +123,7 @@ json_lang_en = {
         "notes_string": "Note(s)",
         "usage_string": "Usage",
         "empty_string": "*Empty*",
+        "page_string": "Page",
         "core_module_load_fail": "This module has either already been loaded or does not exist.",
         "core_module_load_success": "Module **{}** successfully loaded.",
         "core_module_unload_fail": "This module has either already been unloaded or does not exist.",
@@ -211,6 +212,8 @@ json_lang_en = {
         "conquest_join_part_of": "You are already part of this settlement.",
         "conquest_code_success": "Your settlement's invite code is **{}**",
         "conquest_code_fail": "You aren't a founder or leader of any settlement.",
+        "conquest_code_new_success": "Successfully changed code. Your new settlement invite code is **{}**",
+        "conquest_code_new_fail": "Failed to change invite code. You do not seem to own a settlement.",
         "conquest_attack_args": "No target user was specified.",
         "conquest_attack_self": "You can't attack your own settlement.",
         "conquest_attack_enemy_no": "The settlement you're trying to attack does not exist!",
@@ -225,6 +228,9 @@ json_lang_en = {
         "conquest_win_percentage": "*Win Percentage*",
         "conquest_attack_wd": "Your Wins/Defeats",
         "conquest_pillaged_gold": "Pillaged Gold",
+        "conquest_leaderboard_title": "Settlements Leaderboard",
+        "conquest_leaderboard_negative": "The page value should be more than or equal to 1.",
+        "conquest_leaderboard_outofrange": "The page you're trying to reach does not exist.",
         "command_owner_only": "This command can only be used by the **BOT OWNER**.",
         "command_module_help": "The module file needs to be present in the modules folder of the bot.\nThis command can only be used by the **BOT OWNER**.",
         "command_load_description": "Loads new modules into the bot application.",
@@ -275,10 +281,14 @@ json_lang_en = {
         "command_cinfo_description": "Displays a settlement's public information.",
         "command_cjoin_help": "This command requires two arguments - the settlement's invite code and entry fee (minimum the settlement's entry fee).",
         "command_cjoin_description": "Joins another individual's settlement",
-        "command_ccode_help": "This command can also be used directly in the bot's direct messages.",
-        "command_ccode_description": "Displays your settlement's invite code. Be careful where you use the command!",
+        "command_code_help": "This command can also be used directly in the bot's direct messages.",
+        "command_code_description": "A command group. If no subcommands are invoked by the user, this command will display your settlement's invide code.",
+        "command_code_show_description": "Displays your settlement's invite code. The code is sent privately to the author.",
+        "command_code_new_description": "Generates a new invite code for your settlement.",
         "command_cattack_help": "Use it wisely!",
         "command_cattack_description": "Attacks the target individual's settlement.",
+        "command_leaderboard_help": "This command takes one optional argument - the page number. If no argument is passed, then it defaults to 1.",
+        "command_leaderboard_description": "Returns the settlements' leaderboard",
         }#To be deleted at a later date
 
 '''To be deleted at a later date

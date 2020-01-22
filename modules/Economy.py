@@ -16,6 +16,8 @@ class Economy(commands.Cog):
         self.module_embed_color =  0x28b463
         print(f'Module {self.__class__.__name__} loaded')
 
+        qulib.user_database_init()
+
         if 'Economy' not in config.sections():
             config.add_section('Economy')
             if 'CurrencySymbol' not in config['Economy']:

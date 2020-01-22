@@ -18,6 +18,8 @@ class Conquest(commands.Cog):
         self.module_embed_color =  0xd59c6d
         print(f'Module {self.__class__.__name__} loaded')
 
+        qulib.conquest_database_init()
+
         if 'Conquest' not in config.sections():
             config.add_section('Conquest')
             if 'MinEntryFee' not in config['Conquest']:
@@ -33,7 +35,7 @@ class Conquest(commands.Cog):
         config_file.close()
 
     @commands.command(name='ccreate', help=main.lang["command_ccreate_help"], description=main.lang["command_ccreate_description"], usage='"My Settlement Name" <public/private> 100', aliases=['cc'])
-    async def ccreate(self, ctx, s_name:str = None, set_type:str = None, entry_fee:int = None):
+    async def conquest_create(self, ctx, s_name:str = None, set_type:str = None, entry_fee:int = None):
         user = ctx.author
         if None in {s_name,set_type,entry_fee}:
             embed = discord.Embed(title=main.lang["conquest_create_args"], color = self.module_embed_color)
@@ -50,25 +52,25 @@ class Conquest(commands.Cog):
                             embed = discord.Embed(title=main.lang["conquest_insufficient_funds"], color = self.module_embed_color)
                         elif set_type in ('public', 'private'):
                             temp_invite_string = qulib.string_generator(15)
-                            cinvite_data = await qulib.conquest_get('code', temp_invite_string)
+                            cinvite_data = await qulib.conquest_find_code(temp_invite_string)
                             if cinvite_data:
-                                while temp_invite_string is cinvite_data["invite_string"]:
+                                while temp_invite_string is cinvite_data:
                                     temp_invite_string = qulib.string_generator(15)
-                                    cinvite_data = await qulib.conquest_get('code', temp_invite_string)
-                            member_list = []
-                            member_list.append(str(user.id))
+                                    cinvite_data = await qulib.conquest_find_code(temp_invite_string)
 
                             dict_input = {}
                             dict_input["entry_fee"] = entry_fee
                             dict_input["invite_string"] = temp_invite_string
                             dict_input["date_created"] = datetime.today().replace(microsecond=0)
-                            dict_input["settlement_name"] = s_name
-                            dict_input["settlement_type"] = set_type
-                            dict_input["member_list"] = member_list
-
+                            dict_input["name"] = s_name
+                            dict_input["type"] = set_type
                             user_data["currency"] -= entry_fee
+
                             await qulib.user_set(user,user_data)
-                            await qulib.conquest_set('new', user.id, dict_input)
+                            settlement_id = await qulib.conquest_set('new', user.id, dict_input)
+                            if settlement_id:
+                                await qulib.conquest_member_init(user)
+                                await qulib.conquest_add_member(user, settlement_id)
                             embed = discord.Embed(title=main.lang["conquest_create_success"], color = self.module_embed_color)
                         else:
                             embed = discord.Embed(title=main.lang["conquest_create_args"], color = self.module_embed_color)
@@ -78,33 +80,33 @@ class Conquest(commands.Cog):
                 embed = discord.Embed(title=main.lang["conquest_create_public_private"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.command(name='cinfo', help=main.lang["command_cinfo_help"], description=main.lang["command_cinfo_description"], usage='<Settlement Name>', aliases=['ci'])
-    async def cinfo(self, ctx, *, s_name: str = None):
+    @commands.command(name='cinfo', help=main.lang["command_cinfo_help"], description=main.lang["command_cinfo_description"], usage='<Settlement Name>', aliases=['ci','settlement'])
+    async def conquest_info(self, ctx, *, s_name: str = None):
         if s_name:
             cdata = await qulib.conquest_get('settlement', s_name)
             json_data = await qulib.data_get()
             if cdata:
                 founder_name = ctx.guild.get_member(cdata["founderid"]) or cdata["founderid"]
-                if cdata["settlement_wins"] == cdata["settlement_losses"] == 0:
+                if cdata["wins"] == cdata["losses"] == 0:
                     win_ratio = 0
-                elif cdata["settlement_wins"] > 0 and cdata["settlement_losses"] is 0:
+                elif cdata["wins"] > 0 and cdata["losses"] is 0:
                     win_ratio = 100
-                elif cdata["settlement_losses"] > 0 and cdata["settlement_wins"] is 0:
+                elif cdata["losses"] > 0 and cdata["wins"] is 0:
                     win_ratio = 0
                 else:
-                    win_ratio = "%.2f" % float((cdata["settlement_wins"]/(cdata["settlement_losses"]+cdata["settlement_wins"]))*100)
+                    win_ratio = "%.2f" % float((cdata["wins"]/(cdata["losses"]+cdata["wins"]))*100)
                 
                 embed = discord.Embed(title=main.lang["conquest_info_info"], color=self.module_embed_color)
-                embed.add_field(name=main.lang["conquest_info_name"], value=cdata["settlement_name"],inline=True)
+                embed.add_field(name=main.lang["conquest_info_name"], value=cdata["name"],inline=True)
                 embed.set_thumbnail(url=json_data["Conquest"]["settlement_image_1"])
                 embed.add_field(name=main.lang["conquest_info_founder"], value=founder_name, inline=True)
                 embed.add_field(name=main.lang["conquest_info_created"], value=cdata["date_created"], inline=True)
-                embed.add_field(name=main.lang["conquest_info_population"], value=cdata["settlement_size"], inline=True)
+                embed.add_field(name=main.lang["conquest_info_population"], value=cdata["size"], inline=True)
                 embed.add_field(name=main.lang["conquest_info_treasury"], value=cdata["treasury"], inline=True)
-                embed.add_field(name=main.lang["conquest_info_type"], value =cdata["settlement_type"], inline = True)
-                embed.add_field(name=main.lang["conquest_info_level"], value =cdata["settlement_level"], inline = False)
+                embed.add_field(name=main.lang["conquest_info_type"], value =cdata["type"], inline = True)
+                embed.add_field(name=main.lang["conquest_info_level"], value =cdata["level"], inline = False)
                 embed.add_field(name=main.lang["conquest_info_wins_losses"],
-                                value =f'```{main.lang["conquest_wins"]}: {cdata["settlement_wins"]} | {main.lang["conquest_losses"]}: {cdata["settlement_losses"]} ({win_ratio}% {main.lang["conquest_info_win_ratio"]})```',
+                                value =f'```{main.lang["conquest_wins"]}: {cdata["wins"]} | {main.lang["conquest_losses"]}: {cdata["losses"]} ({win_ratio}% {main.lang["conquest_info_win_ratio"]})```',
                                 inline = True)
             else:
                 embed = discord.Embed(title=main.lang["conquest_info_fail"], color = self.module_embed_color)
@@ -112,8 +114,8 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_info_args"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.command(name='cjoin', help=main.lang["command_cjoin_help"], description=main.lang["command_cjoin_description"], usage='<invite code> <entry fee>', aliases=['cj'])
-    async def cjoin(self, ctx, invite_code:str = None, join_fee:int = None):
+    @commands.command(name='join', help=main.lang["command_cjoin_help"], description=main.lang["command_cjoin_description"], usage='<invite code> <entry fee>', aliases=['j'])
+    async def conquest_join(self, ctx, invite_code:str = None, join_fee:int = None):
         user = ctx.author
         if None in {invite_code, join_fee}:
             embed = discord.Embed(title=main.lang["conquest_join_args"], color = self.module_embed_color)
@@ -135,18 +137,23 @@ class Conquest(commands.Cog):
                     member_list.append(str(user.id))
                     member_list = ",". join(member_list)
                     cdata["member_list"] = member_list
-                    cdata["settlement_size"] += 1
+                    cdata["size"] += 1
                     cdata["treasury"] += join_fee
                     user_info["currency"] -= join_fee
                     await qulib.user_set(user, user_info)
                     await qulib.conquest_set('invite', invite_code, cdata)
-                    embed = discord.Embed(title=main.lang["conquest_join_success"].format(cdata["settlement_name"]), color = self.module_embed_color)
+                    embed = discord.Embed(title=main.lang["conquest_join_success"].format(cdata["name"]), color = self.module_embed_color)
             else:
                 embed = discord.Embed(title=main.lang["conquest_join_not_found"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.command(name='ccode', help=main.lang["command_ccode_help"], description=main.lang["command_ccode_description"], ignore_extra=True)
-    async def ccode(self, ctx):
+    @commands.group(name='code', help=main.lang["empty_string"], description=main.lang["command_code_description"])
+    async def conquest_code(self, ctx):
+        if not ctx.invoked_subcommand:
+            await ctx.invoke(self.show)
+
+    @conquest_code.command(help=main.lang["command_code_help"], description=main.lang["command_code_show_description"], ignore_extra=True)
+    async def show(self, ctx):
         user = ctx.author
         cdata = await qulib.conquest_get('user', user.id)
         if cdata and user.id in {cdata["founderid"],cdata["leaderid"]}:
@@ -155,10 +162,26 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_code_fail"].format(cdata["invite_string"]), color = self.module_embed_color)    
         await ctx.author.send(embed=embed)
 
+    @conquest_code.command(help=main.lang["command_code_help"], description=main.lang["command_code_new_description"], ignore_extra=True)
+    @commands.cooldown(1, 600, commands.BucketType.user)
+    async def new(self, ctx):
+        new_invite_string = qulib.string_generator(15)
+        cinvite_data = await qulib.conquest_find_code(new_invite_string)
+        if cinvite_data:
+            while new_invite_string is cinvite_data:
+                new_invite_string = qulib.string_generator(15)
+                cinvite_data = await qulib.conquest_find_code(new_invite_string)
+        if await qulib.conquest_new_code(new_invite_string, ctx.author.id):
+            embed = discord.Embed(title=main.lang["conquest_code_new_success"].format(new_invite_string), color = self.module_embed_color)  
+        else:
+            embed = discord.Embed(title=main.lang["conquest_code_new_fail"], color = self.module_embed_color)
+        await ctx.author.send(embed=embed) 
+
     @commands.cooldown(1, 600,commands.BucketType.user)
-    @commands.command(name='cattack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='@somebody', ignore_extra=True)
-    async def cattack(self, ctx, *, defence_user: discord.User = None):
+    @commands.command(name='attack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='@somebody', ignore_extra=True)
+    async def conquest_attack(self, ctx, *, defence_user: discord.User = None):
         attack_user = ctx.author
+        completed_attack = False
         if defence_user is None:
             embed = discord.Embed(title=main.lang["conquest_attack_args"], color = self.module_embed_color)
         elif attack_user.id is defence_user.id:
@@ -169,7 +192,7 @@ class Conquest(commands.Cog):
                 cdata_offence = await qulib.conquest_get('user', attack_user.id)
                 if cdata_offence:
                     json_data = await qulib.data_get()
-                    attack_score = (cdata_offence["settlement_size"] + (1/4)*cdata_offence["tech_attack"])/(cdata_defence["settlement_size"] + (1/4)*cdata_defence["tech_defence"])
+                    attack_score = (cdata_offence["size"] + (1/4)*cdata_offence["tech_attack"])/(cdata_defence["size"] + (1/4)*cdata_defence["tech_defence"])
                     if attack_score <=1:
                         attack_score_calculated = (50*attack_score)*100
                     else:
@@ -181,58 +204,60 @@ class Conquest(commands.Cog):
                     result_loot = math.ceil((1/20)*cdata_defence["treasury"])
 
                     if result <= attack_score_calculated:
-                        embed = discord.Embed(title=f'{cdata_offence["settlement_name"]} **VS** {cdata_defence["settlement_name"]}', colour=self.module_embed_color, description=main.lang["conquest_attack_result_victory"])
-                        cdata_offence["settlement_xp"] += experience
-                        cdata_offence["settlement_wins"]+= 1
+                        embed = discord.Embed(title=f'{cdata_offence["name"]} **VS** {cdata_defence["name"]}', colour=self.module_embed_color, description=main.lang["conquest_attack_result_victory"])
+                        cdata_offence["experience"] += experience
+                        cdata_offence["wins"]+= 1
                         cdata_offence["treasury"] += result_loot
                         cdata_defence["treasury"] -= result_loot
-                        cdata_defence["settlement_losses"]+= 1
-                        result_string = json_data["Conquest"]["win_string_1"].format(cdata_defence["settlement_name"])
+                        cdata_defence["losses"]+= 1
+                        result_string = json_data["Conquest"]["win_string_1"].format(cdata_defence["name"])
                     else:
-                        embed = discord.Embed(title=f'{cdata_offence["settlement_name"]} **VS** {cdata_defence["settlement_name"]}', colour=self.module_embed_color, description=main.lang["conquest_attack_result_defeat"])
-                        cdata_defence["settlement_xp"] += math.ceil(experience/10)
-                        cdata_defence["settlement_wins"]+= 1
-                        cdata_offence["settlement_losses"] += 1
-                        result_string = json_data["Conquest"]["defeat_string_1"].format(cdata_defence["settlement_name"])
+                        embed = discord.Embed(title=f'{cdata_offence["name"]} **VS** {cdata_defence["name"]}', colour=self.module_embed_color, description=main.lang["conquest_attack_result_defeat"])
+                        cdata_defence["experience"] += math.ceil(experience/10)
+                        cdata_defence["wins"]+= 1
+                        cdata_offence["losses"] += 1
+                        result_string = json_data["Conquest"]["defeat_string_1"].format(cdata_defence["name"])
                         result_loot = 0
                         experience = 0
 
                     embed.set_thumbnail(url=json_data["Conquest"]["fight"])
                     embed.add_field(name=main.lang["conquest_win_percentage"], value=main.lang["conquest_chances"].format(attack_score_calculated/100), inline=True)
                     embed.add_field(name=main.lang["conquest_roll"], value=result, inline=True)
-                    embed.add_field(name=main.lang["conquest_attack_wd"], value=f'  {cdata_offence["settlement_wins"]}       /      {cdata_offence["settlement_losses"]}', inline=True)
+                    embed.add_field(name=main.lang["conquest_attack_wd"], value=f'  {cdata_offence["wins"]}       /      {cdata_offence["losses"]}', inline=True)
                     embed.add_field(name=main.lang["conquest_summary"], value=result_string, inline=True)
                     embed.add_field(name=main.lang["conquest_experience"], value=f'{experience} {main.lang["conquest_exp"]}', inline=True)
                     embed.add_field(name=main.lang["conquest_pillaged_gold"], value=f'{result_loot} G', inline=True)
 
                     await qulib.conquest_set('invite', cdata_offence["invite_string"], cdata_offence)
                     await qulib.conquest_set('invite', cdata_defence["invite_string"], cdata_defence)
+                    completed_attack = True
                 else:
                     embed = discord.Embed(title=main.lang["conquest_attack_you_no"], color = self.module_embed_color)
             else:
                 embed = discord.Embed(title=main.lang["conquest_attack_enemy_no"], color = self.module_embed_color)
         await ctx.send(embed=embed)
+        if not completed_attack:
+            self.bot.get_command(ctx.command.name).reset_cooldown(ctx)
 
-    @commands.command(name="cboard")
+    @commands.command(name="leaderboard", help=main.lang["command_leaderboard_help"], description=main.lang["command_leaderboard_description"], aliases=['lb'])
     async def conquest_leaderboard(self, ctx, page: int = 1):
         if page >= 1:
             page_index = page - 1
-            leaderboard_data = await qulib.conquest_get_leaderboard()
-            if page <= len(leaderboard_data): #This line is not correct. To be fixed (Each page stores 10 elements)
+            leaderboard_data = await qulib.conquest_get_leaderboard()           
+            if len(leaderboard_data[(page_index*10):(page_index*10 + 9)]) > 0:
                 counter = 1
-                embed = discord.Embed(title="Settlements Leaderboard", color = self.module_embed_color)
-                embed.set_footer(text=f'Page {page}')
+                embed = discord.Embed(title=main.lang["conquest_leaderboard_title"], color = self.module_embed_color)
+                embed.set_footer(text=f'{main.lang["page_string"]} {page}')
                 for item in leaderboard_data[(page_index*10):(page_index*10 + 9)]:
                     inline_bool = False if page%2 == 0 else True
-                    embed.add_field(name=f'#{counter} {item[1]}(ID:{item[0]})', value=f'{item[2]} EXP', inline=inline_bool)
-                    counter += 1
-                await ctx.send(embed=embed)
+                    embed.add_field(name=f'#{counter} {item[1]} (ID:{item[0]})', value=f'{item[2]} {main.lang["conquest_exp"]}',
+                                    inline=inline_bool)
+                    counter += 1  
             else:
-                print(f"[{page}]The page you're trying to reach does not exist.")
+                embed = discord.Embed(title=main.lang["conquest_leaderboard_outofrange"], color = self.module_embed_color)
         else:
-            print("The page value should be more or equal to 1.")
+            embed = discord.Embed(title=main.lang["conquest_leaderboard_negative"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
 
-
-        
 def setup(bot):
     bot.add_cog(Conquest(bot))

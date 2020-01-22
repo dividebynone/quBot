@@ -66,9 +66,10 @@ async def user_set(user: discord.User, dict_input):
 def conquest_database_init():
     with ContextManager('./Databases/conquest.db') as cursor:
         cursor.execute("CREATE TABLE IF NOT EXISTS conquest(settlement_id INTEGER PRIMARY KEY ,invite_string BLOB,\
-                date_created BLOB,founderid BLOB,leaderid BLOB,settlement_name BLOB,treasury INTEGER,tech_attack INTEGER,\
-                tech_defence INTEGER,member_list BLOB,settlement_size INTEGER,settlement_level INTEGER,tech_tree BLOB,\
-                settlement_type TEXT,entry_fee INTEGER,settlement_wins INTEGER,settlement_losses INTEGER, settlement_xp INTEGER)")
+                date_created BLOB,founderid BLOB,leaderid BLOB,name BLOB,treasury INTEGER,tech_attack INTEGER,\
+                tech_defence INTEGER, size INTEGER, level INTEGER,tech_tree BLOB,\
+                type TEXT,entry_fee INTEGER, wins INTEGER, losses INTEGER, experience INTEGER)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS members(userid INTEGER PRIMARY KEY, settlement_id INTEGER)")
 
 def string_generator(size):
     chars = string.ascii_lowercase + string.digits
@@ -77,11 +78,11 @@ def string_generator(size):
 async def conquest_get(get_string:str, input_data):
     with ContextManager('./Databases/conquest.db') as cursor:
         if get_string is 'user':
-                cursor.execute("SELECT settlement_id,invite_string,date_created,founderid,leaderid,settlement_name,treasury,tech_attack,tech_defence,member_list,settlement_size,settlement_level,tech_tree,settlement_type,entry_fee,settlement_wins,settlement_losses,settlement_xp FROM conquest WHERE founderid=? OR leaderid=?", (input_data,input_data,))
+                cursor.execute("SELECT * FROM conquest WHERE founderid=? OR leaderid=?", (input_data,input_data,))
         elif get_string is 'settlement':
-                cursor.execute("SELECT settlement_id,invite_string,date_created,founderid,leaderid,settlement_name,treasury,tech_attack,tech_defence,member_list,settlement_size,settlement_level,tech_tree,settlement_type,entry_fee,settlement_wins,settlement_losses,settlement_xp FROM conquest WHERE settlement_name=?", (input_data,))
+                cursor.execute("SELECT * FROM conquest WHERE name=?", (input_data,))
         elif get_string is 'code':
-                cursor.execute("SELECT settlement_id,invite_string,date_created,founderid,leaderid,settlement_name,treasury,tech_attack,tech_defence,member_list,settlement_size,settlement_level,tech_tree,settlement_type,entry_fee,settlement_wins,settlement_losses,settlement_xp FROM conquest WHERE invite_string=?", (input_data,))
+                cursor.execute("SELECT * FROM conquest WHERE invite_string=?", (input_data,))
         else:
                 print('FAILED TO GET FROM CONQUEST DATABASE')
                 return None
@@ -92,35 +93,61 @@ async def conquest_get(get_string:str, input_data):
         else:
                 db_output = list(db_output)
                 return_dict = dict(settlement_id=db_output[0], invite_string=db_output[1], date_created=db_output[2], founderid=db_output[3],
-                                leaderid=db_output[4], settlement_name=db_output[5], treasury=db_output[6], tech_attack=db_output[7],
-                                tech_defence=db_output[8], member_list=db_output[9], settlement_size=db_output[10], settlement_level=db_output[11],
-                                tech_tree=db_output[12],settlement_type=db_output[13],entry_fee=db_output[14],settlement_wins=db_output[15],
-                                settlement_losses=db_output[16],settlement_xp=db_output[17])
+                                leaderid=db_output[4], name=db_output[5], treasury=db_output[6], tech_attack=db_output[7],
+                                tech_defence=db_output[8], size=db_output[9], level=db_output[10],
+                                tech_tree=db_output[11], type=db_output[12], entry_fee=db_output[13], wins=db_output[14],
+                                losses=db_output[15], experience=db_output[16])
                 return return_dict
 
 async def conquest_set(get_string:str, input_data, dict_input):
     with ContextManager('./Databases/conquest.db') as cursor:
         if get_string is 'new':
-                cursor.execute("INSERT OR IGNORE INTO conquest(founderid, leaderid, treasury, entry_fee, invite_string, date_created, tech_attack, tech_defence, settlement_name, settlement_level, tech_tree, settlement_type, settlement_size, member_list, settlement_wins, settlement_losses, settlement_xp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                [input_data, input_data, dict_input["entry_fee"], dict_input["entry_fee"], dict_input["invite_string"],
-                                dict_input["date_created"], '0', '0', dict_input["settlement_name"],'1', '0000000000', dict_input["settlement_type"],
-                                '1',','.join(dict_input["member_list"]), 0, 0, 0])
+            cursor.execute("INSERT OR IGNORE INTO conquest(founderid, leaderid, treasury, entry_fee, invite_string, date_created, tech_attack, tech_defence, name, level, tech_tree, type, size, wins, losses, experience) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            [input_data, input_data, dict_input["entry_fee"], dict_input["entry_fee"], dict_input["invite_string"],
+                            dict_input["date_created"], '0', '0', dict_input["name"],'1', '0000000000', dict_input["type"],
+                            '1', 0, 0, 0])
+            return cursor.lastrowid
         elif get_string is 'user':
-                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, settlement_name=?, settlement_level=?, tech_tree=?, settlement_type=?, settlement_size=?, member_list=?, settlement_wins=?, settlement_losses=?, settlement_xp=? WHERE founderid=? OR leaderid=?",
-                                [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
-                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["settlement_name"], dict_input["settlement_level"], '0000000000', dict_input["settlement_type"],
-                                dict_input["settlement_size"], dict_input["member_list"], dict_input["settlement_wins"], dict_input["settlement_losses"], dict_input["settlement_xp"], input_data, input_data])
+            cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE founderid=? OR leaderid=?",
+                            [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
+                            dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], '0000000000', dict_input["type"],
+                            dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data, input_data])
         elif get_string is 'invite':
-                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, settlement_name=?, settlement_level=?, tech_tree=?, settlement_type=?, settlement_size=?, member_list=?, settlement_wins=?, settlement_losses=?, settlement_xp=? WHERE invite_string=?",
-                                [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
-                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["settlement_name"], dict_input["settlement_level"], '0000000000', dict_input["settlement_type"],
-                                dict_input["settlement_size"], dict_input["member_list"], dict_input["settlement_wins"], dict_input["settlement_losses"], dict_input["settlement_xp"], input_data])
+            cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE invite_string=?",
+                            [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
+                            dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], '0000000000', dict_input["type"],
+                            dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data])
+    return None
 
 async def conquest_get_leaderboard():
     with ContextManager('./Databases/conquest.db') as cursor:
-        cursor.execute("SELECT settlement_id, settlement_name, settlement_xp FROM conquest")
+        cursor.execute("SELECT settlement_id, name, experience FROM conquest")
         db_output = cursor.fetchall()
         if db_output != None:
             db_output = list(db_output)
             db_output.sort(key=lambda info: info[2], reverse=True)
         return db_output
+
+async def conquest_member_init(user: discord.User):
+    with ContextManager('./Databases/conquest.db') as cursor:
+        cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user.id, None))
+
+async def conquest_add_member(user: discord.User, settlement_id: int):
+    with ContextManager('./Databases/conquest.db') as cursor:
+        cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (settlement_id, user.id))
+
+async def conquest_remove_member(user: discord.User):
+    with ContextManager('./Databases/conquest.db') as cursor:
+        cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (None, user.id))
+
+async def conquest_find_code(input: str):
+    with ContextManager('./Databases/conquest.db') as cursor:
+        cursor.execute("SELECT invite_string FROM conquest WHERE invite_string=?", (input,))
+        db_output = cursor.fetchone()
+        return db_output[0] if db_output != None else None
+
+async def conquest_new_code(new_code: str, userID : str):
+    with ContextManager('./Databases/conquest.db') as cursor:
+        cursor.execute("UPDATE conquest SET invite_string=? WHERE founderid=? OR leaderid=?", (new_code, userID, userID,))
+        return True if cursor.rowcount > 0 else False
+                        
