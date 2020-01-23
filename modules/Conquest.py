@@ -39,14 +39,13 @@ class Conquest(commands.Cog):
         user = ctx.author
         if None in {s_name,set_type,entry_fee}:
             embed = discord.Embed(title=main.lang["conquest_create_args"], color = self.module_embed_color)
-        else:
+        elif not await qulib.conquest_find_member(user):
             if set_type.lower() in ('public', 'private'):
                 cdata = await qulib.conquest_get('user', user.id)
                 if not cdata:
                     if entry_fee < self.minetryfee:
                         embed = discord.Embed(title=main.lang["conquest_entry_requirement"], color = self.module_embed_color)
                     else:
-                        await qulib.user_init(user)
                         user_data = await qulib.user_get(user)
                         if user_data["currency"] < entry_fee:
                             embed = discord.Embed(title=main.lang["conquest_insufficient_funds"], color = self.module_embed_color)
@@ -69,7 +68,6 @@ class Conquest(commands.Cog):
                             await qulib.user_set(user,user_data)
                             settlement_id = await qulib.conquest_set('new', user.id, dict_input)
                             if settlement_id:
-                                await qulib.conquest_member_init(user)
                                 await qulib.conquest_add_member(user, settlement_id)
                             embed = discord.Embed(title=main.lang["conquest_create_success"], color = self.module_embed_color)
                         else:
@@ -78,12 +76,15 @@ class Conquest(commands.Cog):
                     embed = discord.Embed(title=main.lang["conquest_create_already_has"], color = self.module_embed_color)
             else:
                 embed = discord.Embed(title=main.lang["conquest_create_public_private"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_create_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
     @commands.command(name='cinfo', help=main.lang["command_cinfo_help"], description=main.lang["command_cinfo_description"], usage='<Settlement Name>', aliases=['ci','settlement'])
-    async def conquest_info(self, ctx, *, s_name: str = None):
-        if s_name:
-            cdata = await qulib.conquest_get('settlement', s_name)
+    async def conquest_info(self, ctx, *, user: discord.User = None):
+        user = user or ctx.author
+        if await qulib.conquest_find_member(user):
+            cdata = await qulib.conquest_get('id', await qulib.conquest_get_settlementid(user))
             json_data = await qulib.data_get()
             if cdata:
                 founder_name = ctx.guild.get_member(cdata["founderid"]) or cdata["founderid"]
@@ -95,7 +96,7 @@ class Conquest(commands.Cog):
                     win_ratio = 0
                 else:
                     win_ratio = "%.2f" % float((cdata["wins"]/(cdata["losses"]+cdata["wins"]))*100)
-                
+
                 embed = discord.Embed(title=main.lang["conquest_info_info"], color=self.module_embed_color)
                 embed.add_field(name=main.lang["conquest_info_name"], value=cdata["name"],inline=True)
                 embed.set_thumbnail(url=json_data["Conquest"]["settlement_image_1"])
@@ -111,32 +112,32 @@ class Conquest(commands.Cog):
             else:
                 embed = discord.Embed(title=main.lang["conquest_info_fail"], color = self.module_embed_color)
         else:
-            embed = discord.Embed(title=main.lang["conquest_info_args"], color = self.module_embed_color)
+            embed = discord.Embed(title=main.lang["conquest_join_fail_user"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.command(name='join', help=main.lang["command_cjoin_help"], description=main.lang["command_cjoin_description"], usage='<invite code> <entry fee>', aliases=['j'])
-    async def conquest_join(self, ctx, invite_code:str = None, join_fee:int = None):
+    @commands.group(name='join', help=main.lang["command_cjoin_help"], description=main.lang["command_cjoin_description"], usage='private/public ...')
+    async def conquest_join(self, ctx):
+        if not ctx.invoked_subcommand:
+            embed = discord.Embed(title=main.lang["conquest_join_no_subcommands"], color = self.module_embed_color)
+            await ctx.send(embed=embed)
+
+    @conquest_join.command()
+    async def private(self, ctx, invite_code: str = None, join_fee: int = None):
         user = ctx.author
         if None in {invite_code, join_fee}:
             embed = discord.Embed(title=main.lang["conquest_join_args"], color = self.module_embed_color)
         else:
-            await qulib.user_init(user)
             user_info = await qulib.user_get(user)
             cdata = await qulib.conquest_get('code', invite_code)
             if cdata:
-                member_list = cdata["member_list"].split(',')
-                if isinstance(member_list, str):
-                    member_list = [cdata["member_list"]]
-                if join_fee < cdata["entry_fee"]:
-                    embed = discord.Embed(title=main.lang["conquest_join_min_entry"].format(cdata["entry_fee"]), color = self.module_embed_color)
+                if await qulib.conquest_find_member(user):
+                    embed = discord.Embed(title=main.lang["conquest_join_part_of"], color = self.module_embed_color)
                 elif user_info["currency"] < join_fee:
                     embed = discord.Embed(title=main.lang["conquest_insufficient_funds"], color = self.module_embed_color)
-                elif str(user.id) in member_list:
-                    embed = discord.Embed(title=main.lang["conquest_join_part_of"], color = self.module_embed_color)
+                elif join_fee < cdata["entry_fee"]:
+                    embed = discord.Embed(title=main.lang["conquest_join_min_entry"].format(cdata["entry_fee"]), color = self.module_embed_color)
                 else:
-                    member_list.append(str(user.id))
-                    member_list = ",". join(member_list)
-                    cdata["member_list"] = member_list
+                    await qulib.conquest_add_member(user, cdata["settlement_id"])
                     cdata["size"] += 1
                     cdata["treasury"] += join_fee
                     user_info["currency"] -= join_fee
@@ -147,7 +148,39 @@ class Conquest(commands.Cog):
                 embed = discord.Embed(title=main.lang["conquest_join_not_found"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.group(name='code', help=main.lang["empty_string"], description=main.lang["command_code_description"])
+    @conquest_join.command()
+    async def public(self, ctx, target_user: discord.User = None, join_fee: int = None):
+        user = ctx.author
+        if None in {target_user, join_fee}:
+            embed = discord.Embed(title=main.lang["conquest_join_args"], color = self.module_embed_color)
+        elif await qulib.conquest_find_member(target_user):
+            user_info = await qulib.user_get(user)
+            settlementid = await qulib.conquest_get_settlementid(target_user)
+            cdata = await qulib.conquest_get('id', settlementid)
+            if cdata:
+                if await qulib.conquest_find_member(user):
+                    embed = discord.Embed(title=main.lang["conquest_join_part_of"], color = self.module_embed_color)
+                elif cdata["type"] == "private":
+                    embed = discord.Embed(title=main.lang["conquest_join_private_msg"], color = self.module_embed_color)   
+                elif user_info["currency"] < join_fee:
+                    embed = discord.Embed(title=main.lang["conquest_insufficient_funds"], color = self.module_embed_color)
+                elif join_fee < cdata["entry_fee"]:
+                    embed = discord.Embed(title=main.lang["conquest_join_min_entry"].format(cdata["entry_fee"]), color = self.module_embed_color)
+                else:
+                    await qulib.conquest_add_member(user, cdata["settlement_id"])
+                    cdata["size"] += 1
+                    cdata["treasury"] += join_fee
+                    user_info["currency"] -= join_fee
+                    await qulib.user_set(user, user_info)
+                    await qulib.conquest_set('id', settlementid, cdata)
+                    embed = discord.Embed(title=main.lang["conquest_join_success"].format(cdata["name"]), color = self.module_embed_color)
+            else:
+                embed = discord.Embed(title=main.lang["conquest_join_not_found"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_join_target_fail"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.group(name='code', help=main.lang["empty_string"], description=main.lang["command_code_description"], usage='show/new')
     async def conquest_code(self, ctx):
         if not ctx.invoked_subcommand:
             await ctx.invoke(self.show)
@@ -186,19 +219,16 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_attack_args"], color = self.module_embed_color)
         elif attack_user.id is defence_user.id:
             embed = discord.Embed(title=main.lang["conquest_attack_self"], color = self.module_embed_color)
-        else:
-            cdata_defence = await qulib.conquest_get('user', defence_user.id)
+        elif await qulib.conquest_find_member(defence_user):
+            cdata_defence = await qulib.conquest_get('id', await qulib.conquest_get_settlementid(defence_user))
             if cdata_defence:
                 cdata_offence = await qulib.conquest_get('user', attack_user.id)
                 if cdata_offence:
                     json_data = await qulib.data_get()
                     attack_score = (cdata_offence["size"] + (1/4)*cdata_offence["tech_attack"])/(cdata_defence["size"] + (1/4)*cdata_defence["tech_defence"])
-                    if attack_score <=1:
-                        attack_score_calculated = (50*attack_score)*100
-                    else:
-                        attack_score_calculated = (50 + 8.35*attack_score)*100
-                        if attack_score_calculated > 10000:
-                            attack_score_calculated = 10000
+                    attack_score_calculated = (50*attack_score)*100 if attack_score <=1 else (50 + 8.35*attack_score)*100
+                    if attack_score_calculated > 10000:
+                        attack_score_calculated = 10000
                     result = rand_generator.randint(0,10000)
                     experience = math.ceil((10000-result)/10)
                     result_loot = math.ceil((1/20)*cdata_defence["treasury"])
@@ -235,6 +265,8 @@ class Conquest(commands.Cog):
                     embed = discord.Embed(title=main.lang["conquest_attack_you_no"], color = self.module_embed_color)
             else:
                 embed = discord.Embed(title=main.lang["conquest_attack_enemy_no"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_attack_enemy_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
         if not completed_attack:
             self.bot.get_command(ctx.command.name).reset_cooldown(ctx)

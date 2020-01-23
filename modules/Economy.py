@@ -1,4 +1,4 @@
-from libs.qulib import user_init, user_get, user_set
+from libs.qulib import user_get, user_set
 from discord.ext import commands
 from datetime import datetime
 import datetime as dt
@@ -38,11 +38,9 @@ class Economy(commands.Cog):
     @commands.cooldown(1, 30,commands.BucketType.user)
     @commands.command(name='daily', help=main.lang["command_daily_help"], description=main.lang["command_daily_description"], usage="@somebody (Optional Argument)")
     async def daily(self, ctx, *, user: discord.User = None):
-        await user_init(ctx.author)
         author_info = await user_get(ctx.author)
         user = user or ctx.author
         if user.id is not ctx.author.id:
-            await user_init(user) 
             user_info = await user_get(user)
         time_on_command = datetime.today().replace(microsecond=0)
         if author_info['daily_time']:
@@ -75,7 +73,6 @@ class Economy(commands.Cog):
     @commands.command(name="currency", help=main.lang["command_currency_help"], description=main.lang["command_currency_description"], usage="@somebody", aliases=['$', 'money'])
     async def currency(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
-        await user_init(user)
         user_info = await user_get(user)
         embed = discord.Embed(title=main.lang["economy_currency_return_msg"].format(user, user_info['currency'], self.currency_symbol), color=self.module_embed_color)
         await ctx.send(embed=embed)
@@ -85,7 +82,6 @@ class Economy(commands.Cog):
     @commands.guild_only()
     async def adjust(self, ctx, user: discord.User, value: int):
         await ctx.message.delete()
-        await user_init(user)
         user_info = await user_get(user)
         user_info['currency'] += value
         await user_set(user,user_info)
@@ -99,8 +95,6 @@ class Economy(commands.Cog):
     @commands.guild_only()
     async def give(self, ctx, user: discord.User, number: int):
         author = ctx.author
-        await user_init(author)
-        await user_init(user)
         author_info = await user_get(author)
         user_info = await user_get(user)
         if number > 0:
@@ -119,7 +113,6 @@ class Economy(commands.Cog):
     @commands.command(name="broll", help=main.lang["command_betroll_help"], description=main.lang["command_betroll_description"], usage="50", aliases=['br'])
     async def bet_roll(self, ctx, number: int):
         user = ctx.author
-        await user_init(user)
         user_info = await user_get(user)
         if number > 0:
             if user_info['currency'] <= 0 or number > user_info['currency']:
