@@ -296,7 +296,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_leaderboard_negative"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.command(name="sleave", help=main.lang["command_leave_help"], description=main.lang["command_leave_description"], ignore_extra=True)
+    @commands.command(name="sleave", help=main.lang["command_sleave_help"], description=main.lang["command_sleave_description"], ignore_extra=True)
     async def conquest_leave(self, ctx):
         user = ctx.author
         if await qulib.conquest_find_member(user):

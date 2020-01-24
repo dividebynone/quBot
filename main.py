@@ -299,8 +299,8 @@ json_lang_en = {
         "command_cattack_description": "Attacks the target individual's settlement.",
         "command_leaderboard_help": "This command takes one optional argument - the page number. If no argument is passed, then it defaults to 1.",
         "command_leaderboard_description": "Returns the settlements' leaderboard",
-        "command_leave_help": "- Leaders of settlements with multiple residents cannot leave settlement without transferring ownership.\n- Settlements with only one resident will get **DESTROYED** in the process!",
-        "command_leave_description": "Leave the settlement you are currently in. (if any)",
+        "command_sleave_help": "- Leaders of settlements with multiple residents cannot leave settlement without transferring ownership.\n- Settlements with only one resident will get **DESTROYED** in the process!",
+        "command_sleave_description": "Leave the settlement you are currently in. (if any)",
         }#To be deleted at a later date
 
 '''To be deleted at a later date
