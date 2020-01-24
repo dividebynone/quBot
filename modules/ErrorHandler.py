@@ -1,6 +1,7 @@
 from discord.ext import commands
 import main
 import discord
+import asyncio
 
 class ErrorHandler(commands.Cog):
 
@@ -14,7 +15,7 @@ class ErrorHandler(commands.Cog):
         if hasattr(ctx.command, 'on_error'):
             return
 
-        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.UserInputError, commands.MissingPermissions, commands.NotOwner, commands.NoPrivateMessage)
+        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.UserInputError, commands.MissingPermissions, commands.NotOwner, commands.NoPrivateMessage, asyncio.TimeoutError)
         error = getattr(error, 'original', error)
         embed = None
 

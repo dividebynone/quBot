@@ -90,6 +90,7 @@ class Conquest(commands.Cog):
             json_data = await qulib.data_get()
             if cdata:
                 founder_name = ctx.guild.get_member(cdata["founderid"]) or cdata["founderid"]
+                leader_name = ctx.guild.get_member(cdata["leaderid"]) or cdata["leaderid"]
                 if cdata["wins"] == cdata["losses"] == 0:
                     win_ratio = 0
                 elif cdata["wins"] > 0 and cdata["losses"] is 0:
@@ -101,9 +102,10 @@ class Conquest(commands.Cog):
 
                 embed = discord.Embed(title=main.lang["conquest_info_info"], color=self.module_embed_color)
                 embed.add_field(name=main.lang["conquest_info_name"], value=cdata["name"],inline=True)
-                embed.set_thumbnail(url=json_data["Conquest"]["settlement_image_1"])
-                embed.add_field(name=main.lang["conquest_info_founder"], value=founder_name, inline=True)
                 embed.add_field(name=main.lang["conquest_info_created"], value=cdata["date_created"], inline=True)
+                embed.set_thumbnail(url=json_data["Conquest"]["settlement_image_1"])
+                embed.add_field(name=main.lang["conquest_info_founder"], value=founder_name, inline=False)
+                embed.add_field(name=main.lang["conquest_info_leader"], value=leader_name, inline=False)
                 embed.add_field(name=main.lang["conquest_info_population"], value=cdata["size"], inline=True)
                 embed.add_field(name=main.lang["conquest_info_treasury"], value=cdata["treasury"], inline=True)
                 embed.add_field(name=main.lang["conquest_info_type"], value =cdata["type"], inline = True)
@@ -319,6 +321,55 @@ class Conquest(commands.Cog):
                 embed = discord.Embed(title=main.lang["conquest_leave_not_found"], color = self.module_embed_color)
         else:
             embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.command(name="promote", help=main.lang["command_promote_help"], description=main.lang["command_promote_description"], usage='@somebody')
+    async def conquest_promote(self, ctx, *, user: discord.User):
+        if user != ctx.author:
+            if await qulib.conquest_find_member(ctx.author):
+                settlementid = await qulib.conquest_get_settlementid(ctx.author)
+                cdata = await qulib.conquest_get('id', settlementid)
+                if await qulib.conquest_find_member(user):              
+                    if settlementid == await qulib.conquest_get_settlementid(user):
+                        if ctx.author.id == cdata["leaderid"]:  
+                            await ctx.send(embed = discord.Embed(title=main.lang["conquest_promote_confirmation"].format(user), color = self.module_embed_color))
+                            msg = await self.bot.wait_for('message', check=lambda m: (m.content == 'yes' or m.content == 'no') and m.channel == ctx.channel, timeout=60.0)
+                            if msg.content == 'yes':
+                                cdata["leaderid"] = user.id
+                                await qulib.conquest_set('id', settlementid, cdata)
+                                embed = discord.Embed(title=main.lang["conquest_promote_success"].format(user), color = self.module_embed_color)
+                        else:
+                            embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=main.lang["conquest_promote_settlement_fail"], color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=main.lang["conquest_target_not_part_of"], color = self.module_embed_color)
+            else:
+                 embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_promote_self"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.command(name='skick', help=main.lang["command_skick_help"], description=main.lang["command_skick_description"], usage='@somebody')
+    async def conquest_kick(self, ctx, *, user: discord.User):
+        if user != ctx.author:
+            if await qulib.conquest_find_member(ctx.author):
+                settlementid = await qulib.conquest_get_settlementid(ctx.author)
+                cdata = await qulib.conquest_get('id', settlementid)
+                if await qulib.conquest_find_member(user):
+                    if ctx.author.id == cdata["leaderid"]:
+                        cdata["size"] -= 1
+                        await qulib.conquest_set('id', settlementid, cdata)
+                        await qulib.conquest_remove_member(user)
+                        embed = discord.Embed(title=main.lang["conquest_skick_success"].format(user), color = self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=main.lang["conquest_target_not_part_of"], color = self.module_embed_color)
+            else:
+                embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_skick_self"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
 def setup(bot):
