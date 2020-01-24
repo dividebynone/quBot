@@ -34,7 +34,8 @@ class Conquest(commands.Cog):
             self.minetryfee = int(config.get('Conquest', 'MinEntryFee'))
         config_file.close()
 
-    @commands.command(name='ccreate', help=main.lang["command_ccreate_help"], description=main.lang["command_ccreate_description"], usage='"My Settlement Name" <public/private> 100', aliases=['cc'])
+    @commands.command(name='screate', help=main.lang["command_ccreate_help"], description=main.lang["command_ccreate_description"], usage='"My Settlement Name" <public/private> 100', aliases=['sc'])
+    @commands.guild_only()
     async def conquest_create(self, ctx, s_name:str = None, set_type:str = None, entry_fee:int = None):
         user = ctx.author
         if None in {s_name,set_type,entry_fee}:
@@ -80,7 +81,8 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_create_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.command(name='cinfo', help=main.lang["command_cinfo_help"], description=main.lang["command_cinfo_description"], usage='<Settlement Name>', aliases=['ci','settlement'])
+    @commands.command(name='sinfo', help=main.lang["command_cinfo_help"], description=main.lang["command_cinfo_description"], usage='<Settlement Member> (Optional)', aliases=['si','settlement'])
+    @commands.guild_only()
     async def conquest_info(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         if await qulib.conquest_find_member(user):
@@ -116,6 +118,7 @@ class Conquest(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.group(name='join', help=main.lang["command_cjoin_help"], description=main.lang["command_cjoin_description"], usage='private/public ...')
+    @commands.guild_only()
     async def conquest_join(self, ctx):
         if not ctx.invoked_subcommand:
             embed = discord.Embed(title=main.lang["conquest_join_no_subcommands"], color = self.module_embed_color)
@@ -212,6 +215,7 @@ class Conquest(commands.Cog):
 
     @commands.cooldown(1, 600,commands.BucketType.user)
     @commands.command(name='attack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='@somebody', ignore_extra=True)
+    @commands.guild_only()
     async def conquest_attack(self, ctx, *, defence_user: discord.User = None):
         attack_user = ctx.author
         completed_attack = False
@@ -272,6 +276,7 @@ class Conquest(commands.Cog):
             self.bot.get_command(ctx.command.name).reset_cooldown(ctx)
 
     @commands.command(name="leaderboard", help=main.lang["command_leaderboard_help"], description=main.lang["command_leaderboard_description"], aliases=['lb'])
+    @commands.guild_only()
     async def conquest_leaderboard(self, ctx, page: int = 1):
         if page >= 1:
             page_index = page - 1
@@ -289,6 +294,31 @@ class Conquest(commands.Cog):
                 embed = discord.Embed(title=main.lang["conquest_leaderboard_outofrange"], color = self.module_embed_color)
         else:
             embed = discord.Embed(title=main.lang["conquest_leaderboard_negative"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.command(name="sleave", help=main.lang["command_leave_help"], description=main.lang["command_leave_description"], ignore_extra=True)
+    async def conquest_leave(self, ctx):
+        user = ctx.author
+        if await qulib.conquest_find_member(user):
+            settlementid = await qulib.conquest_get_settlementid(user)
+            cdata = await qulib.conquest_get('id', settlementid)
+            if cdata:
+                if cdata["size"] > 1:
+                    if user.id == cdata["leaderid"]:
+                        embed = discord.Embed(title=main.lang["conquest_leave_leader"], color = self.module_embed_color)
+                    else:
+                        cdata["size"] -= 1
+                        await qulib.conquest_set('id', settlementid, cdata)
+                        await qulib.conquest_remove_member(user)
+                        embed = discord.Embed(title=main.lang["conquest_leave_success"], color = self.module_embed_color)                  
+                else:
+                    await qulib.conquest_delete_settlement(settlementid)
+                    await qulib.conquest_remove_member(user)
+                    embed = discord.Embed(title=main.lang["conquest_leave_success_alone"], color = self.module_embed_color)      
+            else:
+                embed = discord.Embed(title=main.lang["conquest_leave_not_found"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
 def setup(bot):

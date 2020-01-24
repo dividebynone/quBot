@@ -185,6 +185,7 @@ json_lang_en = {
         "economy_betroll_fail_msg": "Oops! You rolled {} but did not win anything. Please try again.",
         "economy_betroll_msg":"Congratulations, you rolled {} and won {} {}.",
         "economy_betroll_jackpot": "**JACKPOT!!!** Congratulations, you rolled {} and won {} {}.",
+        "conquest_not_part_of": "You do not seem to be part of any settlements.",
         "conquest_create_args": "Failed to create a settlement: Please check if all arguments are correctly structured and try again.",
         "conquest_create_public_private": "The settlement's type can either be **public** or **private**.",
         "conquest_create_success": "Settlement has been successfully created.",
@@ -236,6 +237,10 @@ json_lang_en = {
         "conquest_leaderboard_title": "Settlements Leaderboard",
         "conquest_leaderboard_negative": "The page value should be more than or equal to 1.",
         "conquest_leaderboard_outofrange": "The page you're trying to reach does not exist.",
+        "conquest_leave_success": "You successfully left the settlement.",
+        "conquest_leave_success_alone": "You successfully left the settlement. You were the only resident so it was destroyed in the process.",
+        "conquest_leave_not_found": "Failed to leave settlement: Settlement not found.",
+        "conquest_leave_leader": "You cannot leave a settlement with more than one resident where you are still the leader.",
         "command_owner_only": "This command can only be used by the **BOT OWNER**.",
         "command_module_help": "The module file needs to be present in the modules folder of the bot.\nThis command can only be used by the **BOT OWNER**.",
         "command_load_description": "Loads new modules into the bot application.",
@@ -251,7 +256,7 @@ json_lang_en = {
         "command_userid_description": "Returns the target individual's Discord ID.",
         "command_serverid_description": "Returns the server's ID for the server the command was typed in.",
         "command_channelid_description": "Returns the channel's ID for the channel the command was typed in.",
-        "command_leave_description": "Politely kicks the bot off your server. We are polite, mkay?",
+        "command_leave_description": "Politely kicks the bot off your server.",
         "command_latencies_description": "Returns the latencies (in miliseconds) for every active shard.",
         "command_setname_description": "Changes the name of the bot.",
         "command_setstatus_help": "This command requires one argument and it needs to be one of the following: *online, offline, idle, dnd, invisible*.\nThis command can only be used by the **BOT OWNER**.",
@@ -294,6 +299,8 @@ json_lang_en = {
         "command_cattack_description": "Attacks the target individual's settlement.",
         "command_leaderboard_help": "This command takes one optional argument - the page number. If no argument is passed, then it defaults to 1.",
         "command_leaderboard_description": "Returns the settlements' leaderboard",
+        "command_leave_help": "- Leaders of settlements with multiple residents cannot leave settlement without transferring ownership.\n- Settlements with only one resident will get **DESTROYED** in the process!",
+        "command_leave_description": "Leave the settlement you are currently in. (if any)",
         }#To be deleted at a later date
 
 '''To be deleted at a later date

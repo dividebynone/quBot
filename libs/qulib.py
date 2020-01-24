@@ -124,6 +124,10 @@ async def conquest_set(get_string:str, input_data, dict_input):
                             dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data])
     return None
 
+async def conquest_delete_settlement(input_id: str):
+    with ContextManager('./Databases/conquest.db') as cursor:
+        cursor.execute("DELETE FROM conquest WHERE settlement_id=?", (input_id,))
+
 async def conquest_get_leaderboard():
     with ContextManager('./Databases/conquest.db') as cursor:
         cursor.execute("SELECT settlement_id, name, experience FROM conquest")
