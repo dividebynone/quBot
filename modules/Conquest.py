@@ -324,6 +324,7 @@ class Conquest(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="promote", help=main.lang["command_promote_help"], description=main.lang["command_promote_description"], usage='@somebody')
+    @commands.guild_only()
     async def conquest_promote(self, ctx, *, user: discord.User):
         if user != ctx.author:
             if await qulib.conquest_find_member(ctx.author):
@@ -351,6 +352,7 @@ class Conquest(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name='skick', help=main.lang["command_skick_help"], description=main.lang["command_skick_description"], usage='@somebody')
+    @commands.guild_only()
     async def conquest_kick(self, ctx, *, user: discord.User):
         if user != ctx.author:
             if await qulib.conquest_find_member(ctx.author):

@@ -15,7 +15,7 @@ class ErrorHandler(commands.Cog):
         if hasattr(ctx.command, 'on_error'):
             return
 
-        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.UserInputError, commands.MissingPermissions, commands.NotOwner, commands.NoPrivateMessage, asyncio.TimeoutError)
+        ignored = (commands.CommandNotFound, commands.MissingPermissions, commands.UserInputError, commands.NotOwner, commands.NoPrivateMessage, asyncio.TimeoutError)
         error = getattr(error, 'original', error)
         embed = None
 
