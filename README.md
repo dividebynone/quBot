@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.8.0b-blue.svg">
+  <img src="https://img.shields.io/badge/version-0.9.1b-blue.svg">
   <img src="https://img.shields.io/badge/dev-DivideByNone%239640-brightgreen.svg">
 </p>
 
