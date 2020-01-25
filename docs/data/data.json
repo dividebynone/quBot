@@ -1,0 +1,13 @@
+{
+    "Conquest": {
+        "defeat_string_1": "Your settlement's army failed in the attempt to attack **{}**. A valley of arrows struck your army's shields. Once your soldiers reached the enemy walls, they swiftly scaled up using ladders. A fierce battle erupted on the top. Despite your army's efforts, enemy priests and mages tipped the scales in their favour. Their magic managed to pierce your units' armour, fully weakening them. Most of your solders were killed in the process. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
+        "fight": "https://i.imgur.com/ZYBlee5.png",
+        "settlement_image_1": "https://i.imgur.com/8F2hnOS.png",
+        "win_string_1": "Your settlement's army successfully pillaged **{}**. Your soldiers reached the enemy walls without much difficulty. A fierce battle erupted. A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat."
+    },
+    "appVersion": "0.9.1-beta",
+    "hidden_modules": [
+        "HelpFormatter",
+        "ErrorHandler"
+    ]
+}

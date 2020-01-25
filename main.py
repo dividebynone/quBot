@@ -29,7 +29,7 @@ if not os.path.exists('./libs'):
 
 if not os.path.exists('./modules'):
     os.makedirs('./modules')
-    open('./Modules/__init__.py', 'a').close()
+    open('./modules/__init__.py', 'a').close()
 
 #-----------------------------------#
 #Main config file initialization 

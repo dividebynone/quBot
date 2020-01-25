@@ -11,8 +11,9 @@ with open('README.md') as readme_file:
 
 required_extras = {
     'docs': [
-        'alabaster==0.7.12',
         'sphinx==2.3.1',
+        'sphinxcontrib-trio==1.1.0',
+        'sphinx-rtd-theme==0.4.3',
     ]
 }
 

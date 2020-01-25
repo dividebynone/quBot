@@ -1,0 +1,2 @@
+2020-01-25 16:19:55,259:DEBUG:discord.client: on_shard_ready has successfully been registered as an event
+2020-01-25 16:19:55,260:DEBUG:discord.client: on_ready has successfully been registered as an event
