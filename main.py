@@ -99,7 +99,9 @@ with open('./data/localization/language_{}.json'.format(languagecode), 'r', enco
     lang = json.load(json_file)
 json_file.close()
 
-json_data = await data_get()
+with open('./data/data.json', 'r') as json_file:
+    json_data = json.load(json_file)
+json_file.close()
 
 version = json_data["appVersion"]
 
