@@ -1,6 +1,5 @@
 from setuptools import setup
-from main import version
-import os
+import json
 
 requirements = []
 with open('requirements.txt') as reqs_file:
@@ -16,6 +15,12 @@ required_extras = {
         'sphinx==2.3.1',
     ]
 }
+
+with open('./data/data.json', 'r') as json_file:
+    json_data = json.load(json_file)
+json_file.close()
+
+version = json_data["appVersion"]
 
 setup(name='quBot',
       author='martin-r-georgiev',
