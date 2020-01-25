@@ -1,5 +1,6 @@
 from setuptools import setup
 from main import version
+import os
 
 requirements = []
 with open('requirements.txt') as reqs_file:

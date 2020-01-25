@@ -12,7 +12,7 @@ import json
 #Path checks and initalization
 bot_path = os.path.dirname(os.path.realpath(__file__))
 
-if not os.path.exists('./Databases'):
+if not os.path.exists('./databases'):
     os.makedirs('./databases')
 
 if not os.path.exists('./data'):
