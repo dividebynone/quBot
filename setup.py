@@ -10,6 +10,13 @@ readme = ''
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
+required_extras = {
+    'docs': [
+        'alabaster==0.7.12',
+        'sphinx==2.3.1',
+    ]
+}
+
 setup(name='quBot',
       author='martin-r-georgiev',
       url='https://github.com/martin-r-georgiev/quBot',
@@ -20,6 +27,7 @@ setup(name='quBot',
       license='MIT',
       include_package_data=True,
       install_requires=requirements,
+      extras_require=required_extras,
       python_requires='>=3.7.6',
       classifiers=[
         'License :: OSI Approved :: MIT License',
