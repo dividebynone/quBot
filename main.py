@@ -1,6 +1,6 @@
 from discord.ext import commands
 from datetime import datetime, timedelta
-from libs.qulib import is_venv
+from libs.qulib import is_venv, data_get
 import logging
 import os
 import sys
@@ -98,6 +98,10 @@ servers_connector.close()
 with open('./data/localization/language_{}.json'.format(languagecode), 'r', encoding="utf_8") as json_file:
     lang = json.load(json_file)
 json_file.close()
+
+json_data = await data_get()
+
+version = json_data["appVersion"]
 
 #-----------------------------------#
 #Creating modules.mdls to store loaded modules
