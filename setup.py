@@ -33,7 +33,7 @@ setup(name='quBot',
       include_package_data=True,
       install_requires=requirements,
       extras_require=required_extras,
-      python_requires='>=3.7.6',
+      python_requires='>=3.7.3',
       classifiers=[
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: Developers',
