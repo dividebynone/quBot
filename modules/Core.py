@@ -145,21 +145,21 @@ class Core(commands.Cog):
             embed = discord.Embed(title=main.lang["core_cmds_list_marg"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @commands.command(name='userid', help=main.lang["command_userid_help"], description=main.lang["command_userid_description"], usage="@somebody", hidden=True)
+    @commands.command(name='userid', help=main.lang["command_userid_help"], description=main.lang["command_userid_description"], aliases=['uid'], usage="@somebody", hidden=True)
     @commands.is_owner()
     async def userid(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         embed = discord.Embed(title=main.lang["core_userid_msg"].format(user.name,user.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.command(name='serverid', help=main.lang["command_owner_only"], description=main.lang["command_serverid_description"], hidden=True, ignore_extra=True)
+    @commands.command(name='serverid', help=main.lang["command_owner_only"], description=main.lang["command_serverid_description"], aliases=['sid'], hidden=True, ignore_extra=True)
     @commands.is_owner()
     @commands.guild_only()
     async def serverid(self, ctx):
         embed = discord.Embed(title=main.lang["core_serverid_msg"].format(ctx.guild.name,ctx.guild.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @commands.command(name='channelid', help=main.lang["command_owner_only"], description=main.lang["command_channelid_description"], hidden=True, ignore_extra=True)
+    @commands.command(name='channelid', help=main.lang["command_owner_only"], description=main.lang["command_channelid_description"], aliases=['cid'], hidden=True, ignore_extra=True)
     @commands.is_owner()
     @commands.guild_only()
     async def channelid(self, ctx):
@@ -229,7 +229,7 @@ class Core(commands.Cog):
         await self.bot.http.close()
         await self.bot.close()
 
-    @commands.command(name="langs", help=main.lang["command_owner_only"], description=main.lang["command_langs_description"], hidden=True, ignore_extra=True)
+    @commands.command(name="langs", help=main.lang["command_owner_only"], description=main.lang["command_langs_description"], aliases=['languages'], hidden=True, ignore_extra=True)
     @commands.is_owner()
     async def lang_list(self, ctx):
         lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir('./data/localization') if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Commands Documentation Test &mdash; quBot 0.9.1-beta documentation</title>
+  <title>Commands List &mdash; quBot 0.9.1-beta documentation</title>
   
 
   
@@ -33,6 +33,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_override.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Welcome to quBot’s documentation!" href="index.html" /> 
@@ -81,7 +82,19 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Commands Documentation Test</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Commands List</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#administration">Administration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conquest">Conquest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#core">Core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#economy">Economy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#help">Help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#localization">Localization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utility">Utility</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -127,7 +140,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Commands Documentation Test</li>
+      <li>Commands List</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -146,32 +159,476 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="commands-documentation-test">
-<h1>Commands Documentation Test<a class="headerlink" href="#commands-documentation-test" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
+  <div class="section" id="commands-list">
+<h1>Commands List<a class="headerlink" href="#commands-list" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="table-of-contents">
+<h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#administration">Administration</a></p></li>
+<li><p><a class="reference internal" href="#conquest">Conquest</a></p></li>
+<li><p><a class="reference internal" href="#core">Core</a></p></li>
+<li><p><a class="reference internal" href="#economy">Economy</a></p></li>
+<li><p><a class="reference internal" href="#help">Help</a></p></li>
+<li><p><a class="reference internal" href="#localization">Localization</a></p></li>
+<li><p><a class="reference internal" href="#utility">Utility</a></p></li>
+</ul>
+<div class="section" id="administration">
+<h3>Administration<a class="headerlink" href="#administration" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
 <colgroup>
-<col style="width: 43%" />
-<col style="width: 21%" />
 <col style="width: 18%" />
-<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Command and aliases</p></th>
-<th class="head" colspan="2"><p>Description</p></th>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
 <th class="head"><p>Usage</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>body row 1, column 1</p></td>
-<td colspan="2"><p>column 2</p></td>
-<td><p>column 4</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">purge</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Deletes a set number of messages.</div>
+<div class="line">Note: <em>This command requires a single argument - The number of messages you wish the bot to delete.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!purge</span> <span class="pre">10</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>body row 2</p></td>
-<td colspan="2"></td>
-<td></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kick</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Kicks the mentioned individual for a certain reason. (if any)</div>
+<div class="line">Note: <em>The kick command accepts two arguments: one required (The target user) and one optional (The reason for kicking the user)</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!kick</span></code>, <code class="docutils literal notranslate"><span class="pre">!kick</span> <span class="pre">&#64;somebody</span> <span class="pre">Spamming</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ban</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Bans the mentioned individual for a certain reason. (if any)</div>
+<div class="line">Note: <em>The ban command accepts three arguments: one required (The target user) and two optional (The days worth of messages that will be deleted by the bot; The reason for banning the user).</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!ban</span> <span class="pre">&#64;somebody</span></code>, <code class="docutils literal notranslate"><span class="pre">!ban</span> <span class="pre">&#64;somebody</span> <span class="pre">4</span> <span class="pre">Harassment</span></code></p></td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="conquest">
+<h3>Conquest<a class="headerlink" href="#conquest" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">screate</span></code> <code class="docutils literal notranslate"><span class="pre">sc</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Creates a settlement.</div>
+<div class="line">Note: <em>This command requires three arguments - settlement name (should be in quotes), settlement type (either ‘public’ or ‘private’) and entry fee (minimum 100)</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!sc</span> <span class="pre">'My</span> <span class="pre">Settlement</span> <span class="pre">Name'</span> <span class="pre">private</span> <span class="pre">100</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sinfo</span></code> <code class="docutils literal notranslate"><span class="pre">si</span></code> <code class="docutils literal notranslate"><span class="pre">settlement</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Displays a settlement’s public information.</div>
+<div class="line">Note: <em>This command has one optional argument - the target individual. If no argument is parsed then the command will display the settlement you currectly reside in.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!sinfo</span></code>, <code class="docutils literal notranslate"><span class="pre">!sinfo</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">join</span> <span class="pre">public</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Joins another individual’s settlement.</div>
+<div class="line">Note: <em>This command requires two arguments - the target individual and entry fee (minimum the settlement’s entry fee).</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!join</span> <span class="pre">public</span> <span class="pre">&#64;somebody</span> <span class="pre">100</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">join</span> <span class="pre">private</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Joins another individual’s settlement.</div>
+<div class="line">Note: <em>This command requires two arguments - the settlement’s invite code and entry fee (minimum the settlement’s entry fee).</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!join</span> <span class="pre">private</span> <span class="pre">&lt;code&gt;</span> <span class="pre">100</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">code</span></code> <code class="docutils literal notranslate"><span class="pre">code</span> <span class="pre">show</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Displays your settlement’s invide code. The code is sent privately to the author.</div>
+<div class="line">Note: <em>This command can also be used directly in the bot’s direct messages.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!code</span></code>, <code class="docutils literal notranslate"><span class="pre">!code</span> <span class="pre">show</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">code</span> <span class="pre">new</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Generates a new invite code for your settlement.</div>
+<div class="line">Note: <em>This command can also be used directly in the bot’s direct messages.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!code</span> <span class="pre">new</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">attack</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Attacks the target individual’s settlement.</div>
+<div class="line">Note: <em>Use it wisely!</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!attack</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">leaderboard</span></code> <code class="docutils literal notranslate"><span class="pre">lb</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns the settlements’ leaderboard.</div>
+<div class="line">Note: <em>This command takes one optional argument - the page number. If no argument is passed, then it defaults to 1.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!lb</span></code>, <code class="docutils literal notranslate"><span class="pre">!lb</span> <span class="pre">2</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sleave</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Leave the settlement you are currently in. (if any)</div>
+<div class="line">Note:</div>
+<div class="line">- Leaders of settlements with multiple residents cannot leave settlement without transferring ownership.</div>
+<div class="line">- Settlements with only one resident will get <strong>DESTROYED</strong> in the process!</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!sleave</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">promote</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Promotes the target individual to settlement leader.</div>
+<div class="line">Note: This command can <strong>ONLY</strong> be used by settlement leaders.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!promote</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">skick</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Kicks the target individual from the settlement.</div>
+<div class="line">Note: This command can <strong>ONLY</strong> be used by settlement leaders.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!skick</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="core">
+<h3>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">load</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Loads new modules into the bot application.</div>
+<div class="line">Note: <em>The module file needs to be present in the modules folder of the bot.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!load</span> <span class="pre">&lt;module</span> <span class="pre">name&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">unload</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Unloads modules from the bot application.</div>
+<div class="line">Note: <em>The module file needs to be present in the modules folder of the bot.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!unload</span> <span class="pre">&lt;module</span> <span class="pre">name&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reload</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Reloads modules loaded into the bot application.</div>
+<div class="line">Note: <em>The module file needs to be present in the modules folder of the bot.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!reload</span> <span class="pre">&lt;module</span> <span class="pre">name&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">modules</span> <span class="pre">hide</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Hides a module from the list of loaded modules.</div>
+<div class="line">Note: <em>This is a subcommand of the ‘modules’ command.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!modules</span> <span class="pre">hide</span> <span class="pre">&lt;module</span> <span class="pre">name&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modules</span> <span class="pre">unhide</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Reveals a hidden module from the list of loaded modules.</div>
+<div class="line">Note: <em>This is a subcommand of the ‘modules’ command.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!modules</span> <span class="pre">unhide</span> <span class="pre">&lt;module</span> <span class="pre">name&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">userid</span></code> <code class="docutils literal notranslate"><span class="pre">uid</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns the target individual’s Discord ID.</div>
+<div class="line">Note: <em>If no argument is given, the bot will use the author of the message.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!uid</span></code>, <code class="docutils literal notranslate"><span class="pre">!uid</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">serverid</span></code> <code class="docutils literal notranslate"><span class="pre">sid</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns the server’s ID for the server the command was typed in.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!sid</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">channelid</span></code> <code class="docutils literal notranslate"><span class="pre">cid</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns the channel’s ID for the channel the command was typed in.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!cid</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">leave</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Politely kicks the bot off your server.</div>
+<div class="line"><strong>Needed User Permissions: Kick Members</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!leave</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">latencies</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns the latencies (in miliseconds) for every active shard.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!latencies</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">setname</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Changes the name of the bot.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!setname</span> <span class="pre">quBot</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">setstatus</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Changes the bot’s status. (Online by default)</div>
+<div class="line">Note: <em>This command requires one argument and it needs to be one of the following: ‘online’, ‘offline’, ‘idle’, ‘dnd’, ‘invisible’.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!setstatus</span> <span class="pre">dnd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">setactivity</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Changes the bot’s activity.</div>
+<div class="line">Note: <em>This command requires two arguments: the type of activity(playing, streaming, listening, watching) and the message itself.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!setactivity</span> <span class="pre">playing</span> <span class="pre">with</span> <span class="pre">fire</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">restart</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Restarts the bot.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!restart</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">shutdown</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Shutdowns the bot.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!shutdown</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="economy">
+<h3>Economy<a class="headerlink" href="#economy" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">daily</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Lets you claim a set sum of money on a daily basis.</div>
+<div class="line">Note: <em>If you wish to gift your daily reward instead of claiming it for yourself, you can mention the individual when using the command.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!daily</span></code>, <code class="docutils literal notranslate"><span class="pre">!daily</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">currency</span></code> <code class="docutils literal notranslate"><span class="pre">money</span></code> <code class="docutils literal notranslate"><span class="pre">cash</span></code> <code class="docutils literal notranslate"><span class="pre">$</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Displays the sum of money the target individual has on their profile.</div>
+<div class="line">Note: <em>If no argument is parsed, the bot will display your profile’s money</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!cash</span></code> <code class="docutils literal notranslate"><span class="pre">!cash</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adjust</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Awards/Subtracts a set amount of money to/from the target individual.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!adjust</span> <span class="pre">&#64;somebody</span> <span class="pre">100</span></code>, <code class="docutils literal notranslate"><span class="pre">!adjust</span> <span class="pre">&#64;somebody</span> <span class="pre">-50</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">give</span></code></p></td>
+<td><p>Transfers a set amount of money to another user.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!give</span> <span class="pre">&#64;somebody</span> <span class="pre">100</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">betroll</span></code> <code class="docutils literal notranslate"><span class="pre">broll</span></code> <code class="docutils literal notranslate"><span class="pre">br</span></code></p></td>
+<td><p>Lets you bet a certain amount of money on a roll.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!broll</span> <span class="pre">100</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="help">
+<h3>Help<a class="headerlink" href="#help" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">help</span></code> <code class="docutils literal notranslate"><span class="pre">h</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Help command that returns a help message based on user input.</div>
+<div class="line">Note: <em>The command takes command name as optional argument. Otherwise, it returns a general help message.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!help</span></code>, <code class="docutils literal notranslate"><span class="pre">!help</span> <span class="pre">roll</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">modules</span></code> <code class="docutils literal notranslate"><span class="pre">mdls</span></code></p></td>
+<td><p>Displays all loaded modules.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!modules</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">commands</span></code> <code class="docutils literal notranslate"><span class="pre">cmds</span></code></p></td>
+<td><p>Displays all commands in a given module</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!cmds</span> <span class="pre">Utility</span></code>, <code class="docutils literal notranslate"><span class="pre">!cmds</span> <span class="pre">Economy</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="localization">
+<h3>Localization<a class="headerlink" href="#localization" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">languages</span></code> <code class="docutils literal notranslate"><span class="pre">langs</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns a list of locally detected language (localization) packages.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!langs</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">langset</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Changes the language of the bot.</div>
+<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!langset</span> <span class="pre">en-US</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="utility">
+<h3>Utility<a class="headerlink" href="#utility" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">avatar</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns the target individual’s avatar. </div>
+<div class="line">Note: <em>If no argument is parsed, the bot will instead return your avatar.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!avatar</span></code>, <code class="docutils literal notranslate"><span class="pre">!avatar</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roll</span></code> <code class="docutils literal notranslate"><span class="pre">r</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Rolls a number in a given range. </div>
+<div class="line">Note: <em>If no argument is parsed, the bot will roll a number between 1 and 100.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!roll</span></code>, <code class="docutils literal notranslate"><span class="pre">!roll</span> <span class="pre">9000</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uptime</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Returns the bot’s uptime. </div>
+<div class="line"><strong>Needed User Permissions: Administrator</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!uptime</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">userinfo</span></code> <code class="docutils literal notranslate"><span class="pre">uinfo</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Shows the target individual’s user information. </div>
+<div class="line">Note: <em>If no argument is parsed, the bot will return your information instead.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">!uinfo</span></code>, <code class="docutils literal notranslate"><span class="pre">!uinfo</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 
 

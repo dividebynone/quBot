@@ -70,7 +70,7 @@ class Economy(commands.Cog):
         await user_set(ctx.author, author_info)
         await ctx.send(embed=embed)
     
-    @commands.command(name="currency", help=main.lang["command_currency_help"], description=main.lang["command_currency_description"], usage="@somebody", aliases=['$', 'money'])
+    @commands.command(name="currency", help=main.lang["command_currency_help"], description=main.lang["command_currency_description"], usage="@somebody", aliases=['$', 'money','cash'])
     async def currency(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         user_info = await user_get(user)
@@ -110,7 +110,7 @@ class Economy(commands.Cog):
                 await user_set(user,user_info)
             await ctx.send(embed=embed)
 
-    @commands.command(name="broll", help=main.lang["command_betroll_help"], description=main.lang["command_betroll_description"], usage="50", aliases=['br'])
+    @commands.command(name="broll", help=main.lang["command_betroll_help"], description=main.lang["command_betroll_description"], usage="50", aliases=['br', 'betroll'])
     async def bet_roll(self, ctx, number: int):
         user = ctx.author
         user_info = await user_get(user)

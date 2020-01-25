@@ -215,7 +215,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_code_new_fail"], color = self.module_embed_color)
         await ctx.author.send(embed=embed) 
 
-    @commands.cooldown(1, 600,commands.BucketType.user)
+    @commands.cooldown(1, 600, commands.BucketType.user)
     @commands.command(name='attack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='@somebody', ignore_extra=True)
     @commands.guild_only()
     async def conquest_attack(self, ctx, *, defence_user: discord.User = None):
