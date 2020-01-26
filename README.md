@@ -19,6 +19,12 @@
 	<a href="#license">License</a>
 </p>
 
+<p align="center">
+	<a href="https://discordapp.com/oauth2/authorize?client_id=593082021325045760&scope=bot&permissions=8"><img src="https://imgur.com/5zpzidg.png"></a>
+</p>
+
+
+
 <p align="center">A modern and simple to use discord bot application written in Python using the <b>discord.py</b> API wrapper.</p>
 
 <p align="center">
