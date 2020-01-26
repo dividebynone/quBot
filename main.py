@@ -13,22 +13,22 @@ import json
 bot_path = os.path.dirname(os.path.realpath(__file__))
 
 if not os.path.exists('./databases'):
-    os.makedirs('./databases')
+    os.makedirs('./databases', exist_ok=True)
 
 if not os.path.exists('./data'):
-    os.makedirs('./data')
-    os.makedirs('./data/localization')
-    os.makedirs('./data/images')
+    os.makedirs('./data', exist_ok=True)
+    os.makedirs('./data/localization', exist_ok=True)
+    os.makedirs('./data/images', exist_ok=True)
 
 if not os.path.exists('./logs'):
-    os.makedirs('./logs')
+    os.makedirs('./logs', exist_ok=True)
 
 if not os.path.exists('./libs'):
-    os.makedirs('./libs')
+    os.makedirs('./libs', exist_ok=True)
     open('./Modules/__init__.py', 'a').close()
 
 if not os.path.exists('./modules'):
-    os.makedirs('./modules')
+    os.makedirs('./modules', exist_ok=True)
     open('./modules/__init__.py', 'a').close()
 
 #-----------------------------------#

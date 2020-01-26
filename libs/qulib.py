@@ -25,7 +25,7 @@ async def data_set(json_dump: dict):
 
 #Database folder creation(if missing)
 if not os.path.exists('./Databases'):
-    os.makedirs('./databases')
+    os.makedirs('./databases', exist_ok=True)
 
 class ContextManager(object):
     def __init__(self, path):
