@@ -22,7 +22,7 @@
 <p align="center">A modern and simple to use discord bot application written in Python using the <b>discord.py</b> API wrapper.</p>
 
 <p align="center">
-QuBot is designed to act as a framework. The application was designed with bot modularity in mind - localization, easy way to load & unload new modules, etc. QuBot is open source so that everyone can self-host and maintain their own instance of the bot.
+QuBot is designed to act as a framework. The application was built with bot modularity in mind - localization, easy way to load & unload new modules, etc. QuBot is open source so that everyone can self-host and maintain their own instance of the bot.
 </p>
 
 ## Setup & Installation
