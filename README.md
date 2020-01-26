@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-	<a href="installation-ref">Installation</a>
+	<a href="#setup--installation">Installation</a>
 	•
 	<a href="https://qubot.readthedocs.io/en/latest/">Documentation</a>
 	•
@@ -29,7 +29,7 @@ QuBot is designed to act as a framework. The application was designed with bot m
 
 The application was written on [Python 3.7.6](https://www.python.org/downloads/release/python-376/). While the bot's current features work on older versions of Python 3, this might not be the case in the future. Using the same version on python is highly recommended.
 
-[Installation](#installation-ref) guides are available in the [QuBot Documentation](https://qubot.readthedocs.io/en/latest/).
+Installation guides are available in the [QuBot Documentation](https://qubot.readthedocs.io/en/latest/).
 
 **The bot has been tested and is officially supported on the following platforms:**
 
