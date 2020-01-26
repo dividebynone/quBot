@@ -24,7 +24,7 @@ async def data_set(json_dump: dict):
         json_file.close()
 
 #Database folder creation(if missing)
-if not os.path.exists('./Databases'):
+if not os.path.exists('./databases'):
     os.makedirs('./databases', exist_ok=True)
 
 class ContextManager(object):
@@ -42,11 +42,11 @@ class ContextManager(object):
 
 #Creating needed database files(if missing)
 def user_database_init():
-    with ContextManager('./Databases/users.db') as cursor:
+    with ContextManager('./databases/users.db') as cursor:
         cursor.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KEY , currency INTEGER, daily_time BLOB)")
 
 async def user_get(user: discord.User):
-    with ContextManager('./Databases/users.db') as cursor:
+    with ContextManager('./databases/users.db') as cursor:
         cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user.id, '0'))
         cursor.execute("SELECT IfNull(currency,0), IfNull(daily_time,0) FROM users WHERE userid=?", (user.id,))
         db_output = list(cursor.fetchone())
@@ -54,7 +54,7 @@ async def user_get(user: discord.User):
         return return_dict
 
 async def user_set(user: discord.User, dict_input):
-    with ContextManager('./Databases/users.db') as cursor:
+    with ContextManager('./databases/users.db') as cursor:
         cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user.id, '0'))
         cursor.execute("UPDATE users SET currency=?, daily_time=? WHERE userid=?",
                         (dict_input['currency'], dict_input['daily_time'], user.id))
@@ -62,7 +62,7 @@ async def user_set(user: discord.User, dict_input):
 #Conquest
         
 def conquest_database_init():
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("CREATE TABLE IF NOT EXISTS conquest(settlement_id INTEGER PRIMARY KEY ,invite_string BLOB,\
                 date_created BLOB,founderid BLOB,leaderid BLOB,name BLOB,treasury INTEGER,tech_attack INTEGER,\
                 tech_defence INTEGER, size INTEGER, level INTEGER,tech_tree BLOB,\
@@ -74,7 +74,7 @@ def string_generator(size):
     return ''.join(random.choice(chars) for _ in range(size))
 
 async def conquest_get(get_string:str, input_data):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         if get_string is 'user':
             cursor.execute("SELECT * FROM conquest WHERE founderid=? OR leaderid=?", (input_data,input_data,))
         elif get_string is 'settlement':
@@ -100,7 +100,7 @@ async def conquest_get(get_string:str, input_data):
             return return_dict
 
 async def conquest_set(get_string:str, input_data, dict_input):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         if get_string is 'new':
             cursor.execute("INSERT OR IGNORE INTO conquest(founderid, leaderid, treasury, entry_fee, invite_string, date_created, tech_attack, tech_defence, name, level, tech_tree, type, size, wins, losses, experience) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                             [input_data, input_data, dict_input["entry_fee"], dict_input["entry_fee"], dict_input["invite_string"],
@@ -125,11 +125,11 @@ async def conquest_set(get_string:str, input_data, dict_input):
     return None
 
 async def conquest_delete_settlement(input_id: str):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("DELETE FROM conquest WHERE settlement_id=?", (input_id,))
 
 async def conquest_get_leaderboard():
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("SELECT settlement_id, name, experience FROM conquest")
         db_output = cursor.fetchall()
         if db_output != None:
@@ -138,23 +138,23 @@ async def conquest_get_leaderboard():
         return db_output
 
 async def conquest_add_member(user: discord.User, settlement_id: int):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user.id, None))
         cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (settlement_id, user.id))
 
 async def conquest_remove_member(user: discord.User):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (None, user.id))
 
 async def conquest_get_settlementid(user: discord.User):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user.id, None))
         cursor.execute("SELECT settlement_id FROM members WHERE userid=?", (user.id,))
         db_output = cursor.fetchone()
         return db_output[0] if db_output != None else None
 
 async def conquest_find_member(user: discord.User, settlement_id: int = None):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user.id, None))
         if settlement_id:
             cursor.execute("SELECT userid FROM members WHERE settlement_id=?", (settlement_id,))
@@ -168,13 +168,13 @@ async def conquest_find_member(user: discord.User, settlement_id: int = None):
             return True if None not in {db_output, db_output[0]} else False
 
 async def conquest_find_code(input: str):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("SELECT invite_string FROM conquest WHERE invite_string=?", (input,))
         db_output = cursor.fetchone()
         return db_output[0] if db_output != None else None
 
 async def conquest_new_code(new_code: str, userID : str):
-    with ContextManager('./Databases/conquest.db') as cursor:
+    with ContextManager('./databases/conquest.db') as cursor:
         cursor.execute("UPDATE conquest SET invite_string=? WHERE founderid=? OR leaderid=?", (new_code, userID, userID,))
         return True if cursor.rowcount > 0 else False
                         

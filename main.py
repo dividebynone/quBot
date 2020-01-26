@@ -79,14 +79,14 @@ logger.addHandler(log_handler)
 #-----------------------------------#
 #Creating main databases
 #Users(Database)
-users_connector = sqlite3.connect('./Databases/users.db')
+users_connector = sqlite3.connect('./databases/users.db')
 users_cursor = users_connector.cursor()
 users_cursor.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KEY , currency INTEGER, daily_time BLOB)")
 users_cursor.close()
 users_connector.close()
 
 #Servers(Database)
-servers_connector = sqlite3.connect('./Databases/servers.db')
+servers_connector = sqlite3.connect('./databases/servers.db')
 servers_cursor = servers_connector.cursor()
 servers_cursor.execute("CREATE TABLE IF NOT EXISTS servers(guildid INTEGER PRIMARY KEY, blacklist BLOB)")
 servers_cursor.close()
