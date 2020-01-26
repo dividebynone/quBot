@@ -90,6 +90,7 @@
     "conquest_create_args": "Failed to create a settlement: Please check if all arguments are correctly structured and try again.",
     "conquest_create_part_of": "Failed to create a settlement: You can only be part of one settlement at a time.",
     "conquest_create_public_private": "The settlement's type can either be **public** or **private**.",
+    "conquest_create_sname_too_long": "The settlement's name is too long. There is a 50 character limit.",
     "conquest_create_success": "Settlement has been successfully created.",
     "conquest_entry_requirement": "The entry fee doesn't meet the minimal entry fee requirement!",
     "conquest_exp": "EXP",

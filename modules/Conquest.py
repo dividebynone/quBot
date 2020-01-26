@@ -41,42 +41,45 @@ class Conquest(commands.Cog):
         if None in {s_name,set_type,entry_fee}:
             embed = discord.Embed(title=main.lang["conquest_create_args"], color = self.module_embed_color)
         elif not await qulib.conquest_find_member(user):
-            if set_type.lower() in ('public', 'private'):
-                cdata = await qulib.conquest_get('user', user.id)
-                if not cdata:
-                    if entry_fee < self.minetryfee:
-                        embed = discord.Embed(title=main.lang["conquest_entry_requirement"], color = self.module_embed_color)
-                    else:
-                        user_data = await qulib.user_get(user)
-                        if user_data["currency"] < entry_fee:
-                            embed = discord.Embed(title=main.lang["conquest_insufficient_funds"], color = self.module_embed_color)
-                        elif set_type in ('public', 'private'):
-                            temp_invite_string = qulib.string_generator(15)
-                            cinvite_data = await qulib.conquest_find_code(temp_invite_string)
-                            if cinvite_data:
-                                while temp_invite_string is cinvite_data:
-                                    temp_invite_string = qulib.string_generator(15)
-                                    cinvite_data = await qulib.conquest_find_code(temp_invite_string)
-
-                            dict_input = {}
-                            dict_input["entry_fee"] = entry_fee
-                            dict_input["invite_string"] = temp_invite_string
-                            dict_input["date_created"] = datetime.today().replace(microsecond=0)
-                            dict_input["name"] = s_name
-                            dict_input["type"] = set_type
-                            user_data["currency"] -= entry_fee
-
-                            await qulib.user_set(user,user_data)
-                            settlement_id = await qulib.conquest_set('new', user.id, dict_input)
-                            if settlement_id:
-                                await qulib.conquest_add_member(user, settlement_id)
-                            embed = discord.Embed(title=main.lang["conquest_create_success"], color = self.module_embed_color)
+            if len(s_name) < 50:
+                if set_type.lower() in ('public', 'private'):
+                    cdata = await qulib.conquest_get('user', user.id)
+                    if not cdata:
+                        if entry_fee < self.minetryfee:
+                            embed = discord.Embed(title=main.lang["conquest_entry_requirement"], color = self.module_embed_color)
                         else:
-                            embed = discord.Embed(title=main.lang["conquest_create_args"], color = self.module_embed_color)
+                            user_data = await qulib.user_get(user)
+                            if user_data["currency"] < entry_fee:
+                                embed = discord.Embed(title=main.lang["conquest_insufficient_funds"], color = self.module_embed_color)
+                            elif set_type in ('public', 'private'):
+                                temp_invite_string = qulib.string_generator(15)
+                                cinvite_data = await qulib.conquest_find_code(temp_invite_string)
+                                if cinvite_data:
+                                    while temp_invite_string is cinvite_data:
+                                        temp_invite_string = qulib.string_generator(15)
+                                        cinvite_data = await qulib.conquest_find_code(temp_invite_string)
+
+                                dict_input = {}
+                                dict_input["entry_fee"] = entry_fee
+                                dict_input["invite_string"] = temp_invite_string
+                                dict_input["date_created"] = datetime.today().replace(microsecond=0)
+                                dict_input["name"] = s_name
+                                dict_input["type"] = set_type
+                                user_data["currency"] -= entry_fee
+
+                                await qulib.user_set(user,user_data)
+                                settlement_id = await qulib.conquest_set('new', user.id, dict_input)
+                                if settlement_id:
+                                    await qulib.conquest_add_member(user, settlement_id)
+                                embed = discord.Embed(title=main.lang["conquest_create_success"], color = self.module_embed_color)
+                            else:
+                                embed = discord.Embed(title=main.lang["conquest_create_args"], color = self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=main.lang["conquest_create_already_has"], color = self.module_embed_color)
                 else:
-                    embed = discord.Embed(title=main.lang["conquest_create_already_has"], color = self.module_embed_color)
+                    embed = discord.Embed(title=main.lang["conquest_create_public_private"], color = self.module_embed_color)
             else:
-                embed = discord.Embed(title=main.lang["conquest_create_public_private"], color = self.module_embed_color)
+                embed = discord.Embed(title=main.lang["conquest_create_sname_too_long"], color = self.module_embed_color)
         else:
             embed = discord.Embed(title=main.lang["conquest_create_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
