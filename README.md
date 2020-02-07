@@ -5,6 +5,9 @@
 <p align="center">
 	<img src="https://img.shields.io/badge/version-0.9.1b-blue.svg">
 	<img src="https://img.shields.io/badge/dev-DivideByNone%239640-brightgreen.svg">
+	<a href="https://top.gg/bot/593082021325045760" >
+  	<img src="https://top.gg/api/widget/status/593082021325045760.svg" alt="quBot" />
+	</a>
 </p>
 
 <p align="center">
