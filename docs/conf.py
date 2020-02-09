@@ -33,6 +33,7 @@ release = '0.9.1-beta'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinxcontrib_trio',
+    'sphinx.ext.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

@@ -1,8 +1,10 @@
-from discord.ext import commands
+from discord.ext import tasks, commands
 from datetime import datetime
+import datetime as dt
 from main import config
 import libs.qulib as qulib
 import configparser
+import asyncio
 import secrets
 import discord
 import math
@@ -16,6 +18,10 @@ class Conquest(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.module_embed_color =  0xd59c6d
+        self.daily_cloth_price = rand_generator.randint(5,40)
+        self.daily_wood_price = rand_generator.randint(5,40)
+        self.daily_stone_price = rand_generator.randint(5,40)
+        self.daily_food_price = rand_generator.randint(5,40)
         print(f'Module {self.__class__.__name__} loaded')
 
         qulib.conquest_database_init()
@@ -33,6 +39,37 @@ class Conquest(commands.Cog):
             config.read_file(config_file)
             self.minetryfee = int(config.get('Conquest', 'MinEntryFee'))
         config_file.close()
+
+        data = qulib.sync_data_get()
+        time_on_init = datetime.today().replace(microsecond=0)
+        if "resources_time" not in data["Conquest"]:
+            data["Conquest"]["resources_time"] = time_on_init.strftime('%Y-%m-%d %H:%M:%S')
+
+        qulib.sync_data_set(data)
+        self.resources_daily.start() #pylint(no-member) - False positive error
+        
+    def cog_unload(self):
+        self.resources_daily.cancel() #pylint(no-member) - False positive error
+    
+    @tasks.loop(hours=24.0, reconnect=True)
+    async def resources_daily(self):
+        data = await qulib.data_get()
+        time_on_loop = datetime.today().replace(microsecond=0)
+        daily_converted = datetime.strptime(data["Conquest"]["resources_time"], '%Y-%m-%d %H:%M:%S')
+        daily_active = daily_converted + dt.timedelta(days=1)
+        if time_on_loop < daily_active:    
+            time_left = (daily_active - time_on_loop).total_seconds()
+            await asyncio.sleep(time_left)
+            self.resources_daily.restart() #pylint(no-member) - False positive error
+        else:
+            data["Conquest"]["resources_time"] = time_on_loop.strftime('%Y-%m-%d %H:%M:%S')
+            await qulib.data_set(data)
+            await qulib.conquest_daily_resources()
+            self.daily_cloth_price = rand_generator.randint(5,40)
+            self.daily_wood_price = rand_generator.randint(5,40)
+            self.daily_stone_price = rand_generator.randint(5,40)
+            self.daily_food_price = rand_generator.randint(5,40)
+            main.logger.info(f"[{time_on_loop}][Conquest] Sent settlement resources dailies.")
 
     @commands.command(name='screate', help=main.lang["command_ccreate_help"], description=main.lang["command_ccreate_description"], usage='"My Settlement Name" <public/private> 100', aliases=['sc'])
     @commands.guild_only()
@@ -129,7 +166,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_join_no_subcommands"], color = self.module_embed_color)
             await ctx.send(embed=embed)
 
-    @conquest_join.command()
+    @conquest_join.command(help=main.lang["empty_string"], description=main.lang["command_jprivate_description"], usage="<code here> 100")
     async def private(self, ctx, invite_code: str = None, join_fee: int = None):
         user = ctx.author
         if None in {invite_code, join_fee}:
@@ -156,7 +193,7 @@ class Conquest(commands.Cog):
                 embed = discord.Embed(title=main.lang["conquest_join_not_found"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @conquest_join.command()
+    @conquest_join.command(help=main.lang["empty_string"], description=main.lang["command_jpublic_description"], usage="@somebody 100")
     async def public(self, ctx, target_user: discord.User = None, join_fee: int = None):
         user = ctx.author
         if None in {target_user, join_fee}:
@@ -377,5 +414,227 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_skick_self"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
+    @commands.command(name='resources', help=main.lang["empty_string"], description=main.lang["command_resources_description"], ignore_extra=True)
+    async def conquest_resources(self, ctx):
+        if await qulib.conquest_find_member(ctx.author):
+            settlementid = await qulib.conquest_get_settlementid(ctx.author)
+            cdata = await qulib.conquest_get('id', settlementid)
+            if ctx.author.id == cdata["leaderid"]:
+                resources = await qulib.conquest_get_resources(settlementid)
+                json_data = await qulib.data_get()
+                embed = discord.Embed(title=main.lang["conquest_warehouse_title"].format(cdata["name"]), color=self.module_embed_color)
+                embed.set_thumbnail(url=json_data['Conquest']['warehouse_image'])
+                embed.add_field(name=main.lang["conquest_resources_gold"], value=f'{cdata["treasury"]} {json_data["Conquest"]["gold_icon"]}',inline=True)
+                embed.add_field(name=main.lang["conquest_resources_wood"], value=f'{resources["wood"]} {json_data["Conquest"]["resources_wood"]}',inline=True)
+                embed.add_field(name=main.lang["conquest_resources_stone"], value=f'{resources["stone"]} {json_data["Conquest"]["resources_stone"]}',inline=True)
+                embed.add_field(name=main.lang["conquest_resources_food"], value=f'{resources["food"]} {json_data["Conquest"]["resources_food"]}',inline=True)
+                embed.add_field(name=main.lang["conquest_resources_cloth"], value=f'{resources["cloth"]} {json_data["Conquest"]["resources_cloth"]}',inline=True)
+            else:
+                embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+ 
+    @commands.group(name='buildings', help=main.lang["empty_string"], description=main.lang["command_buildings_description"])
+    async def conquest_buildings(self, ctx):
+        if not ctx.invoked_subcommand:
+            await ctx.invoke(self.buildings_list)
+
+    @conquest_buildings.command(name='list', help=main.lang["empty_string"], description=main.lang["command_blist_description"], ignore_extra=True)
+    async def buildings_list(self, ctx):
+        if await qulib.conquest_find_member(ctx.author):
+            settlementid = await qulib.conquest_get_settlementid(ctx.author)
+            cdata = await qulib.conquest_get('id', settlementid)
+            json_data = await qulib.data_get()
+            buildings = await qulib.conquest_get_buildings()
+            embed = discord.Embed(title=main.lang["conquest_buildings_title"].format(cdata['name']), color=self.module_embed_color)
+            th_level = cdata['tech_tree'][0] if cdata['tech_tree'][0] != "X" else 10
+            for i in range(len(buildings)):
+                level = int(cdata["tech_tree"][i]) if cdata['tech_tree'][i] != "X" else 10
+                if level == 10 or (level == 1 and (i+1) in (3, 9)):
+                    embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {main.lang['conquest_level']} {level}** *MAX*", value=main.lang["conquest_max_reached"],inline=False)
+                else:
+                    gold = f"{pow(2, level+1)*buildings[i]['mltplr_gold']} {json_data['Conquest']['gold_icon']}" if buildings[i]['mltplr_gold'] != 0 else ""
+                    wood = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_wood']} {json_data['Conquest']['resources_wood']}" if (buildings[i]['mltplr_wood'] != 0) else ""
+                    stone = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_stone']} {json_data['Conquest']['resources_stone']}" if (buildings[i]['mltplr_stone'] != 0) else ""
+                    food = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_food']} {json_data['Conquest']['resources_food']}" if (buildings[i]['mltplr_food'] != 0) else ""
+                    cloth = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_cloth']} {json_data['Conquest']['resources_cloth']}" if (buildings[i]['mltplr_cloth'] != 0) else ""
+                    if int(level) == 0 and i == 0:
+                        wood = stone = food = ""
+                    if i > 0 and ((level+1) > int(th_level)):
+                        embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {main.lang['conquest_level']} {level}** -> *{main.lang['conquest_level']} {int(level)+1}*",
+                                        value=f'*{main.lang["conquest_upgrade_th"]}*',inline=False)
+                    else:
+                        embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {main.lang['conquest_level']} {level}** -> *{main.lang['conquest_level']} {int(level)+1}*",
+                                        value=f"**{main.lang['conquest_resources_needed']}:** {gold} {wood} {stone} {food} {cloth}",inline=False)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 10, commands.BucketType.user) 
+    @conquest_buildings.command(name='upgrade', help=main.lang["command_sleader"], description=main.lang["command_bupgrade_description"], usage='1', ignore_extra=True)
+    async def buildings_upgrade(self, ctx, building_id: int):
+        if 1 <= building_id <=10:
+            if await qulib.conquest_find_member(ctx.author):
+                settlementid = await qulib.conquest_get_settlementid(ctx.author)
+                cdata = await qulib.conquest_get('id', settlementid)
+                if ctx.author.id == cdata["leaderid"]:
+                    building = await qulib.conquest_get_building(building_id)
+                    resources = await qulib.conquest_get_resources(settlementid)
+                    level = int(cdata["tech_tree"][building_id-1]) if cdata['tech_tree'][building_id-1] != "X" else 10
+                    th_level = cdata['tech_tree'][0] if cdata['tech_tree'][0] != "X" else 10
+                    if (level+1) <= int(th_level) or (building_id == 1):
+                        if level != 10:
+                            if level == 1 and building_id in (3, 9):
+                                embed = discord.Embed(title=main.lang["conquest_upgrade_max_level"], color=self.module_embed_color)
+                            else:
+                                gold = pow(2, int(level)+1)*building['gold']
+                                wood = pow(int(level)+1, 2)*(level+1)*building['wood']
+                                stone = pow(int(level)+1, 2)*(level+1)*building['stone']
+                                food = pow(int(level)+1, 2)*(level+1)*building['food']
+                                cloth = pow(int(level)+1, 2)*(level+1)*building['cloth']
+                                
+                                if (cdata['treasury']>=gold and resources['cloth']>=cloth and resources['stone']>=stone and resources['food']>=food and resources['wood']>=wood):
+                                    embed = discord.Embed(title=main.lang["conquest_upgrade_success"].format(building['name'], level+1), color=self.module_embed_color)
+                                    tech_tree = list(cdata['tech_tree'])
+                                    tech_tree[building_id-1] = str(level+1) if (level+1) != 10 else "X"
+                                    cdata['tech_tree'] = "".join(tech_tree)
+                                    cdata['treasury'] -= gold
+                                    resources['cloth'] -= cloth
+                                    resources['food'] -= food
+                                    resources['stone'] -= stone
+                                    resources['wood'] -= wood
+                                    await qulib.conquest_set_resources(settlementid, resources)
+                                    await qulib.conquest_set('id', settlementid, cdata)
+                                    await qulib.conquest_building_upgrade(settlementid, building_id)
+                                else:
+                                    embed = discord.Embed(title=main.lang["conquest_upgrade_fail"].format(building['name']), color=self.module_embed_color)
+                        else:
+                            embed = discord.Embed(title=main.lang["conquest_upgrade_max_level"], color=self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=main.lang["conquest_upgrade_th"], color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
+            else:
+                embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_requirements_range"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.command(name='requirements', help=main.lang["empty_string"], description=main.lang["command_reqs_description"], usage="1", aliases=['reqs'])
+    async def conquest_requirements(self, ctx, *, building_id: int):
+        if 1 <= building_id <=10:
+            if await qulib.conquest_find_member(ctx.author):
+                json_data = await qulib.data_get()
+                building = await qulib.conquest_get_building(building_id)
+                embed = discord.Embed(title=main.lang["conquest_requirements_title"].format(building['name']), color=self.module_embed_color)
+                for level in range(0, 10):
+                    gold = f"{pow(2, int(level)+1)*building['gold']} {json_data['Conquest']['gold_icon']}" if building['gold'] != 0 else ""
+                    wood = f"{pow(int(level)+1, 2)*(level+1)*building['wood']} {json_data['Conquest']['resources_wood']}" if (building['wood'] != 0) else ""
+                    stone = f"{pow(int(level)+1, 2)*(level+1)*building['stone']} {json_data['Conquest']['resources_stone']}" if (building['stone'] != 0) else ""
+                    food = f"{pow(int(level)+1, 2)*(level+1)*building['food']} {json_data['Conquest']['resources_food']}" if (building['food'] != 0) else ""
+                    cloth = f"{pow(int(level)+1, 2)*(level+1)*building['cloth']} {json_data['Conquest']['resources_cloth']}" if (building['cloth'] != 0) else ""
+                    if level == 0 and building_id == 1:
+                        wood = stone = food = ""
+                    embed.add_field(name=f"**{main.lang['conquest_level']} {level}** -> *{main.lang['conquest_level']} {int(level)+1}*",
+                                    value=f"**{main.lang['conquest_resources_needed']}:** {gold} {wood} {stone} {food} {cloth}",inline=False)
+                    if building_id in (3, 9):
+                        break
+            else:
+                embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_requirements_range"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 5, commands.BucketType.user) 
+    @commands.group(name='market', help=main.lang["command_market_help"], description=main.lang["command_market_description"])
+    async def conquest_market(self, ctx):
+        if not ctx.invoked_subcommand:
+            json_data = await qulib.data_get()
+            embed = discord.Embed(title=main.lang["conquest_market_title"], color=self.module_embed_color)
+            embed.set_thumbnail(url=json_data['Conquest']['market_image'])
+            embed.add_field(name=f"1 )  {json_data['Conquest']['resources_cloth']} **{main.lang['conquest_resources_cloth']}**",
+                            value=f"{main.lang['conquest_sell_price']}: **{self.daily_cloth_price}  {json_data['Conquest']['gold_icon']} /{main.lang['conquest_piece']}**",inline=False)
+            embed.add_field(name=f"2 )  {json_data['Conquest']['resources_wood']} **{main.lang['conquest_resources_wood']}**",
+                            value=f"{main.lang['conquest_sell_price']}: **{self.daily_wood_price}  {json_data['Conquest']['gold_icon']} /{main.lang['conquest_piece']}**",inline=False)
+            embed.add_field(name=f"3 )  {json_data['Conquest']['resources_stone']} **{main.lang['conquest_resources_stone']}**",
+                            value=f"{main.lang['conquest_sell_price']}: **{self.daily_stone_price}  {json_data['Conquest']['gold_icon']} /{main.lang['conquest_piece']}**",inline=False)
+            embed.add_field(name=f"4 )  {json_data['Conquest']['resources_food']} **{main.lang['conquest_resources_food']}**",
+                            value=f"{main.lang['conquest_sell_price']}: **{self.daily_food_price}  {json_data['Conquest']['gold_icon']} /{main.lang['conquest_piece']}**",inline=False)
+            embed.set_footer(text=main.lang["conquest_market_reminder"])
+            await ctx.send(embed=embed)
+
+    @conquest_market.command(name='sell', help=main.lang["command_sleader"], description=main.lang["command_msell_description"], usage='wood 150')
+    async def market_sell(self, ctx, item: str, quantity: int):
+        if item.lower() in ("cloth", "wood", "stone", "food", "1", "2", "3", "4"):
+            if await qulib.conquest_find_member(ctx.author):
+                settlementid = await qulib.conquest_get_settlementid(ctx.author)
+                cdata = await qulib.conquest_get('id', settlementid)
+                if ctx.author.id == cdata["leaderid"]:
+                    json_data = await qulib.data_get()
+                    resources_dict = {"1":"cloth", "2":"wood", "3":"stone", "4":"food"}
+                    prices_dict = {"cloth":self.daily_cloth_price, "wood":self.daily_wood_price, "stone":self.daily_stone_price, "food":self.daily_food_price}
+                    resources = await qulib.conquest_get_resources(settlementid)
+                    index = resources_dict[item] if item in resources_dict else item
+                    if quantity > 0 and quantity <= resources[index]:
+                        resources[index] -= quantity
+                        cdata['treasury'] += quantity*prices_dict[index]  
+                        await qulib.conquest_set_resources(settlementid, resources)
+                        await qulib.conquest_set("id", settlementid, cdata)
+                        embed = discord.Embed(title=main.lang["conquest_market_sell_success"].format(quantity, index, quantity*prices_dict[index], json_data['Conquest']['gold_icon']), color = self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=main.lang["conquest_market_sell_fail"], color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
+            else:
+                embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+            await ctx.send(embed=embed)
+
+    @conquest_market.command(name='buy', help=main.lang["command_sleader"], description=main.lang["command_mbuy_description"], usage='cloth 50')
+    async def market_buy(self, ctx, item: str, quantity: int):
+        if item.lower() in ("cloth", "wood", "stone", "food", "1", "2", "3", "4"):
+            if await qulib.conquest_find_member(ctx.author):
+                settlementid = await qulib.conquest_get_settlementid(ctx.author)
+                cdata = await qulib.conquest_get('id', settlementid)
+                if ctx.author.id == cdata["leaderid"]:
+                    json_data = await qulib.data_get()
+                    resources_dict = {"1":"cloth", "2":"wood", "3":"stone", "4":"food"}
+                    prices_dict = {"cloth":self.daily_cloth_price, "wood":self.daily_wood_price, "stone":self.daily_stone_price, "food":self.daily_food_price}
+                    resources = await qulib.conquest_get_resources(settlementid)
+                    index = resources_dict[item] if item in resources_dict else item
+                    if quantity > 0 and quantity*prices_dict[index] <= resources[index]:
+                        resources[index] += quantity
+                        cdata['treasury'] -= quantity*prices_dict[index]  
+                        await qulib.conquest_set_resources(settlementid, resources)
+                        await qulib.conquest_set("id", settlementid, cdata)
+                        embed = discord.Embed(title=main.lang["conquest_market_buy_success"].format(quantity, index, quantity*prices_dict[index], json_data['Conquest']['gold_icon']), color = self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=main.lang["conquest_market_buy_fail"], color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
+            else:
+                embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="deposit", help=main.lang["command_deposit_help"], description=main.lang["command_deposit_description"], usage='100')
+    async def conquest_deposit(self, ctx, number: int):
+        if await qulib.conquest_find_member(ctx.author):
+            settlementid = await qulib.conquest_get_settlementid(ctx.author)
+            cdata = await qulib.conquest_get('id', settlementid)
+            author_info = await qulib.user_get(ctx.author)
+            json_data = await qulib.data_get()
+            if number > 0:
+                if author_info['currency'] <= 0 or number > author_info['currency']:
+                    embed = discord.Embed(title=main.lang["economy_insufficient_funds"], color=self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=main.lang["conquest_deposit_success"].format(number, json_data['Conquest']['gold_icon']), color=self.module_embed_color)
+                    author_info['currency'] -= number
+                    cdata['treasury'] += number
+                    await qulib.user_set(ctx.author, author_info)
+                    await qulib.conquest_set("id", settlementid, cdata)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+    
 def setup(bot):
     bot.add_cog(Conquest(bot))

@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "QBEnv\\Scripts\\python.exe"
+    "python.pythonPath": "QBEnv\\Scripts\\python.exe",
+    "restructuredtext.confPath": "${workspaceFolder}\\docs"
 }
