@@ -130,7 +130,7 @@ def old_logs_delete(days_int: int = 7):
     for file_ in os.listdir():
         file_path = os.path.join(os.getcwd(), file_)
         file_stats = os.stat(file_path)
-        if file_stats.st_mtime <= datetime_seconds or file_stats.st_size == 0:
+        if file_stats.st_mtime <= datetime_seconds:
             os.remove(file_path)
             print(f'The system has deleted [{file_}]: The file was either marked for autodeletion or empty.')
     os.chdir(os.pardir)
