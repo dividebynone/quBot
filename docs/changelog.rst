@@ -1,6 +1,22 @@
 Changelog
 =========
 
+quBot 0.9.6-beta (09-02-2020)
+-----------------------------
+
+.. topic:: Description
+
+    Implemented bot intergration with top.gg - Top.gg will now update the bot's server count every 30 minutes on its website.
+    Furthermore, every bot vote will now reward the user with 50 bot currency on weekdays and 100 on weekends.
+
+General Changes
+^^^^^^^^^^^^^^^
+- Server counter intergration with Top.GG;
+- Vote rewards to users who vote for the bot on Top.GG;
+
+Bug fixes
+^^^^^^^^^
+- Fixed issues with logs auto-deletion on files with file size less than 1kb;
 
 quBot 0.9.5-beta (09-02-2020)
 -----------------------------
