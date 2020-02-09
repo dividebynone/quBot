@@ -57,6 +57,19 @@ Conquest
    | Note: This command can **ONLY** be used by settlement leaders.", "``!promote @somebody``"
    "``skick``", "| Kicks the target individual from the settlement.\
    | Note: This command can **ONLY** be used by settlement leaders.", "``!skick @somebody``"
+   "``resources``", "Displays the amount of resources currently stored in your settlement.", "``!resources``"
+   "``buildings`` ``buildings list``", "Displays the buildings' status of the settlement you are part of. (if any)", "``!buildings``, ``!buildings list``"
+   "``buildings upgrade``", "| Upgrades the target settlement building to the next level.\
+   | Note: This command can **ONLY** be used by settlement leaders.", "``!buildings upgrade 1``"
+   "``requirements`` ``reqs``", "Displays target settlement building upgrade requirements for every level from 1 to 10.", "``!requirements 1``, ``!reqs 3``"
+   "``market``", "| A command group. If no subcommands are invoked by the user, this command will display the resource market.\
+   | Note: This command can also be used directly in the bot's direct messages.", "``!market``"
+   "``market buy``", "| Buys a set amount of resources from the market.\
+   | Note: This command can **ONLY** be used by settlement leaders.", "``!market buy wood 10``, ``!market buy 1 10``"
+   "``market sell``", "| Sells a set amount of resources on the market.\
+   | Note: This command can **ONLY** be used by settlement leaders.", "``!market sell wood 10``, ``!market sell 1 10``"
+   "``deposit``", "| Deposits a sum of money into the treasury of the settlement you are currently part of.\
+   | Note: You need to be part of a settlement to be able to use this command.", "``!deposit 100``"
 
 Core
 ^^^^

@@ -97,9 +97,15 @@
 <p class="caption"><span class="caption-text">Changelog:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-5-beta-09-02-2020">quBot 0.9.5-beta (09-02-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#new-features">New features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-1-beta-24-01-2020">quBot 0.9.1-beta (24-01-2020)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#general-changes">General Changes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Bug fixes</a></li>
 </ul>
 </li>
 </ul>
@@ -170,6 +176,71 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="qubot-0-9-5-beta-09-02-2020">
+<h2>quBot 0.9.5-beta (09-02-2020)<a class="headerlink" href="#qubot-0-9-5-beta-09-02-2020" title="Permalink to this headline">¶</a></h2>
+<div class="topic">
+<p class="topic-title">Description</p>
+<p>This is the first rather large update to the bot since its public open beta release. It introduces new features
+to the Conquest game mode: upgradable settlement buildings, settlement resource system and a resource market that
+resets every 24 hours. This is the first step going forward with the Conquest game with more planned features such
+as tournaments, alliances(guilds) and achievements. While I am ready to start work on that, I feel like I need to
+focus my attention to the bot’s moderation toolkit and utility commands. The next bot update will mainly focus on
+these two things.</p>
+</div>
+<div class="section" id="new-features">
+<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Conquest</p>
+<blockquote>
+<div><ul>
+<li><p>Upgradable settlement buildings:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Town Hall (Level 1 - 10) - This is the main building of any settlement. Upgrading the town hall will
+increase the max Level limit for all other buildings;</p></li>
+<li><p>Training Grounds (Level 1 - 10) - Building and leveling the Training Grounds will increase the settlement’s attack points;</p></li>
+<li><p>Market Square (Level 1) - Building the Market Square will allow settlement leaders to buy and sell resources
+on the market;</p></li>
+<li><p>Walls (Level 1 - 10) - Building and leveling the settlement walls will increase the settlement’s defence points;</p></li>
+<li><p>Quarry (Level 1 - 10) (Produces Stone) - Building the quarry will allow settlements to produce a certain amount of stone every day.
+Upgrading the quarry will increase the daily amount of stone your settlement produces;</p></li>
+<li><p>Farms (Level 1 - 10) (Produces Food) - Building farms will allow settlements to produce a certain amount of food every day.
+Upgrading the farms will increase the daily amount of food your settlement produces;</p></li>
+<li><p>Weavery (Level 1 - 10) (Produces Cloth) - Building the weavery will allow settlements to produce a certain amount of cloth every day.
+Upgrading the weavery will increase the daily amount of cloth your settlement produces;</p></li>
+<li><p>Lumberjack’s Camp (Level 1 - 10) (Produces Wood) - Building the lumberjack’s camp will allow settlements to produce a certain amount
+of wood every day. Upgrading the lumberjack’s camp will increase the daily amount of wood your settlement produces;</p></li>
+<li><p>Warehouse (Level 1) - Building the Warehouse will remove the 1000 resource limit (per item);</p></li>
+<li><p>Academy (Level 1 - 10) - Building and leveling the Academy will slightly increase the settlement’s attack and defence points;</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Resource market - Integral part of the settlement resource system, the market allows users to buy and sell resources for gold;</p></li>
+<li><p>Settlement resource system - Part of the building upgrade system, settlements can now produce: Cloth, Food, Stone &amp; Wood;</p></li>
+<li><p>New command: <code class="docutils literal notranslate"><span class="pre">deposit</span></code> - Allows users to deposit a certain amount of bot currency to the settlement they are part of;</p></li>
+<li><p>New command: <code class="docutils literal notranslate"><span class="pre">requirements</span></code> - Displays target settlement building upgrade requirements for every level from 1 to 10;</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="miscellaneous">
+<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Added .pyc, .pyo &amp; .log files to .gitignore</p>
+<ul>
+<li><p>I noticed that these temporary/cache files cause unnecessary merge conflicts;</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="bug-fixes">
+<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed missing conquest join public/private help and description JSON strings;</p></li>
+</ul>
+</div>
+</div>
 <div class="section" id="qubot-0-9-1-beta-24-01-2020">
 <h2>quBot 0.9.1-beta (24-01-2020)<a class="headerlink" href="#qubot-0-9-1-beta-24-01-2020" title="Permalink to this headline">¶</a></h2>
 <div class="topic">
@@ -184,8 +255,8 @@ for future use.</p>
 <li><p>Placeholder</p></li>
 </ul>
 </div>
-<div class="section" id="bug-fixes">
-<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3>Bug fixes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Placeholder</p></li>
 </ul>
