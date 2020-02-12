@@ -36,7 +36,7 @@ class HelpFormatter(commands.Cog):
             else:
                 embed = discord.Embed(title=main.lang["helpformatter_cmd_not_found"], color=self.module_embed_color)
         else:
-            embed = discord.Embed(title=main.lang["helpformatter_help"], description=main.lang["helpformatter_help_description"], color=self.module_embed_color)
+            embed = discord.Embed(title=main.lang["helpformatter_help"], description=main.lang["helpformatter_help_description"].format(main.prefix, main.prefix, main.prefix), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
 def setup(bot):
