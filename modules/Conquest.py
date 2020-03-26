@@ -494,6 +494,9 @@ class Conquest(commands.Cog):
                                 food = pow(int(level)+1, 2)*(level+1)*building['food']
                                 cloth = pow(int(level)+1, 2)*(level+1)*building['cloth']
                                 
+                                if (level == 0):
+                                    wood = stone = food = 0
+                                
                                 if (cdata['treasury']>=gold and resources['cloth']>=cloth and resources['stone']>=stone and resources['food']>=food and resources['wood']>=wood):
                                     embed = discord.Embed(title=main.lang["conquest_upgrade_success"].format(building['name'], level+1), color=self.module_embed_color)
                                     tech_tree = list(cdata['tech_tree'])
