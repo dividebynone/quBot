@@ -459,8 +459,8 @@ class Conquest(commands.Cog):
                     stone = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_stone']} {json_data['Conquest']['resources_stone']}" if (buildings[i]['mltplr_stone'] != 0) else ""
                     food = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_food']} {json_data['Conquest']['resources_food']}" if (buildings[i]['mltplr_food'] != 0) else ""
                     cloth = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_cloth']} {json_data['Conquest']['resources_cloth']}" if (buildings[i]['mltplr_cloth'] != 0) else ""
-                    if int(level) == 0 and i == 0:
-                        wood = stone = food = ""
+                    if int(level) == 0 and i in (0,4,5,6,7):
+                        wood = stone = food = cloth = ""
                     if i > 0 and ((level+1) > int(th_level)):
                         embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {main.lang['conquest_level']} {level}** -> *{main.lang['conquest_level']} {int(level)+1}*",
                                         value=f'*{main.lang["conquest_upgrade_th"]}*',inline=False)
@@ -494,8 +494,8 @@ class Conquest(commands.Cog):
                                 food = pow(int(level)+1, 2)*(level+1)*building['food']
                                 cloth = pow(int(level)+1, 2)*(level+1)*building['cloth']
                                 
-                                if (building_id == 1 and level == 0):
-                                    wood = stone = food = 0
+                                if (building_id in (1,5,6,7,8) and level == 0):
+                                    wood = stone = food = cloth = 0
                                 
                                 if (cdata['treasury']>=gold and resources['cloth']>=cloth and resources['stone']>=stone and resources['food']>=food and resources['wood']>=wood):
                                     embed = discord.Embed(title=main.lang["conquest_upgrade_success"].format(building['name'], level+1), color=self.module_embed_color)
@@ -537,8 +537,8 @@ class Conquest(commands.Cog):
                     stone = f"{pow(int(level)+1, 2)*(level+1)*building['stone']} {json_data['Conquest']['resources_stone']}" if (building['stone'] != 0) else ""
                     food = f"{pow(int(level)+1, 2)*(level+1)*building['food']} {json_data['Conquest']['resources_food']}" if (building['food'] != 0) else ""
                     cloth = f"{pow(int(level)+1, 2)*(level+1)*building['cloth']} {json_data['Conquest']['resources_cloth']}" if (building['cloth'] != 0) else ""
-                    if level == 0 and building_id == 1:
-                        wood = stone = food = ""
+                    if level == 0 and building_id in (1,5,6,7,8):
+                        wood = stone = food = cloth = ""
                     embed.add_field(name=f"**{main.lang['conquest_level']} {level}** -> *{main.lang['conquest_level']} {int(level)+1}*",
                                     value=f"**{main.lang['conquest_resources_needed']}:** {gold} {wood} {stone} {food} {cloth}",inline=False)
                     if building_id in (3, 9):
