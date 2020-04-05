@@ -164,11 +164,10 @@ async def conquest_delete_settlement(input_id: str):
 
 async def conquest_get_leaderboard():
     with ContextManager('./databases/conquest.db') as cursor:
-        cursor.execute("SELECT settlement_id, name, experience FROM conquest")
+        cursor.execute("SELECT settlement_id, name, experience FROM conquest ORDER BY experience DESC")
         db_output = cursor.fetchall()
         if db_output != None:
             db_output = list(db_output)
-            db_output.sort(key=lambda info: info[2], reverse=True)
         return db_output
 
 async def conquest_add_member(user: discord.User, settlement_id: int):

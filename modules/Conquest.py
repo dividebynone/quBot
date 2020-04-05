@@ -46,10 +46,10 @@ class Conquest(commands.Cog):
             data["Conquest"]["resources_time"] = time_on_init.strftime('%Y-%m-%d %H:%M:%S')
 
         qulib.sync_data_set(data)
-        self.resources_daily.start() #pylint(no-member) - False positive error
+        self.resources_daily.start() # pylint: disable=no-member
         
     def cog_unload(self):
-        self.resources_daily.cancel() #pylint(no-member) - False positive error
+        self.resources_daily.cancel() # pylint: disable=no-member
     
     @tasks.loop(hours=24.0, reconnect=True)
     async def resources_daily(self):
@@ -60,7 +60,7 @@ class Conquest(commands.Cog):
         if time_on_loop < daily_active:    
             time_left = (daily_active - time_on_loop).total_seconds()
             await asyncio.sleep(time_left)
-            self.resources_daily.restart() #pylint(no-member) - False positive error
+            self.resources_daily.restart() # pylint: disable=no-member
         else:
             data["Conquest"]["resources_time"] = time_on_loop.strftime('%Y-%m-%d %H:%M:%S')
             await qulib.data_set(data)
@@ -240,8 +240,8 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_code_fail"].format(cdata["invite_string"]), color = self.module_embed_color)    
         await ctx.author.send(embed=embed)
 
-    @conquest_code.command(help=main.lang["command_code_help"], description=main.lang["command_code_new_description"], ignore_extra=True)
     @commands.cooldown(1, 600, commands.BucketType.user)
+    @conquest_code.command(help=main.lang["command_code_help"], description=main.lang["command_code_new_description"], ignore_extra=True) 
     async def new(self, ctx):
         new_invite_string = qulib.string_generator(15)
         cinvite_data = await qulib.conquest_find_code(new_invite_string)
@@ -317,6 +317,7 @@ class Conquest(commands.Cog):
         if not completed_attack:
             self.bot.get_command(ctx.command.name).reset_cooldown(ctx)
 
+    #@commands.cooldown(1, 30,commands.BucketType.user)
     @commands.command(name="leaderboard", help=main.lang["command_leaderboard_help"], description=main.lang["command_leaderboard_description"], aliases=['lb'])
     @commands.guild_only()
     async def conquest_leaderboard(self, ctx, page: int = 1):
@@ -324,13 +325,12 @@ class Conquest(commands.Cog):
             page_index = page - 1
             leaderboard_data = await qulib.conquest_get_leaderboard()           
             if len(leaderboard_data[(page_index*10):(page_index*10 + 9)]) > 0:
-                counter = 1
+                counter = page_index*10 + 1 - page_index
                 embed = discord.Embed(title=main.lang["conquest_leaderboard_title"], color = self.module_embed_color)
                 embed.set_footer(text=f'{main.lang["page_string"]} {page}')
                 for item in leaderboard_data[(page_index*10):(page_index*10 + 9)]:
-                    inline_bool = False if page%2 == 0 else True
                     embed.add_field(name=f'#{counter} {item[1]} (ID:{item[0]})', value=f'{item[2]} {main.lang["conquest_exp"]}',
-                                    inline=inline_bool)
+                                    inline=True)
                     counter += 1  
             else:
                 embed = discord.Embed(title=main.lang["conquest_leaderboard_outofrange"], color = self.module_embed_color)
