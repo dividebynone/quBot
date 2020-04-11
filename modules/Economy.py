@@ -135,5 +135,45 @@ class Economy(commands.Cog):
                 await user_set(user, user_info)
             await ctx.send(embed=embed)
 
+    @commands.Cog.listener()
+    @commands.guild_only()
+    async def on_reaction_add(self, reaction, user):
+        if reaction.message.author.id == self.bot.user.id and not user.bot:
+            giveaways = await qulib.get_giveaway_list()
+            if giveaways:
+                if (reaction.message.id in giveaways):
+                    if reaction.emoji == self.currency_symbol:
+                        if await qulib.has_entered_giveaway(user.id, reaction.message.id) == False:
+                            print("entered giveaway")
+                            value = await qulib.get_giveaway_value(reaction.message.id)
+                            if value:
+                                await qulib.enter_giveaway(user.id, reaction.message.id)
+                                user_info = await user_get(user)
+                                user_info['currency'] += value
+                                await user_set(user, user_info)
+
+    @commands.is_owner()
+    @commands.guild_only()
+    @commands.group(name="giveaway", help=main.lang["empty_string"], description=main.lang["command_giveaway_group_description"])
+    async def giveaway_group(self, ctx):
+        if not ctx.invoked_subcommand:
+            pass
+
+    @giveaway_group.command(name="start", help=main.lang["command_owner_only"], description=main.lang["command_giveaway_start_description"], usage=100)
+    async def giveaway_start(self, ctx, value: int):
+        await ctx.message.delete()
+        embed = discord.Embed(title="Currency Giveaway", description=f"React with {self.currency_symbol} to this message to claim **{value} {self.currency_symbol}**", color=self.module_embed_color)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction(self.currency_symbol)
+        await qulib.start_giveaway(message.id, value)
+
+    @giveaway_group.command(name="end", help=main.lang["command_owner_only"], description=main.lang["command_giveaway_end_description"])
+    async def giveaway_end(self, ctx, *, message_id: int):
+        await ctx.message.delete()
+        result = await qulib.end_giveaway(message_id)
+        if result:
+            message = await ctx.channel.fetch_message(message_id)
+            await ctx.channel.delete_messages([message])
+
 def setup(bot):
     bot.add_cog(Economy(bot))

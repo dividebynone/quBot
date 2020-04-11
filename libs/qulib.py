@@ -55,6 +55,8 @@ class ContextManager(object):
 def user_database_init():
     with ContextManager('./databases/users.db') as cursor:
         cursor.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KEY , currency INTEGER, daily_time BLOB)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS giveaway_participants(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, userid INTEGER, msgid INTEGER)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS giveaways(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, msgid INTEGER, value INTEGER)")
 
 async def user_get(user: discord.User):
     with ContextManager('./databases/users.db') as cursor:
@@ -290,3 +292,47 @@ async def conquest_daily_resources():
         cursor_update.execute("UPDATE resources SET cloth=?, wood=?, stone=?, food=? WHERE settlement_id=?", (row_info[1], row_info[2], row_info[3], row_info[4], row_info[0]))
     conn.commit()
     conn.close()
+
+#Giveaway (Economy)
+
+async def start_giveaway(msg_id: int, value: int):
+    with ContextManager('./databases/users.db') as cursor:
+        cursor.execute("INSERT OR IGNORE INTO giveaways(msgid, value) VALUES(?, ?)", (msg_id, value,))
+
+async def get_giveaway_value(msg_id: int):
+    with ContextManager('./databases/users.db') as cursor:
+        cursor.execute("SELECT value FROM giveaways WHERE msgid=?", (msg_id,))
+        db_output = cursor.fetchone()
+        if db_output:
+            db_output = list(db_output)
+            return db_output[0] if db_output else None
+        else:
+            return None
+
+async def get_giveaway_list():
+    with ContextManager('./databases/users.db') as cursor:
+        cursor.execute("SELECT msgid FROM giveaways")
+        db_output = cursor.fetchall()
+        return list(db_output[0]) if db_output else None
+
+async def has_entered_giveaway(user_id: int, msg_id: int):
+    with ContextManager('./databases/users.db') as cursor:
+        cursor.execute("SELECT ID FROM giveaways WHERE msgid=?", (msg_id,))
+        check = cursor.fetchone()
+        if check:
+            cursor.execute("SELECT ID FROM giveaway_participants WHERE userid=? AND msgid=?", (user_id, msg_id,))
+            db_output = cursor.fetchone()
+            return True if db_output else False
+        else:
+            return None
+
+async def enter_giveaway(user_id: int, msg_id: int):
+    with ContextManager('./databases/users.db') as cursor:
+        cursor.execute("INSERT OR IGNORE INTO giveaway_participants(userid, msgid) VALUES(?, ?)", (user_id, msg_id,))
+
+async def end_giveaway(msg_id: int):
+    with ContextManager('./databases/users.db') as cursor:
+        cursor.execute("DELETE FROM giveaway_participants WHERE msgid=?", (msg_id,))
+        cursor.execute("DELETE FROM giveaways WHERE msgid=?", (msg_id,))
+        result = cursor.rowcount
+        return True if result > 0 else False
