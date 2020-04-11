@@ -14,7 +14,9 @@ class HelpFormatter(commands.Cog):
     async def help(self, ctx, command = None, subcommand = None):
         if command:
             cmds_list = [x.name for x in self.bot.commands]
-            if command.lower() in cmds_list:
+            aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
+            aliases_list = [item for sublist in aliases_list for item in sublist]
+            if command.lower() in cmds_list or command.lower() in aliases_list:
                 command = self.bot.get_command(command)
                 if not (command.description or command.help):
                      embed = discord.Embed(title=main.lang["helpformatter_nohelp_parameter"], color=self.module_embed_color)
