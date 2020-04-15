@@ -415,10 +415,14 @@ class Conquest(commands.Cog):
                     embed = discord.Embed(title=main.lang["conquest_warehouse_title"].format(cdata["name"]), color=self.module_embed_color)
                     embed.set_thumbnail(url=json_data['Conquest']['warehouse_image'])
                     embed.add_field(name=main.lang["conquest_resources_gold"], value=f'{cdata["treasury"]} {json_data["Conquest"]["gold_icon"]}',inline=True)
-                    embed.add_field(name=main.lang["conquest_resources_wood"], value=f'{resources["wood"]} {json_data["Conquest"]["resources_wood"]}',inline=True)
-                    embed.add_field(name=main.lang["conquest_resources_stone"], value=f'{resources["stone"]} {json_data["Conquest"]["resources_stone"]}',inline=True)
-                    embed.add_field(name=main.lang["conquest_resources_food"], value=f'{resources["food"]} {json_data["Conquest"]["resources_food"]}',inline=True)
-                    embed.add_field(name=main.lang["conquest_resources_cloth"], value=f'{resources["cloth"]} {json_data["Conquest"]["resources_cloth"]}',inline=True)
+                    embed.add_field(name=f'{main.lang["conquest_resources_wood"]} (+{await quConquest.get_resource_production_rate(8, settlement_id)}/{main.lang["day_string"]})',
+                                    value=f'{resources["wood"]} {json_data["Conquest"]["resources_wood"]}',inline=True)
+                    embed.add_field(name=f'{main.lang["conquest_resources_stone"]} (+{await quConquest.get_resource_production_rate(5, settlement_id)}/{main.lang["day_string"]})',
+                                    value=f'{resources["stone"]} {json_data["Conquest"]["resources_stone"]}',inline=True)
+                    embed.add_field(name=f'{main.lang["conquest_resources_food"]} (+{await quConquest.get_resource_production_rate(6, settlement_id)}/{main.lang["day_string"]})',
+                                    value=f'{resources["food"]} {json_data["Conquest"]["resources_food"]}',inline=True)
+                    embed.add_field(name=f'{main.lang["conquest_resources_cloth"]}  (+{await quConquest.get_resource_production_rate(7, settlement_id)}/{main.lang["day_string"]})',
+                                    value=f'{resources["cloth"]} {json_data["Conquest"]["resources_cloth"]}',inline=True)
             else:
                 embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
         else:
@@ -437,8 +441,8 @@ class Conquest(commands.Cog):
             cdata = await quConquest.get_settlement('id', settlementid)
             json_data = await qulib.data_get()
             buildings = await quConquest.get_buildings()
-            embed = await discord.Embed(title=main.lang["conquest_buildings_title"].format(cdata['name']), color=self.module_embed_color)
-            th_level = quConquest.level_converter(cdata["tech_tree"][0])
+            embed = discord.Embed(title=main.lang["conquest_buildings_title"].format(cdata['name']), color=self.module_embed_color)
+            th_level = await quConquest.level_converter(cdata["tech_tree"][0])
             for i in range(len(buildings)):
                 level = await quConquest.level_converter(cdata["tech_tree"][i])
                 if level == 10 or (level == 1 and (i+1) in (3, 9)):
@@ -514,6 +518,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=main.lang["conquest_requirements_range"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
+    @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.command(name='requirements', help=main.lang["empty_string"], description=main.lang["command_reqs_description"], usage="1", aliases=['reqs'])
     async def conquest_requirements(self, ctx, *, building_id: int):
         if 1 <= building_id <=10:

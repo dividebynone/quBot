@@ -214,6 +214,18 @@ class quConquest(object):
         conn.close()
 
     @staticmethod
+    async def get_resource_production_rate(building_id: int, settlement_id: int):
+        if 5 <= building_id <= 8:
+            with ConnectionHandler('./databases/conquest.db') as cursor:
+                cursor.execute("SELECT tech_tree FROM conquest WHERE settlement_id=?", (settlement_id,))
+                db_output = cursor.fetchone()
+                if db_output is None:
+                    return None
+                else:
+                    tech_tree = db_output[0]
+                    return pow(await quConquest.level_converter(tech_tree[building_id-1]), 2)
+
+    @staticmethod
     async def get_building(building_id: int):
         with ConnectionHandler('./databases/conquest.db') as cursor:
             cursor.execute("SELECT * FROM buildings WHERE id=?", (building_id,))
@@ -240,7 +252,7 @@ class quConquest(object):
             tech_points = cursor.fetchone()
             if tech_points:
                 tech_points = list(tech_points)
-                level = quConquest.level_converter(tech_points[2][building_id-1])
+                level = await quConquest.level_converter(tech_points[2][building_id-1])
                 new_points = int(pow(1.638, level))
                 if building_id == 2:
                     tech_points[0] += new_points

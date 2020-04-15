@@ -216,6 +216,7 @@
     "core_modules_list": "List of modules:",
     "core_serverid_msg": "{}'s ID is: **{}**",
     "core_userid_msg": "{}'s Discord ID is: **{}**",
+    "day_string": "day",
     "dictionaries_antonyms": "**Antonyms**",
     "dictionaries_english_only": "This command supports only **English words & phrases**",
     "dictionaries_synonyms": "**Synonym(s)**",
