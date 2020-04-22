@@ -85,13 +85,6 @@ users_cursor.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KE
 users_cursor.close()
 users_connector.close()
 
-#Servers(Database)
-servers_connector = sqlite3.connect('./databases/servers.db')
-servers_cursor = servers_connector.cursor()
-servers_cursor.execute("CREATE TABLE IF NOT EXISTS servers(guildid INTEGER PRIMARY KEY, blacklist BLOB)")
-servers_cursor.close()
-servers_connector.close()
-
 #-----------------------------------#
 #JSON files initialization/writing/loading
 

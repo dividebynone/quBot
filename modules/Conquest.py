@@ -322,7 +322,7 @@ class Conquest(commands.Cog):
                                     inline=True)
                     counter += 1  
             else:
-                embed = discord.Embed(title=main.lang["conquest_leaderboard_outofrange"], color = self.module_embed_color)
+                embed = discord.Embed(title=main.lang["pager_outofrange"], color = self.module_embed_color)
         else:
             embed = discord.Embed(title=main.lang["conquest_leaderboard_negative"], color = self.module_embed_color)
         await ctx.send(embed=embed)

@@ -163,7 +163,14 @@ class Core(commands.Cog):
     @commands.is_owner()
     @commands.guild_only()
     async def channelid(self, ctx):
-        embed = discord.Embed(title=main.lang["command_owner_only"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.module_embed_color)
+        embed = discord.Embed(title=main.lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.module_embed_color)
+        await ctx.author.send(embed=embed)
+
+    @commands.command(name='roleid', help=main.lang["command_owner_only"], description=main.lang["command_roleid_description"], aliases=['rid'], usage="#general", hidden=True)
+    @commands.is_owner()
+    @commands.guild_only()
+    async def roleid(self, ctx, *, role: discord.Role):
+        embed = discord.Embed(title=main.lang["core_roleid_msg"].format(ctx.guild.name, role.name, role.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
     @commands.command(name='leave', help=main.lang["empty_string"], description=main.lang["command_leave_description"], hidden=True, ignore_extra=True)

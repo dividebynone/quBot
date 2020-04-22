@@ -11,7 +11,7 @@ class HelpFormatter(commands.Cog):
         print(f'Module {self.__class__.__name__} loaded')
 
     @commands.command(name='help', aliases=['h'])
-    async def help(self, ctx, command = None, subcommand = None):
+    async def help(self, ctx, command = None, *, subcommand = None):
         if command:
             cmds_list = [x.name for x in self.bot.commands]
             aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
@@ -24,7 +24,8 @@ class HelpFormatter(commands.Cog):
                     if subcommand:
                         subcommands_list = [x.name for x in self.bot.walk_commands() if x.name not in cmds_list]
                         subcommands_list = list(dict.fromkeys(subcommands_list))
-                        if subcommand in subcommands_list:
+                        split_subcommands = subcommand.split()
+                        if split_subcommands[-1] in subcommands_list:
                             command = self.bot.get_command(f'{command} {subcommand}')
                     if command.aliases:
                         aliases = '|'.join(command.aliases)

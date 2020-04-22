@@ -39,14 +39,12 @@ async def data_set(json_dump: dict):
 if not os.path.exists('./databases'):
     os.makedirs('./databases', exist_ok=True)
 
-
-
 #Creating needed database files(if missing)
 def user_database_init():
     with ConnectionHandler('./databases/users.db') as cursor:
         cursor.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KEY , currency INTEGER, daily_time BLOB)")
-        cursor.execute("CREATE TABLE IF NOT EXISTS giveaway_participants(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, userid INTEGER, msgid INTEGER)")
-        cursor.execute("CREATE TABLE IF NOT EXISTS giveaways(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, msgid INTEGER, value INTEGER)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS giveaway_participants(userid INTEGER, msgid INTEGER)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS giveaways(msgid INTEGER, value INTEGER)")
 
 async def user_get(user: discord.User):
     with ConnectionHandler('./databases/users.db') as cursor:
