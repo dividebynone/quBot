@@ -6,6 +6,7 @@ Table of contents
 * `Administration`_
 * `Conquest`_
 * `Core`_
+* `Dictionaries`_
 * `Economy`_
 * `Help`_
 * `Localization`_
@@ -31,6 +32,44 @@ Administration
    | **Note(s):**\
    | - *The ban reason is an optional argument.*\
    | **Needed User Permissions: Ban Members**", "``q!ban @somebody``, ``q!ban @somebody Harassment``"
+   "``unban``", "| Unbans the target individual from the server.\
+   | **Note(s):**\
+   | - *Since the target individual can not be mentioned directly within the server, a <username>#<discriminator>(see example) or user ID must be provided.*\
+   | **Needed User Permissions: Ban Members**", "``q!unban user#1234``, ``q!unban 116267141744820233``"
+   "``mute``", "| Mutes the target individual from chatting on the server.\
+   | **Needed User Permissions: Manage Messages**", "``q!mute @somebody``"
+   "``unmute``", "| Unmutes the target individual if they were previously muted using the bot.\
+   | **Needed User Permissions: Manage Messages**", "``q!unmute @somebody``"
+   "``report``", "| Reports the target user for a particular reason.\
+   | **Note(s):**\
+   | - *A report reason must be provided in order to use this command.*\
+   | - *This command will only work when a report channel is set. (Disabled by default)*\
+   | **Needed User Permissions: Send Messages**", "``q!report @somebody Spamming``"
+   "``report setchannel``", "| Selects a text channel where future user reports are going to be sent.\
+   | **Note(s):**\
+   | - *Using this command will enable user reports if they were previously disabled. (Disabled by default)*\
+   | **Needed User Permissions: Administrator**", "``q!report setchannel #general``"
+   "``report disable``", "| Disables user reporting for the server where the command was used.\
+   | **Note(s):**\
+   | - *To enable user reporting again, you need to set a new report text channel.*\
+   | **Needed User Permissions: Administrator**", "``q!report disable``"
+   "``warn``", "| Warns the target user for a particular reason. This individual will receive a direct message from the bot.\
+   | **Note(s):**\
+   | - *A reason for the warning must be provided in order to use this command.*\
+   | **Needed User Permissions: Kick Members, Ban Members**", "``q!warn @someone Spamming``"
+   "``warnings``", "| Displays a list of warnings for the target individual.\
+   | **Note(s):**\
+   | - *A total of five warnings are displayed per page. You can navigate through pages by providing a page number after the username.*\
+   | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings @someone``, ``q!warnings @someone 2``"
+   "``warnings reset`` ``warnings clear``", "| Resets all warnings for the target individual.\
+   | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings reset @someone``, ``q!warnings clear @someone``"
+   "``warnings auto``", "| Changes the number of warnings needed for a user to trigger an automatic mute/kick/ban from the server. (Disabled by default)\
+   | **Note(s):**\
+   | - *Using this command will enable the above-mentioned automatic actions if previously disabled.*\
+   | - *If any of the number of warnings match for mute, kick or ban, the following will take priority from highest to lowest: ban, kick, mute.*\
+   | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings auto mute 5``, ``q!warnings auto kick 8``, ``q!warnings auto kick 10``"
+   "``warnings auto disable``", "| Disables the target automatic action from triggering for future user warnings.\
+   | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings auto disable mute``, ``q!warnings auto disable kick``, ``q!warnings auto disable ban``"
 
 Conquest
 ^^^^^^^^
@@ -76,6 +115,11 @@ Conquest
    | Note: This command can **ONLY** be used by settlement leaders.", "``q!market sell wood 10``, ``q!market sell 1 10``"
    "``deposit``", "| Deposits a sum of money into the treasury of the settlement you are currently part of.\
    | Note: You need to be part of a settlement to be able to use this command.", "``q!deposit 100``"
+   "``rename``", "| Renames your settlement to the given name.\
+   | **Note(s):**\
+   | - *You must be the leader of this settlement to be able to use this command.*\
+   | - *In order to rename your settlement, you need to pay a fee of 500 gold.*\
+   | - *Settlement names have a character limit of 50 characters.*", "``q!rename My new settlement name``"
 
 Core
 ^^^^
@@ -100,6 +144,8 @@ Core
    | Note: This command can only be used by the **BOT OWNER**.", "``q!sid``"
    "``channelid`` ``cid``", "| Returns the channel's ID for the channel the command was typed in.\
    | Note: This command can only be used by the **BOT OWNER**.", "``q!cid``"
+   "``roleid`` ``rid``", "| Returns the target role's ID for the server the command was typed in.\
+   | Note: This command can only be used by the **BOT OWNER**.", "``q!roleid Moderator``, ``q!rid Moderator``"
    "``leave``", "| Politely kicks the bot off your server.\
    | **Needed User Permissions: Kick Members**", "``q!leave``"
    "``latencies``", "| Returns the latencies (in miliseconds) for every active shard.\
@@ -114,6 +160,26 @@ Core
    | Note: This command can only be used by the **BOT OWNER**.", "``q!restart``"
    "``shutdown``", "| Shutdowns the bot.\
    | Note: This command can only be used by the **BOT OWNER**.", "``q!shutdown``"
+
+Dictionaries
+^^^^^^^^^^^^
+
+.. csv-table::
+   :header: "Commands & Aliases", "Description", "Usage"
+   :widths: 20, 60, 30
+
+   "``dict`` ``whatis`` ``meaning`` ``meanings``", "| Returns a list of definitions based on the term you parse to the bot.\
+   | **Note(s):**\
+   | - *This command only supports English words & phrases*", "``q!dict life``, ``q!whatis life``, ``q!meaning life``, ``q!meanings life``"
+   "``synonym`` ``synonyms``", "| Returns a list of the top synonyms from Thesaurus based on the term you parse to the bot.\
+   | **Note(s):**\
+   | - *This command only supports English words & phrases*", "``q!synonym hot``, ``q!synonyms hot``"
+   "``antonym`` ``antonyms``", "| Returns a list of the top antonyms from Thesaurus based on the term you parse to the bot.\
+   | **Note(s):**\
+   | - *This command only supports English words & phrases*", "``q!antonym hot``, ``q!antonyms hot``"
+   "``urbandict`` ``ud``", "| Returns the top urban dictionary definition based on the term you parse to the bot.\
+   | **Note(s):**\
+   | - *This command only supports English words & phrases*", "``q!urbandict hello``, ``q!ud hello``"
 
 Economy
 ^^^^^^^
@@ -131,6 +197,12 @@ Economy
    "``give``", "Transfers a set amount of money to another user.", "``q!give @somebody 100``"
    "``betroll`` ``broll`` ``br``", "Lets you bet a certain amount of money on a roll.", "``q!broll 100``"
    "``vote``", "Gives you more information on bot voting.", "``q!vote``"
+   "``giveaway start``", "| Starts a currency giveaway. Users can claim their reward by reacting to the bot message.\
+   | **Note(s):**\
+   | - This command can only be used by the **BOT OWNER**.", "``q!giveaway start 100``"
+   "``giveaway end``", "| Ends a giveaway by a provided bot message ID\
+   | **Note(s):**\
+   | - This command can only be used by the **BOT OWNER**.", "``q!giveaway end <message_id>``"
 
 Help
 ^^^^
@@ -171,3 +243,5 @@ Utility
    | **Needed User Permissions: Administrator**", "``q!uptime``"
    "``userinfo`` ``uinfo``", "| Shows the target individual's user information. \
    | Note: *If no argument is parsed, the bot will return your information instead.*", "``q!uinfo``, ``q!uinfo @somebody``"
+   "``8ball`` ``8b``", "| Returns an answer for a yes or no question.", "``q!8ball Should I believe you?``, ``q!8b Should I believe you?``"
+   "``choose`` ``pick``", "| Picks a random item from a provided list of items, separated by a semicolon.", "``q!choose item 1;item 2;item 3``, ``q!pick item 1;item 2;item 3``"

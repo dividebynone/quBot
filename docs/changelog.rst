@@ -1,7 +1,7 @@
 Changelog
 =========
 
-quBot 1.0.0-beta (XX-04-2020)
+quBot 1.0.0-beta (23-04-2020)
 -----------------------------
 
 .. topic:: Description

@@ -166,7 +166,7 @@ class Core(commands.Cog):
         embed = discord.Embed(title=main.lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @commands.command(name='roleid', help=main.lang["command_owner_only"], description=main.lang["command_roleid_description"], aliases=['rid'], usage="#general", hidden=True)
+    @commands.command(name='roleid', help=main.lang["command_owner_only"], description=main.lang["command_roleid_description"], aliases=['rid'], usage="Moderator", hidden=True)
     @commands.is_owner()
     @commands.guild_only()
     async def roleid(self, ctx, *, role: discord.Role):
