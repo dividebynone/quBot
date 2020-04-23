@@ -13,7 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(1, os.path.abspath('../modules/'))
+sys.path.insert(0, os.path.abspath('../modules/'))
 
 # -- Project information -----------------------------------------------------
 
@@ -22,7 +22,7 @@ copyright = '2020, Martin Georgiev'
 author = 'Martin Georgiev'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.1-beta'
+release = '1.0.0-beta'
 
 
 # -- General configuration ---------------------------------------------------
@@ -62,6 +62,5 @@ html_context = {
         '_static/theme_override.css',  # override wide tables in RTD theme
         ],
      }
-
 
 # -- Extension configuration -------------------------------------------------

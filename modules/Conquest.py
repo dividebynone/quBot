@@ -23,6 +23,7 @@ class Conquest(commands.Cog):
         self.daily_wood_price = rand_generator.randint(5,40)
         self.daily_stone_price = rand_generator.randint(5,40)
         self.daily_food_price = rand_generator.randint(5,40)
+        self.rename_price = 500
         print(f'Module {self.__class__.__name__} loaded')
 
         quConquest.database_init()
@@ -110,7 +111,7 @@ class Conquest(commands.Cog):
                 else:
                     embed = discord.Embed(title=main.lang["conquest_create_public_private"], color = self.module_embed_color)
             else:
-                embed = discord.Embed(title=main.lang["conquest_create_sname_too_long"], color = self.module_embed_color)
+                embed = discord.Embed(title=main.lang["conquest_sname_too_long"], color = self.module_embed_color)
         else:
             embed = discord.Embed(title=main.lang["conquest_create_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
@@ -639,6 +640,29 @@ class Conquest(commands.Cog):
         else:
             embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
-    
+
+    @commands.command(name='rename', help=main.lang["command_srename_help"], description=main.lang["command_srename_description"], usage='My new settlement name')
+    async def conquest_settlement_rename(self, ctx, *, name: str):
+        if len(name) < 50:
+            if await quConquest.find_member(ctx.author.id):
+                settlementid = await quConquest.get_settlement_id(ctx.author.id)
+                cdata = await quConquest.get_settlement('id', settlementid)
+                if ctx.author.id == cdata["leaderid"]:
+                    json_data = await qulib.data_get()
+                    if cdata['treasury'] >= self.rename_price:
+                        cdata['name'] = name
+                        cdata['treasury'] -= self.rename_price
+                        await quConquest.update_settlement("id", settlementid, cdata)
+                        embed = discord.Embed(title=main.lang["conquest_rename_success"].format(name, self.rename_price, json_data['Conquest']['gold_icon']), color = self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=main.lang["conquest_rename_no_funds"].format(self.rename_price, json_data['Conquest']['gold_icon']), color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=main.lang["conquest_not_leader"], color = self.module_embed_color)
+            else:
+                embed = discord.Embed(title=main.lang["conquest_not_part_of"], color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_sname_too_long"], color = self.module_embed_color)
+        await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(Conquest(bot))

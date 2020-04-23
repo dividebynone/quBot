@@ -20,17 +20,17 @@ Administration
    :widths: 20, 60, 30
 
    "``purge``", "| Deletes a set number of messages.\
-   | Note:\
+   | **Note(s):**\
    | - *This command requires a single argument - The number of messages you wish the bot to delete.*\
-   | - **Needed User Permissions: Manage Messages**", "``q!purge 10``"
-   "``kick``", "| Kicks the mentioned individual for a certain reason. (if any)\
-   | Note:\
-   | - *The kick command accepts two arguments: one required (The target user) and one optional (The reason for kicking the user)*\
-   | - **Needed User Permissions: Kick Members**", "``q!kick``, ``q!kick @somebody Spamming``"
-   "``ban``", "| Bans the mentioned individual for a certain reason. (if any)\
-   | Note:\
-   | - *The ban command accepts three arguments: one required (The target user) and two optional (The days worth of messages that will be deleted by the bot; The reason for banning the user).*\
-   | - **Needed User Permissions: Ban Members**", "``q!ban @somebody``, ``q!ban @somebody 4 Harassment``"
+   | **Needed User Permissions: Manage Messages**", "``q!purge 10``"
+   "``kick``", "| Kicks the mentioned individual for a certain reason (if any)\
+   | **Note(s):**\
+   | - *The kick reason is an optional argument.*\
+   | **Needed User Permissions: Kick Members**", "``q!kick``, ``q!kick @somebody Spamming``"
+   "``ban``", "| Bans the mentioned individual for a certain reason (if any)\
+   | **Note(s):**\
+   | - *The ban reason is an optional argument.*\
+   | **Needed User Permissions: Ban Members**", "``q!ban @somebody``, ``q!ban @somebody Harassment``"
 
 Conquest
 ^^^^^^^^

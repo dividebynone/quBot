@@ -25,7 +25,7 @@ if not os.path.exists('./logs'):
 
 if not os.path.exists('./libs'):
     os.makedirs('./libs', exist_ok=True)
-    open('./Modules/__init__.py', 'a').close()
+    open('./libs/__init__.py', 'a').close()
 
 if not os.path.exists('./modules'):
     os.makedirs('./modules', exist_ok=True)
@@ -77,7 +77,7 @@ log_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: 
 logger.addHandler(log_handler)
 
 #-----------------------------------#
-#Creating main databases
+#Creating main databases /TO BE DELETED IN THE FUTURE/
 #Users(Database)
 users_connector = sqlite3.connect('./databases/users.db')
 users_cursor = users_connector.cursor()

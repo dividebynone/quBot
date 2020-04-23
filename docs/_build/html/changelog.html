@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Changelog &mdash; quBot 0.9.1-beta documentation</title>
+  <title>Changelog &mdash; quBot 1.0.0-beta documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -97,20 +97,35 @@
 <p class="caption"><span class="caption-text">Changelog:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-6-beta-09-02-2020">quBot 0.9.6-beta (09-02-2020)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#qubot-1-0-0-beta-xx-04-2020">quBot 1.0.0-beta (XX-04-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#new-features">New features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#administration">Administration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conquest">Conquest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#core">Core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dictionaries-new">Dictionaries (New)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#economy">Economy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#utility">Utility</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#general-changes">General Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-6-beta-09-02-2020">quBot 0.9.6-beta (09-02-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">General Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Bug fixes</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-5-beta-09-02-2020">quBot 0.9.5-beta (09-02-2020)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#new-features">New features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">New features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Miscellaneous</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Bug fixes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-1-beta-24-01-2020">quBot 0.9.1-beta (24-01-2020)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id2">General Changes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">General Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Bug fixes</a></li>
 </ul>
 </li>
 </ul>
@@ -181,6 +196,149 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="qubot-1-0-0-beta-xx-04-2020">
+<h2>quBot 1.0.0-beta (XX-04-2020)<a class="headerlink" href="#qubot-1-0-0-beta-xx-04-2020" title="Permalink to this headline">¶</a></h2>
+<div class="topic">
+<p class="topic-title">Description</p>
+<p>This update introduces many new features to the Administraton module, a new Dictionaries module and a few new
+commands to Core, Conquest, Economy &amp; Utility modules. There is a lot to cover so a detailed review and explanation of
+all new additions to the bot can be viewed below. This update marks version 1.0 of the bot.</p>
+<p>The next few updates will most likely be of a smaller scale and will only cover very specific parts of the bot’s codebase.
+Thank you for your time.</p>
+</div>
+<div class="section" id="new-features">
+<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="administration">
+<h4>Administration<a class="headerlink" href="#administration" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The first public version of the bot featured only three administration commands: purge, kick &amp; ban. With this version, I aimed to greatly
+expand the moderation toolkit. While there is still more that I can add to this module, I do not wish to delay this version any further.
+More commands are planned for future updates (temporary mutes &amp; bans, blacklisting users, slowmode controls, etc.).</p>
+<ul>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">unban</span></code> - Unbans the target user from the server where the command was executed;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">mute</span></code> - Mutes the target individual from chatting on the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">unmute</span></code> - Unmutes the target individual if they were previously muted using the bot;</p></li>
+<li><p><strong>User reporting:</strong></p>
+<p>User reporting is a feature that allows for normal users to report malicious behaviour/content on a server to the respective server
+authorities (moderators/administrators) without directly contacting them. As a result, it hopefully makes chat moderation a little bit easier.</p>
+<p><em>This feature is disabled by default. To enable it, a person with administrator privileges needs to set a report channel.</em></p>
+<ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">report</span></code> - Reports the target user for a particular reason;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">report</span> <span class="pre">setchannel</span></code> - Selects a text channel where future user reports are going to be sent;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">report</span> <span class="pre">disable</span></code> - Disables user reporting for the server where the command was executed;</p></li>
+</ul>
+</li>
+<li><p><strong>User warnings:</strong></p>
+<p>User warnings are a system to help keep track of….you guessed it - user warnings. All users with the ability to kick and ban other members
+can use it to issue warnings. By default, users can issue up to 20 warnings per user. In all honesty, this by itself is a rather lackluster system.
+However, it arrives out of the box with automatic warning actions. This gives the power to moderators/administrators to set up automatic (mute, kick, ban) actions
+that will trigger once users reach a set number of warnings.</p>
+<p><em>Automatic warning actions are disabled by default. To enable them, a person with the aforementioned privileges needs to set them up</em></p>
+<ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">warn</span></code> - Warns the target user with a provided reason. This individual will receive a direct message from the bot;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">warnings</span></code> - Displays a list of warnings for the target individual;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">reset</span></code> - Resets all warnings for the target individual;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">auto</span></code> - Changes the number of warnings needed for a user to trigger an automatic mute/kick/ban from the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">auto</span> <span class="pre">disable</span></code> - Disables the target automatic action from triggering for future user warnings;</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="conquest">
+<h4>Conquest<a class="headerlink" href="#conquest" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">rename</span></code> - Renames your settlement to the specified name. Settlement renaming costs 500 gold;</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="core">
+<h4>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">roleid</span></code> - Returns the target role’s ID for the server where the command was executed;</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="dictionaries-new">
+<h4>Dictionaries (New)<a class="headerlink" href="#dictionaries-new" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">dict</span></code> - Returns a list of definitions based on the term you parse to the bot;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">synonym</span></code> - Returns a list of the top synonyms from Thesaurus based on the term you parse to the bot;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">antonym</span></code> - Returns a list of the top antonyms from Thesaurus based on the term you parse to the bot;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">urbandict</span></code> - Returns the top urban dictionary definition based on the term you parse to the bot;</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="economy">
+<h4>Economy<a class="headerlink" href="#economy" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>This update features a set of commands to help bot owners organise currency giveaways</p>
+<ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">giveaway</span> <span class="pre">start</span></code> - Starts a currency giveaway. Users can claim their reward by reacting to the bot message;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">giveaway</span> <span class="pre">end</span></code> - Ends a giveaway by the provided bot giveaway message ID;</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="utility">
+<h4>Utility<a class="headerlink" href="#utility" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">8ball</span></code> - Returns an answer for a yes or no question;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">choose</span></code> - Picks a random item from a provided list of items, separated by a semicolon;</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="general-changes">
+<h3>General Changes<a class="headerlink" href="#general-changes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>The bot’s HelpFormatter (the help command) has been improved to now accept command aliases. In addition to that, the formatter now
+works with subcommands that have depth more than one. The latter was introduced to function properly for commands
+such as: <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">auto</span> <span class="pre">disable</span></code>;</p></li>
+</ul>
+</div>
+<div class="section" id="miscellaneous">
+<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>PyDictionary has been removed from the package dependency list. Instead, a custom module was created for the Dictionaries module;</p>
+<ul>
+<li><p>I was dissatisfied with the limited features the module provided. That is why I opted for a custom module;</p></li>
+</ul>
+</li>
+<li><p>discord.py has been updated to 1.3.3 (previously 1.3.1);</p></li>
+</ul>
+</div>
+<div class="section" id="bug-fixes">
+<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Administration</p>
+<ul>
+<li><p>Command <code class="docutils literal notranslate"><span class="pre">purge</span></code> did not return an embed message when the input number was negative. This has been addressed and fixed;</p></li>
+</ul>
+</li>
+<li><p>Core</p>
+<ul>
+<li><p>Command <code class="docutils literal notranslate"><span class="pre">channelid</span></code> returned the wrong reply upon exection. This has also been addressed and fixed;</p></li>
+</ul>
+</li>
+<li><p>Conquest</p>
+<ul>
+<li><p>Fixed page display issues for the leaderboard command;</p>
+<ul>
+<li><p>The leaderboard command did not display settlements properly beyond the first page. Settlements were not inlined. Moreover,
+settlements were ranked 1-9 regardless of the page number. The way settlements are sorted before display has also been improved.</p></li>
+</ul>
+</li>
+<li><p>Fixed issue that was raising exceptions when a user who is not part of a settlement called the <code class="docutils literal notranslate"><span class="pre">code</span> <span class="pre">show</span></code> command;</p></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<hr class="docutils" />
 <div class="section" id="qubot-0-9-6-beta-09-02-2020">
 <h2>quBot 0.9.6-beta (09-02-2020)<a class="headerlink" href="#qubot-0-9-6-beta-09-02-2020" title="Permalink to this headline">¶</a></h2>
 <div class="topic">
@@ -188,20 +346,21 @@
 <p>Implemented bot intergration with top.gg - Top.gg will now update the bot’s server count every 30 minutes on its website.
 Furthermore, every bot vote will now reward the user with 50 bot currency on weekdays and 100 on weekends.</p>
 </div>
-<div class="section" id="general-changes">
-<h3>General Changes<a class="headerlink" href="#general-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3>General Changes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Server counter intergration with Top.GG;</p></li>
 <li><p>Vote rewards to users who vote for the bot on Top.GG;</p></li>
 </ul>
 </div>
-<div class="section" id="bug-fixes">
-<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3>Bug fixes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed issues with logs auto-deletion on files with file size less than 1kb;</p></li>
 </ul>
 </div>
 </div>
+<hr class="docutils" />
 <div class="section" id="qubot-0-9-5-beta-09-02-2020">
 <h2>quBot 0.9.5-beta (09-02-2020)<a class="headerlink" href="#qubot-0-9-5-beta-09-02-2020" title="Permalink to this headline">¶</a></h2>
 <div class="topic">
@@ -213,8 +372,8 @@ as tournaments, alliances(guilds) and achievements. While I am ready to start wo
 focus my attention to the bot’s moderation toolkit and utility commands. The next bot update will mainly focus on
 these two things.</p>
 </div>
-<div class="section" id="new-features">
-<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>New features<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p>Conquest</p>
 <blockquote>
@@ -250,8 +409,8 @@ of wood every day. Upgrading the lumberjack’s camp will increase the daily amo
 </li>
 </ul>
 </div>
-<div class="section" id="miscellaneous">
-<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Miscellaneous<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Added .pyc, .pyo &amp; .log files to .gitignore</p>
 <ul>
@@ -260,13 +419,14 @@ of wood every day. Upgrading the lumberjack’s camp will increase the daily amo
 </li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h3>Bug fixes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Bug fixes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed missing conquest join public/private help and description JSON strings;</p></li>
 </ul>
 </div>
 </div>
+<hr class="docutils" />
 <div class="section" id="qubot-0-9-1-beta-24-01-2020">
 <h2>quBot 0.9.1-beta (24-01-2020)<a class="headerlink" href="#qubot-0-9-1-beta-24-01-2020" title="Permalink to this headline">¶</a></h2>
 <div class="topic">
@@ -275,14 +435,14 @@ of wood every day. Upgrading the lumberjack’s camp will increase the daily amo
 everything that has been implemented by this point. Therefore, this is here to serve as a template
 for future use.</p>
 </div>
-<div class="section" id="id2">
-<h3>General Changes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h3>General Changes<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Placeholder</p></li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h3>Bug fixes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>Bug fixes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Placeholder</p></li>
 </ul>

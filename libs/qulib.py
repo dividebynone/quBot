@@ -88,10 +88,10 @@ async def get_giveaway_list():
 
 async def has_entered_giveaway(user_id: int, msg_id: int):
     with ConnectionHandler('./databases/users.db') as cursor:
-        cursor.execute("SELECT ID FROM giveaways WHERE msgid=?", (msg_id,))
+        cursor.execute("SELECT rowid FROM giveaways WHERE msgid=?", (msg_id,))
         check = cursor.fetchone()
         if check:
-            cursor.execute("SELECT ID FROM giveaway_participants WHERE userid=? AND msgid=?", (user_id, msg_id,))
+            cursor.execute("SELECT rowid FROM giveaway_participants WHERE userid=? AND msgid=?", (user_id, msg_id,))
             db_output = cursor.fetchone()
             return True if db_output else False
         else:

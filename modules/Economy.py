@@ -137,17 +137,19 @@ class Economy(commands.Cog):
 
     @commands.Cog.listener()
     @commands.guild_only()
-    async def on_reaction_add(self, reaction, user):
-        if reaction.message.author.id == self.bot.user.id and not user.bot:
+    async def on_raw_reaction_add(self, payload):
+        user = await self.bot.fetch_user(payload.user_id)
+        channel = await self.bot.fetch_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+        if message.author.id == self.bot.user.id and not user.bot:
             giveaways = await qulib.get_giveaway_list()
             if giveaways:
-                if (reaction.message.id in giveaways):
-                    if reaction.emoji == self.currency_symbol:
-                        if await qulib.has_entered_giveaway(user.id, reaction.message.id) == False:
-                            print("entered giveaway")
-                            value = await qulib.get_giveaway_value(reaction.message.id)
+                if (message.id in giveaways):
+                    if payload.emoji.name == self.currency_symbol:
+                        if await qulib.has_entered_giveaway(user.id, message.id) == False:
+                            value = await qulib.get_giveaway_value(message.id)
                             if value:
-                                await qulib.enter_giveaway(user.id, reaction.message.id)
+                                await qulib.enter_giveaway(user.id, message.id)
                                 user_info = await user_get(user)
                                 user_info['currency'] += value
                                 await user_set(user, user_info)
