@@ -35,23 +35,34 @@ class Warnings(object):
             cursor.execute("INSERT INTO warnings (user_id, warning, warned_by, guild_id) VALUES(?, ?, ?, ?)", (user_id, warning, warned_by,guild_id,))
 
     @classmethod
-    async def get_warnings(self, guild_id:int, user_id:int):
+    async def get_warnings(self, guild_id: int, user_id: int):
         with ConnectionHandler('./databases/servers.db') as cursor:
             cursor.execute("SELECT warning, warned_by FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
             output = cursor.fetchall()
             return output
 
     @classmethod
-    async def get_warning_count(self, guild_id:int, user_id:int):
+    async def get_warning_count(self, guild_id: int, user_id: int):
         with ConnectionHandler('./databases/servers.db') as cursor:
             cursor.execute("SELECT COUNT(ALL warning) FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
             output = cursor.fetchone()
             return int(output[0]) if output else 0
 
     @classmethod
-    async def reset_warnings(self, guild_id:int, user_id: int):
+    async def reset_warnings(self, guild_id: int, user_id: int):
         with ConnectionHandler('./databases/servers.db') as cursor:
             cursor.execute("DELETE FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
+
+    @classmethod
+    async def delete_warning(self, guild_id: int, user_id: int, index: int):
+        with ConnectionHandler('./databases/servers.db') as cursor:
+            cursor.execute("SELECT rowid FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
+            output = cursor.fetchall()
+            if output and (index + 1) <= len(output):
+                rowid = int(output[index][0])
+                cursor.execute("DELETE FROM warnings WHERE rowid=? AND guild_id=? AND user_id=?",(rowid, guild_id, user_id,))
+            else:
+                raise IndexError       
 
 class AutoWarningActions(object):
 

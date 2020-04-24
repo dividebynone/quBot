@@ -151,24 +151,29 @@ class Administration(commands.Cog):
             user_warnings = await self.Warnings.get_warning_count(ctx.guild.id, user.id)
             if user_warnings < self.max_warnings:
                 await self.Warnings.add_warning(user.id, warning, ctx.author.id, ctx.guild.id)
-                embed = discord.Embed(title=main.lang["administration_warn_dm_title"], color=self.module_embed_color)
-                embed.add_field(name=main.lang["warning_string"], value=warning, inline=True)
-                embed.add_field(name=main.lang["administration_warn_dm_warnedby"], value=str(ctx.author), inline=True)
-                embed.set_footer(text=main.lang["administration_warn_dm_footer"].format(str(ctx.guild)))
-                await user.send(embed=embed)
+                dm_embed = discord.Embed(title=main.lang["administration_warn_dm_title"], color=self.module_embed_color)
+                dm_embed.add_field(name=main.lang["warning_string"], value=warning, inline=True)
+                dm_embed.add_field(name=main.lang["administration_warn_dm_warnedby"], value=str(ctx.author), inline=True)
+                dm_embed.set_footer(text=main.lang["administration_warn_dm_footer"].format(str(ctx.guild)))
+                await user.send(embed=dm_embed)
+
+                embed = discord.Embed(title=main.lang["administration_warn_success"].format(str(user)), color=self.module_embed_color)
+                await ctx.send(embed=embed, delete_after=5)
+
+                user_warnings = user_warnings + 1
 
                 actions = await self.AutoActions.get_actions(ctx.guild.id)
                 if actions:
                     #Automatic Ban (Takes priority over kick if they both trigger on the same number)
-                    if actions[2] != None and user_warnings == actions[2]:
+                    if actions[2] != None and user_warnings >= actions[2]:
                         await ctx.guild.ban(user, reason=main.lang["administration_autoaction_ban"])
                         return
                     #Automatic Kick
-                    if actions[1] != None and user_warnings == actions[1]:
+                    if actions[1] != None and user_warnings >= actions[1]:
                         await ctx.guild.kick(user, reason=main.lang["administration_autoaction_kick"])
                         return
                     #Automatic Mute
-                    if actions[0] != None and user_warnings == actions[0]:
+                    if actions[0] != None and user_warnings >= actions[0]:
                         async with ctx.channel.typing():
                             role = await Administration.get_mute_role(ctx.guild)
                         role_find = discord.utils.get(user.roles, id=role.id)
@@ -206,6 +211,18 @@ class Administration(commands.Cog):
         await self.Warnings.reset_warnings(ctx.guild.id, user.id)
         embed = discord.Embed(title=main.lang["administration_warnings_reset"].format(str(user)), color=self.module_embed_color)
         await ctx.send(embed=embed)
+
+    @warnings_group.command(name='delete', help=main.lang["command_warnings_delete_help"], description=main.lang["command_warnings_delete_description"], usage='@someone 3', aliases=['remove'])
+    async def warnings_delete(self, ctx, user: discord.User, number: int):
+        if number >= 1:
+            index = number - 1
+            try:
+                await ctx.message.delete()
+                await self.Warnings.delete_warning(ctx.guild.id, user.id, index)
+                embed = discord.Embed(title=main.lang["administration_warnings_delete"].format(number, str(user)), color=self.module_embed_color)
+            except IndexError:
+                embed = discord.Embed(title=main.lang["administration_warnings_outofrange"], color=self.module_embed_color)
+            await ctx.send(embed=embed)
 
     @warnings_group.group(name='auto', invoke_without_command=True, help=main.lang["command_autoaction_help"], description=main.lang["command_autoaction_description"], usage='mute/kick/ban 5')
     async def warnings_autoaction(self, ctx, action: str, number: int):

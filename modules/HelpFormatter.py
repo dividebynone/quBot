@@ -22,8 +22,12 @@ class HelpFormatter(commands.Cog):
                      embed = discord.Embed(title=main.lang["helpformatter_nohelp_parameter"], color=self.module_embed_color)
                 else:
                     if subcommand:
+                        subcommands = [x for x in self.bot.walk_commands() if x.name not in cmds_list]
                         subcommands_list = [x.name for x in self.bot.walk_commands() if x.name not in cmds_list]
                         subcommands_list = list(dict.fromkeys(subcommands_list))
+                        subcommand_aliases = [x.aliases for x in subcommands]
+                        subcommand_aliases = [item for sublist in subcommand_aliases for item in sublist]
+                        subcommands_list = subcommands_list + subcommand_aliases
                         split_subcommands = subcommand.split()
                         if split_subcommands[-1] in subcommands_list:
                             command = self.bot.get_command(f'{command} {subcommand}')
