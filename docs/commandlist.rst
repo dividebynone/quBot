@@ -91,7 +91,7 @@ Administration
    | **Needed User Permissions: Manage Server**", "``q!greet disable``, ``q!greet off``"
    "``bye disable`` ``bye off``", "| Disables server goodbye messages on the server.\
    | **Needed User Permissions: Manage Server**", "``q!bye disable``, ``q!bye off``"
-   "``greet dm``", "| Enables server greetings on the server. Instead to the server's text channel, future messages will instead be sent to users' direct messages.\
+   "``greet dm``", "| Enables server greetings on the server. Instead of the server's text channel, future messages will instead be sent to users' direct messages.\
    | **Needed User Permissions: Manage Server**", "``q!greet dm``"
    "``greet message`` ``bye message``", "| Changes the greeting or goodbye message to a custom one. Feel free to check the notes to be able to fully utilize this command.\
    | **Note(s):**\

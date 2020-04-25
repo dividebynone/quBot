@@ -1,6 +1,68 @@
 Changelog
 =========
 
+quBot 1.1.0-beta (25-04-2020)
+-----------------------------
+
+.. topic:: Description
+
+    This update introduces additional features to the Administration module: softbans, ability to delete specific user warning
+    and a server system for greeting and farewell messages. In addition to that, a few bugs were found and fixed.
+
+New features
+^^^^^^^^^^^^
+
+Administration
+~~~~~~~~~~~~~~
+
+  Version 1.0 felt incomplete without the ability to delete specific user warning. It is, in fact, the reason why 1.1.0 was
+  pushed this early after version 1.0. 
+
+  - **New command:** ``warnings delete`` - Deletes a specific warning that was issued to the target individual;
+
+  - **New command:** ``softban`` - Soft bans the mentioned individual for a specified reason (if any); It essentially kicks the user
+    from the server and deletes their messages;
+
+  - **Server Greeting/Goodbye Toggles:**
+
+    Server greetings/goodbye messages are not something new and revolutionary. In fact, Discord also offers an in-built simplified version
+    of that system. However, compared to Discord's solution, this implementation offers a lot more freedom and customization to the end user.
+
+    - **New command:** ``greet`` - Toggles server greeting messages on/off on the server;
+
+    - **New command:** ``bye`` - Toggles server goodbye messages on/off on the server;
+
+    - **New command:** ``greet enable`` - Enables server greeting messages on the server;
+
+    - **New command:** ``bye enable`` - Enables server goodbye messages on the server;
+
+    - **New command:** ``greet disable`` - Disables server greeting messages on the server;
+
+    - **New command:** ``bye disable`` - Disables server goodbye messages on the server;
+
+    - **New command:** ``greet dm`` - Enables server greetings on the server. Instead of the server's text channel, future
+      messages will instead be sent to users' direct messages;
+
+    - **New command:** ``greet message`` - Changes the greeting message to a custom one;
+
+    - **New command:** ``greet message default`` - Resets the server greeting message back to default;
+
+    - **New command:** ``bye message`` - Changes the goodbye message to a custom one;
+
+    - **New command:** ``bye message default`` - Resets the server goodbye message back to default;
+
+    - **New commands:** ``greet setchannel`` ``bye setchannel`` - Sets the text channel where greetings and goodbye messages are going to be sent by the bot;
+
+    - **New commands:** ``greet setchannel default`` ``bye setchannel default`` - Resets the greetings/goodbye messages text channel back to default;
+
+Bug fixes
+^^^^^^^^^
+- HelpFormatter now works with subcommand aliases;
+
+- Automatic warning actions did not trigger on the exact warning value but on the next one. That has been fixed.
+
+------------
+
 quBot 1.0.0-beta (23-04-2020)
 -----------------------------
 

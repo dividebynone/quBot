@@ -97,9 +97,17 @@
 <p class="caption"><span class="caption-text">Changelog:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#qubot-1-0-0-beta-23-04-2020">quBot 1.0.0-beta (23-04-2020)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#qubot-1-1-0-beta-25-04-2020">quBot 1.1.0-beta (25-04-2020)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#new-features">New features</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#administration">Administration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#qubot-1-0-0-beta-23-04-2020">quBot 1.0.0-beta (23-04-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">New features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Administration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#conquest">Conquest</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#core">Core</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#dictionaries-new">Dictionaries (New)</a></li>
@@ -109,23 +117,23 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#general-changes">General Changes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Bug fixes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-6-beta-09-02-2020">quBot 0.9.6-beta (09-02-2020)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">General Changes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Bug fixes</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-5-beta-09-02-2020">quBot 0.9.5-beta (09-02-2020)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id3">New features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Miscellaneous</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">General Changes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Bug fixes</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-5-beta-09-02-2020">quBot 0.9.5-beta (09-02-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">New features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Miscellaneous</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Bug fixes</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#qubot-0-9-1-beta-24-01-2020">quBot 0.9.1-beta (24-01-2020)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id6">General Changes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">General Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Bug fixes</a></li>
 </ul>
 </li>
 </ul>
@@ -196,6 +204,57 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="qubot-1-1-0-beta-25-04-2020">
+<h2>quBot 1.1.0-beta (25-04-2020)<a class="headerlink" href="#qubot-1-1-0-beta-25-04-2020" title="Permalink to this headline">¶</a></h2>
+<div class="topic">
+<p class="topic-title">Description</p>
+<p>This update introduces additional features to the Administration module: softbans, ability to delete specific user warning
+and a server system for greeting and farewell messages. In addition to that, a few bugs were found and fixed.</p>
+</div>
+<div class="section" id="new-features">
+<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="administration">
+<h4>Administration<a class="headerlink" href="#administration" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>Version 1.0 felt incomplete without the ability to delete specific user warning. It is, in fact, the reason why 1.1.0 was
+pushed this early after version 1.0.</p>
+<ul>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">delete</span></code> - Deletes a specific warning that was issued to the target individual;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">softban</span></code> - Soft bans the mentioned individual for a specified reason (if any); It essentially kicks the user
+from the server and deletes their messages;</p></li>
+<li><p><strong>Server Greeting/Goodbye Toggles:</strong></p>
+<p>Server greetings/goodbye messages are not something new and revolutionary. In fact, Discord also offers an in-built simplified version
+of that system. However, compared to Discord’s solution, this implementation offers a lot more freedom and customization to the end user.</p>
+<ul class="simple">
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span></code> - Toggles server greeting messages on/off on the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">bye</span></code> - Toggles server goodbye messages on/off on the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">enable</span></code> - Enables server greeting messages on the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">enable</span></code> - Enables server goodbye messages on the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">disable</span></code> - Disables server greeting messages on the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">disable</span></code> - Disables server goodbye messages on the server;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">dm</span></code> - Enables server greetings on the server. Instead of the server’s text channel, future
+messages will instead be sent to users’ direct messages;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">message</span></code> - Changes the greeting message to a custom one;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">message</span> <span class="pre">default</span></code> - Resets the server greeting message back to default;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">message</span></code> - Changes the goodbye message to a custom one;</p></li>
+<li><p><strong>New command:</strong> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">message</span> <span class="pre">default</span></code> - Resets the server goodbye message back to default;</p></li>
+<li><p><strong>New commands:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">setchannel</span></code> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">setchannel</span></code> - Sets the text channel where greetings and goodbye messages are going to be sent by the bot;</p></li>
+<li><p><strong>New commands:</strong> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">setchannel</span> <span class="pre">default</span></code> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">setchannel</span> <span class="pre">default</span></code> - Resets the greetings/goodbye messages text channel back to default;</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="bug-fixes">
+<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>HelpFormatter now works with subcommand aliases;</p></li>
+<li><p>Automatic warning actions did not trigger on the exact warning value but on the next one. That has been fixed.</p></li>
+</ul>
+</div>
+</div>
+<hr class="docutils" />
 <div class="section" id="qubot-1-0-0-beta-23-04-2020">
 <h2>quBot 1.0.0-beta (23-04-2020)<a class="headerlink" href="#qubot-1-0-0-beta-23-04-2020" title="Permalink to this headline">¶</a></h2>
 <div class="topic">
@@ -206,10 +265,10 @@ all new additions to the bot can be viewed below. This update marks version 1.0 
 <p>The next few updates will most likely be of a smaller scale and will only cover very specific parts of the bot’s codebase.
 Thank you for your time.</p>
 </div>
-<div class="section" id="new-features">
-<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="administration">
-<h4>Administration<a class="headerlink" href="#administration" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id1">
+<h3>New features<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h4>Administration<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><p>The first public version of the bot featured only three administration commands: purge, kick &amp; ban. With this version, I aimed to greatly
 expand the moderation toolkit. While there is still more that I can add to this module, I do not wish to delay this version any further.
@@ -311,8 +370,8 @@ such as: <code class="docutils literal notranslate"><span class="pre">warnings</
 <li><p>discord.py has been updated to 1.3.3 (previously 1.3.1);</p></li>
 </ul>
 </div>
-<div class="section" id="bug-fixes">
-<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Bug fixes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Administration</p>
 <ul>
@@ -346,15 +405,15 @@ settlements were ranked 1-9 regardless of the page number. The way settlements a
 <p>Implemented bot intergration with top.gg - Top.gg will now update the bot’s server count every 30 minutes on its website.
 Furthermore, every bot vote will now reward the user with 50 bot currency on weekdays and 100 on weekends.</p>
 </div>
-<div class="section" id="id1">
-<h3>General Changes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>General Changes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Server counter intergration with Top.GG;</p></li>
 <li><p>Vote rewards to users who vote for the bot on Top.GG;</p></li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h3>Bug fixes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Bug fixes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed issues with logs auto-deletion on files with file size less than 1kb;</p></li>
 </ul>
@@ -372,8 +431,8 @@ as tournaments, alliances(guilds) and achievements. While I am ready to start wo
 focus my attention to the bot’s moderation toolkit and utility commands. The next bot update will mainly focus on
 these two things.</p>
 </div>
-<div class="section" id="id3">
-<h3>New features<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h3>New features<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p>Conquest</p>
 <blockquote>
@@ -409,8 +468,8 @@ of wood every day. Upgrading the lumberjack’s camp will increase the daily amo
 </li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h3>Miscellaneous<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>Miscellaneous<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Added .pyc, .pyo &amp; .log files to .gitignore</p>
 <ul>
@@ -419,8 +478,8 @@ of wood every day. Upgrading the lumberjack’s camp will increase the daily amo
 </li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h3>Bug fixes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Bug fixes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed missing conquest join public/private help and description JSON strings;</p></li>
 </ul>
@@ -435,14 +494,14 @@ of wood every day. Upgrading the lumberjack’s camp will increase the daily amo
 everything that has been implemented by this point. Therefore, this is here to serve as a template
 for future use.</p>
 </div>
-<div class="section" id="id6">
-<h3>General Changes<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id9">
+<h3>General Changes<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Placeholder</p></li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h3>Bug fixes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id10">
+<h3>Bug fixes<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Placeholder</p></li>
 </ul>

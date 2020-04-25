@@ -110,7 +110,7 @@
     "command_greetings_description": "Toggles server greeting messages on/off on the server.",
     "command_greetings_disable_description": "Disables server greeting messages on the server.",
     "command_greetings_disable_help": "This command can only be used by users with the ability to **manage servers**.",
-    "command_greetings_dm_description": "Enables server greetings on the server. Instead to the server's text channel, future messages will instead be sent to users' direct messages.",
+    "command_greetings_dm_description": "Enables server greetings on the server. Instead of the server's text channel, future messages will instead be sent to users' direct messages.",
     "command_greetings_dm_help": "This command can only be used by users with the ability to **manage servers**.",
     "command_greetings_enable_description": "Enables server greeting messages on the server.",
     "command_greetings_enable_help": "This command can only be used by users with the ability to **manage servers**.",
