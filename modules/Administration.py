@@ -1,4 +1,5 @@
 from libs.utils.admintools import Reports, Warnings, MuteRole, AutoWarningActions
+from libs.utils.servertoggles import ServerToggles
 from discord.ext import commands
 from main import bot_starttime
 from main import modules as loaded_modules
@@ -27,11 +28,13 @@ class Administration(commands.Cog):
         print(f'Module {self.__class__.__name__} loaded')
 
         self.max_warnings = 20
+        self.max_characters = 1500
 
         self.Reports = Reports()
         self.Warnings = Warnings()
         self.MuteRole = MuteRole()
         self.AutoActions = AutoWarningActions()
+        self.Toggles = ServerToggles()
 
     @commands.command(name='purge', help=main.lang["command_purge_help"], description=main.lang["command_purge_description"], usage="10", ignore_extra=True)
     @commands.has_permissions(manage_messages=True)
@@ -70,6 +73,16 @@ class Administration(commands.Cog):
         await ctx.guild.unban(user)
         await ctx.message.delete()
         embed = discord.Embed(title=main.lang["administration_unban_msg"].format(str(user)), color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=5)
+
+    @commands.command(name='softban', help=main.lang["command_softban_help"], description=main.lang["command_softban_description"], usage="@somebody Harassment")
+    @commands.has_permissions(kick_members=True, manage_messages=True)
+    @commands.guild_only()
+    async def softban(self, ctx, user: discord.Member, *, reason: str = None):
+        await ctx.guild.ban(user, reason=reason)
+        await ctx.guild.unban(user, reason=reason)
+        await ctx.message.delete()
+        embed = discord.Embed(title=main.lang["administration_softban_msg"].format(str(user), reason), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.command(name='mute', help=main.lang["empty_string"], description=main.lang["command_mute_description"], usage='@somebody')
@@ -243,6 +256,195 @@ class Administration(commands.Cog):
             embed = discord.Embed(title=main.lang["administration_autoaction_disable_msg"].format(action.lower()), color=self.module_embed_color)
             await ctx.send(embed=embed)
 
+    @commands.has_permissions(manage_guild=True)
+    @commands.guild_only()
+    @commands.group(name='greet', help=main.lang["command_greetings_help"], description=main.lang["command_greetings_description"], aliases=['greetings'])
+    async def server_greetings(self, ctx):
+        if not ctx.invoked_subcommand:
+            status = await self.Toggles.get_greet_status(ctx.guild.id)
+            if status:
+                await ctx.invoke(self.greetings_disable)
+            else:
+                await ctx.invoke(self.greetings_enable)
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @server_greetings.command(name='enable', aliases=['on'], help=main.lang["command_greetings_enable_help"], description=main.lang["command_greetings_enable_description"], ignore_extra=True)
+    async def greetings_enable(self, ctx):
+        status = await self.Toggles.get_greet_status(ctx.guild.id)
+        if status != 1:
+            await self.Toggles.enable_greeting(ctx.guild.id, False)
+            embed = discord.Embed(title=main.lang["administration_genable_success"], color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["administration_genable_enabled"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @server_greetings.command(name='disable', aliases=['off'], help=main.lang["command_greetings_disable_help"], description=main.lang["command_greetings_disable_description"], ignore_extra=True)
+    async def greetings_disable(self, ctx):
+        status = await self.Toggles.get_greet_status(ctx.guild.id)
+        if status:
+            await self.Toggles.disable_greeting(ctx.guild.id)
+            embed = discord.Embed(title=main.lang["administration_gdisable_success"], color=self.module_embed_color)   
+        else:
+            embed = discord.Embed(title=main.lang["administration_gdisable_disabled"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @server_greetings.command(name='dm', help=main.lang["command_greetings_dm_help"], description=main.lang["command_greetings_dm_description"], ignore_extra=True)
+    async def greetings_enable_dm(self, ctx):
+        await self.Toggles.enable_greeting(ctx.guild.id, True)
+        embed = discord.Embed(title=main.lang["administration_gdm_msg"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @server_greetings.group(name='message', invoke_without_command=True, help=main.lang["command_greetings_message_help"], description=main.lang["command_greetings_message_description"], usage="Welcome {mention} to {server}!")
+    async def greetings_custom_message(self, ctx, *, message: str):
+        if len(message) <= self.max_characters:
+            if await self.Toggles.get_greet_status(ctx.guild.id):
+                try:
+                    message = message.lstrip()
+                    message = message.replace("\\n", "\n")
+                    await self.Toggles.set_greet_msg(ctx.guild.id, message)
+                    embed = discord.Embed(title=main.lang["administration_gmessage_success"], color=self.module_embed_color)
+                except ValueError:
+                    embed = discord.Embed(title=main.lang["administration_gmessage_invalid"], color=self.module_embed_color) 
+            else:
+                embed = discord.Embed(title=main.lang["administration_gmessage_disabled"], color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["administration_gmessage_limit"].format(self.max_characters), color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @greetings_custom_message.command(name='default', help=main.lang["command_greetings_mdefault_help"], description=main.lang["command_greetings_mdefault_description"])
+    async def greetings_custom_message_reset(self, ctx):
+        if await self.Toggles.has_custom_greeting(ctx.guild.id):
+            await self.Toggles.reset_greet_msg(ctx.guild.id)
+            embed = discord.Embed(title=main.lang["administration_gmessage_default_success"], color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["administration_gmessage_default_used"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @server_greetings.group(name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="#general")
+    async def greetings_setchannel(self, ctx, *, channel: discord.TextChannel):
+        await self.Toggles.set_channel(ctx.guild.id, channel.id)
+        embed = discord.Embed(title=main.lang["administration_gsetchannel"].format(channel.name), color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @greetings_setchannel.command(name='default', help=main.lang["command_greetings_scdefault_help"], description=main.lang["command_greetings_scdefault_description"])
+    async def greetings_setchannel_reset(self, ctx):
+        await self.Toggles.set_channel(ctx.guild.id, None)
+        embed = discord.Embed(title=main.lang["administration_gscdefault_msg"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        status = await self.Toggles.get_greet_status(member.guild.id)
+        if status:
+            channel_id = await self.Toggles.get_channel(member.guild.id)
+            if channel_id:
+                channel = await self.bot.fetch_channel(channel_id)
+            else:
+                channel = discord.utils.find(lambda c: c.name == "general", member.guild.text_channels)
+                if not channel:
+                    channel = discord.utils.find(lambda c: c.position == 0, member.guild.text_channels)
+            if await self.Toggles.has_custom_greeting(member.guild.id):
+                message = await self.Toggles.get_custom_greeting(member.guild.id)
+                message = await Administration.format_message(message, member)
+            else:
+                message = main.lang["administration_greet_default"].format(member.mention, member.guild.name)
+
+            if status == 2:
+                await member.send(message)
+            else:
+                await channel.send(message)
+
+    @commands.has_permissions(manage_guild=True)
+    @commands.guild_only()
+    @commands.group(name='bye', help=main.lang["command_goodbye_help"], description=main.lang["command_goodbye_description"], aliases=['goodbye'])
+    async def server_goodbye(self, ctx):
+        if not ctx.invoked_subcommand:
+            status = await self.Toggles.get_bye_status(ctx.guild.id)
+            if status:
+                await ctx.invoke(self.goodbye_disable)
+            else:
+                await ctx.invoke(self.goodbye_enable)
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @server_goodbye.command(name='enable', aliases=['on'], help=main.lang["command_goodbye_enable_help"], description=main.lang["command_goodbye_enable_description"], ignore_extra=True)
+    async def goodbye_enable(self, ctx):
+        status = await self.Toggles.get_bye_status(ctx.guild.id)
+        if status != 1:
+            await self.Toggles.enable_goodbye(ctx.guild.id)
+            embed = discord.Embed(title=main.lang["administration_gbenable_success"], color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["administration_gbenable_enabled"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @server_goodbye.command(name='disable', aliases=['off'], help=main.lang["command_goodbye_disable_help"], description=main.lang["command_goodbye_disable_description"], ignore_extra=True)
+    async def goodbye_disable(self, ctx):
+        status = await self.Toggles.get_bye_status(ctx.guild.id)
+        if status:
+            await self.Toggles.disable_goodbye(ctx.guild.id)
+            embed = discord.Embed(title=main.lang["administration_gbdisable_success"], color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["administration_gbdisable_disabled"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @server_goodbye.group(name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"])
+    async def goodbye_custom_message(self, ctx, *, message: str):
+        if len(message) <= self.max_characters:
+            if await self.Toggles.get_bye_status(ctx.guild.id):
+                try:
+                    message = message.lstrip()
+                    message = message.replace("\\n", "\n")
+                    await self.Toggles.set_bye_msg(ctx.guild.id, message)
+                    embed = discord.Embed(title=main.lang["administration_gbmessage_success"], color=self.module_embed_color)
+                except ValueError:
+                    embed = discord.Embed(title=main.lang["administration_gbmessage_invalid"], color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=main.lang["administration_gbmessage_disabled"], color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["administration_gmessage_limit"].format(self.max_characters), color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @goodbye_custom_message.command(name='default', help=main.lang["command_goodbye_mdefault_help"], description=main.lang["command_goodbye_mdefault_description"])
+    async def goodbye_custom_message_reset(self, ctx):
+        if await self.Toggles.has_custom_goodbye(ctx.guild.id):
+            await self.Toggles.reset_bye_msg(ctx.guild.id)
+            embed = discord.Embed(title=main.lang["administration_gbmessage_default_success"], color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["administration_gbmessage_default_used"], color=self.module_embed_color)
+        await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @server_goodbye.group(name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="#general")
+    async def goodbye_setchannel(self, ctx, *, channel: discord.TextChannel):
+        await ctx.invoke(self.greetings_setchannel, channel=channel)
+
+    @goodbye_setchannel.command(name='default', help=main.lang["command_greetings_scdefault_help"], description=main.lang["command_greetings_scdefault_description"])
+    async def goodbye_setchannel_reset(self, ctx):
+        await ctx.invoke(self.greetings_setchannel_reset)
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        status = await self.Toggles.get_bye_status(member.guild.id)
+        if status:
+            channel_id = await self.Toggles.get_channel(member.guild.id)
+            if channel_id:
+                channel = await self.bot.fetch_channel(channel_id)
+            else:
+                channel = discord.utils.find(lambda c: c.name == "general", member.guild.text_channels)
+                if not channel:
+                    channel = discord.utils.find(lambda c: c.position == 0, member.guild.text_channels)
+            if await self.Toggles.has_custom_goodbye(member.guild.id):
+                message = await self.Toggles.get_custom_goodbye(member.guild.id)
+                message = await Administration.format_message(message, member)
+            else:
+                message = main.lang["administration_bye_default"].format(str(member), member.guild.name)
+            await channel.send(message)
+
     @staticmethod
     async def get_mute_role(guild: discord.Guild):
         mute_role = await MuteRole.get_mute_role(guild.id)
@@ -265,6 +467,14 @@ class Administration(commands.Cog):
                 channel_overwrite.add_reactions = False
                 
                 await channel.set_permissions(role, overwrite=channel_overwrite)
+
+    @staticmethod
+    async def format_message(message: str, member: discord.Member):
+        message = message.replace("{mention}", member.mention)
+        message = message.replace("{user}", str(member))
+        message = message.replace("{server}", member.guild.name)
+        message = message.replace("{membercount}", str(member.guild.member_count))
+        return message
 
 def setup(bot):
     bot.add_cog(Administration(bot))
