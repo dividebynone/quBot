@@ -392,7 +392,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
-    @server_goodbye.group(name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"])
+    @server_goodbye.group(name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"], usage="Goodbye, {mention}!")
     async def goodbye_custom_message(self, ctx, *, message: str):
         if len(message) <= self.max_characters:
             if await self.Toggles.get_bye_status(ctx.guild.id):

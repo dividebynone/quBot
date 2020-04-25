@@ -36,6 +36,11 @@ Administration
    | **Note(s):**\
    | - *Since the target individual can not be mentioned directly within the server, a <username>#<discriminator>(see example) or user ID must be provided.*\
    | **Needed User Permissions: Ban Members**", "``q!unban user#1234``, ``q!unban 116267141744820233``"
+   "``softban``", "| Soft bans the mentioned individual for a specified reason (if any)\
+   | **Note(s):**\
+   | - *The soft ban reason is an optional argument.*\
+   | - *Soft bans in essence kick the target individual from the server while deleting their messages. It's not the same as a normal ban.*\
+   | **Needed User Permissions: Kick Members, Manage Messages**", "``q!softban @somebody``, ``q!softban @somebody Spamming``"
    "``mute``", "| Mutes the target individual from chatting on the server.\
    | **Needed User Permissions: Manage Messages**", "``q!mute @somebody``"
    "``unmute``", "| Unmutes the target individual if they were previously muted using the bot.\
@@ -63,6 +68,10 @@ Administration
    | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings @someone``, ``q!warnings @someone 2``"
    "``warnings reset`` ``warnings clear``", "| Resets all warnings for the target individual.\
    | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings reset @someone``, ``q!warnings clear @someone``"
+   "``warnings delete`` ``warnings remove``", "| Deletes a specific warning that was issued to the target individual.\
+   | **Note(s):**\
+   | - *While deleting warnings WILL NOT trigger any automatic actions, adding a new warning WILL.*\
+   | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings delete @someone 3``, ``q!warnings remove @someone 3``"
    "``warnings auto``", "| Changes the number of warnings needed for a user to trigger an automatic mute/kick/ban from the server. (Disabled by default)\
    | **Note(s):**\
    | - *Using this command will enable the above-mentioned automatic actions if previously disabled.*\
@@ -70,6 +79,39 @@ Administration
    | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings auto mute 5``, ``q!warnings auto kick 8``, ``q!warnings auto kick 10``"
    "``warnings auto disable``", "| Disables the target automatic action from triggering for future user warnings.\
    | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings auto disable mute``, ``q!warnings auto disable kick``, ``q!warnings auto disable ban``"
+   "``greet`` ``greetings``", "| Toggles server greeting messages on/off on the server.\
+   | **Needed User Permissions: Manage Server**", "``q!greet``, ``q!greetings``"
+   "``bye`` ``goodbye``", "| Toggles server goodbye messages on/off on the server.\
+   | **Needed User Permissions: Manage Server**", "``q!bye``, ``q!goodbye``"
+   "``greet enable`` ``greet on``", "| Enables server greeting messages on the server.\
+   | **Needed User Permissions: Manage Server**", "``q!greet enable``, ``q!greet on``"
+   "``bye enable`` ``bye on``", "| Enables server goodbye messages on the server.\
+   | **Needed User Permissions: Manage Server**", "``q!bye enable``, ``q!bye on``"
+   "``greet disable`` ``greet off``", "| Disables server greeting messages on the server.\
+   | **Needed User Permissions: Manage Server**", "``q!greet disable``, ``q!greet off``"
+   "``bye disable`` ``bye off``", "| Disables server goodbye messages on the server.\
+   | **Needed User Permissions: Manage Server**", "``q!bye disable``, ``q!bye off``"
+   "``greet dm``", "| Enables server greetings on the server. Instead to the server's text channel, future messages will instead be sent to users' direct messages.\
+   | **Needed User Permissions: Manage Server**", "``q!greet dm``"
+   "``greet message`` ``bye message``", "| Changes the greeting or goodbye message to a custom one. Feel free to check the notes to be able to fully utilize this command.\
+   | **Note(s):**\
+   | - *This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)*\
+   | - *You can include the following in your message: {mention} - Mentions the User; {user} - Shows Username; {server} - Shows server name; {membercount} - Shows number of people in server;*\
+   | **Needed User Permissions: Manage Server**", "``q!greet message Welcome {mention}!``, ``q!bye message Goodbye, {mention}!``"
+   "``greet message default``", "| Resets the server greeting message back to default.\
+   | **Needed User Permissions: Manage Server**", "``q!greet message default``"
+   "``bye message default``", "| Resets the server goodbye message back to default.\
+   | **Needed User Permissions: Manage Server**", "``q!bye message default``"
+   "``greet setchannel`` ``bye setchannel``", "| Sets the text channel where greetings and goodbye messages are going to be sent by the bot.\
+   | **Note(s):**\
+   | - *Greeting and goodbye messages share the same channel.*\
+   | - *By default, these messages are sent to #general. If no text channel exists with that name, it uses the first text channel on the list.*\
+   | **Needed User Permissions: Manage Server**", "``q!greet setchannel #general``, ``q!bye setchannel #general``"
+   "``greet setchannel default`` ``bye setchannel default``", "| Resets the greetings/goodbye messages text channel back to default.\
+   | **Note(s):**\
+   | - *Greeting and goodbye messages share the same channel.*\
+   | - *By default, these messages are sent to #general. If no text channel exists with that name, it uses the first text channel on the list.*\
+   | **Needed User Permissions: Manage Server**", "``q!greet setchannel default``, ``q!bye setchannel default``"
 
 Conquest
 ^^^^^^^^

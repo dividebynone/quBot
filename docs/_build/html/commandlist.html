@@ -244,7 +244,18 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!unban</span> <span class="pre">user#1234</span></code>, <code class="docutils literal notranslate"><span class="pre">q!unban</span> <span class="pre">116267141744820233</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">softban</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Soft bans the mentioned individual for a specified reason (if any)</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>The soft ban reason is an optional argument.</em></div>
+<div class="line">- <em>Soft bans in essence kick the target individual from the server while deleting their messages. It’s not the same as a normal ban.</em></div>
+<div class="line"><strong>Needed User Permissions: Kick Members, Manage Messages</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!softban</span> <span class="pre">&#64;somebody</span></code>, <code class="docutils literal notranslate"><span class="pre">q!softban</span> <span class="pre">&#64;somebody</span> <span class="pre">Spamming</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mute</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Mutes the target individual from chatting on the server.</div>
 <div class="line"><strong>Needed User Permissions: Manage Messages</strong></div>
@@ -252,7 +263,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!mute</span> <span class="pre">&#64;somebody</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">unmute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unmute</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Unmutes the target individual if they were previously muted using the bot.</div>
 <div class="line"><strong>Needed User Permissions: Manage Messages</strong></div>
@@ -260,7 +271,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!unmute</span> <span class="pre">&#64;somebody</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">report</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">report</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Reports the target user for a particular reason.</div>
 <div class="line"><strong>Note(s):</strong></div>
@@ -271,7 +282,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!report</span> <span class="pre">&#64;somebody</span> <span class="pre">Spamming</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">report</span> <span class="pre">setchannel</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">report</span> <span class="pre">setchannel</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Selects a text channel where future user reports are going to be sent.</div>
 <div class="line"><strong>Note(s):</strong></div>
@@ -281,7 +292,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!report</span> <span class="pre">setchannel</span> <span class="pre">#general</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">report</span> <span class="pre">disable</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">report</span> <span class="pre">disable</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Disables user reporting for the server where the command was used.</div>
 <div class="line"><strong>Note(s):</strong></div>
@@ -291,7 +302,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!report</span> <span class="pre">disable</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warn</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">warn</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Warns the target user for a particular reason. This individual will receive a direct message from the bot.</div>
 <div class="line"><strong>Note(s):</strong></div>
@@ -301,7 +312,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!warn</span> <span class="pre">&#64;someone</span> <span class="pre">Spamming</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Displays a list of warnings for the target individual.</div>
 <div class="line"><strong>Note(s):</strong></div>
@@ -311,13 +322,23 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">&#64;someone</span></code>, <code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">&#64;someone</span> <span class="pre">2</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">reset</span></code> <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">clear</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">reset</span></code> <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">clear</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Resets all warnings for the target individual.</div>
 <div class="line"><strong>Needed User Permissions: Kick Members, Ban Members</strong></div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">reset</span> <span class="pre">&#64;someone</span></code>, <code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">clear</span> <span class="pre">&#64;someone</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">delete</span></code> <code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">remove</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Deletes a specific warning that was issued to the target individual.</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>While deleting warnings WILL NOT trigger any automatic actions, adding a new warning WILL.</em></div>
+<div class="line"><strong>Needed User Permissions: Kick Members, Ban Members</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">delete</span> <span class="pre">&#64;someone</span> <span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">remove</span> <span class="pre">&#64;someone</span> <span class="pre">3</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span> <span class="pre">auto</span></code></p></td>
 <td><div class="line-block">
@@ -337,6 +358,111 @@
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">auto</span> <span class="pre">disable</span> <span class="pre">mute</span></code>, <code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">auto</span> <span class="pre">disable</span> <span class="pre">kick</span></code>, <code class="docutils literal notranslate"><span class="pre">q!warnings</span> <span class="pre">auto</span> <span class="pre">disable</span> <span class="pre">ban</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span></code> <code class="docutils literal notranslate"><span class="pre">greetings</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Toggles server greeting messages on/off on the server.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span></code>, <code class="docutils literal notranslate"><span class="pre">q!greetings</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bye</span></code> <code class="docutils literal notranslate"><span class="pre">goodbye</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Toggles server goodbye messages on/off on the server.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bye</span></code>, <code class="docutils literal notranslate"><span class="pre">q!goodbye</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">enable</span></code> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">on</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Enables server greeting messages on the server.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">enable</span></code>, <code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">enable</span></code> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">on</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Enables server goodbye messages on the server.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">enable</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">disable</span></code> <code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">off</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Disables server greeting messages on the server.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">disable</span></code>, <code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">off</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">disable</span></code> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">off</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Disables server goodbye messages on the server.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">disable</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">off</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">dm</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Enables server greetings on the server. Instead to the server’s text channel, future messages will instead be sent to users’ direct messages.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">dm</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">message</span></code> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">message</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Changes the greeting or goodbye message to a custom one. Feel free to check the notes to be able to fully utilize this command.</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)</em></div>
+<div class="line">- <em>You can include the following in your message: {mention} - Mentions the User; {user} - Shows Username; {server} - Shows server name; {membercount} - Shows number of people in server;</em></div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">message</span> <span class="pre">Welcome</span> <span class="pre">{mention}!</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">message</span> <span class="pre">Goodbye,</span> <span class="pre">{mention}!</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">message</span> <span class="pre">default</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Resets the server greeting message back to default.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">message</span> <span class="pre">default</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">message</span> <span class="pre">default</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Resets the server goodbye message back to default.</div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">message</span> <span class="pre">default</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">setchannel</span></code> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">setchannel</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Sets the text channel where greetings and goodbye messages are going to be sent by the bot.</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>Greeting and goodbye messages share the same channel.</em></div>
+<div class="line">- <em>By default, these messages are sent to #general. If no text channel exists with that name, it uses the first text channel on the list.</em></div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">setchannel</span> <span class="pre">#general</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">setchannel</span> <span class="pre">#general</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">greet</span> <span class="pre">setchannel</span> <span class="pre">default</span></code> <code class="docutils literal notranslate"><span class="pre">bye</span> <span class="pre">setchannel</span> <span class="pre">default</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Resets the greetings/goodbye messages text channel back to default.</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>Greeting and goodbye messages share the same channel.</em></div>
+<div class="line">- <em>By default, these messages are sent to #general. If no text channel exists with that name, it uses the first text channel on the list.</em></div>
+<div class="line"><strong>Needed User Permissions: Manage Server</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!greet</span> <span class="pre">setchannel</span> <span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bye</span> <span class="pre">setchannel</span> <span class="pre">default</span></code></p></td>
 </tr>
 </tbody>
 </table>
