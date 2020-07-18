@@ -41,13 +41,13 @@ class Administration(commands.Cog):
     @commands.guild_only()
     async def purge(self, ctx, prune_num: int):
         if prune_num > 0:
-            await ctx.channel.purge(limit=prune_num,bulk=True)
             await ctx.message.delete()
+            await ctx.channel.purge(limit=prune_num,bulk=True)
             embed = discord.Embed(title=main.lang["administration_purge_delmsg"].format(prune_num), color=self.module_embed_color)
         else:
             embed = discord.Embed(title=main.lang["administration_purge_prmsg"], color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=10)
-    
+
     @commands.command(name='kick', help=main.lang["command_kick_help"], description=main.lang["command_kick_description"], usage="@somebody Spamming")
     @commands.has_permissions(kick_members=True)
     @commands.guild_only()
@@ -284,7 +284,7 @@ class Administration(commands.Cog):
         status = await self.Toggles.get_greet_status(ctx.guild.id)
         if status:
             await self.Toggles.disable_greeting(ctx.guild.id)
-            embed = discord.Embed(title=main.lang["administration_gdisable_success"], color=self.module_embed_color)   
+            embed = discord.Embed(title=main.lang["administration_gdisable_success"], color=self.module_embed_color)
         else:
             embed = discord.Embed(title=main.lang["administration_gdisable_disabled"], color=self.module_embed_color)
         await ctx.send(embed=embed)
@@ -307,7 +307,7 @@ class Administration(commands.Cog):
                     await self.Toggles.set_greet_msg(ctx.guild.id, message)
                     embed = discord.Embed(title=main.lang["administration_gmessage_success"], color=self.module_embed_color)
                 except ValueError:
-                    embed = discord.Embed(title=main.lang["administration_gmessage_invalid"], color=self.module_embed_color) 
+                    embed = discord.Embed(title=main.lang["administration_gmessage_invalid"], color=self.module_embed_color)
             else:
                 embed = discord.Embed(title=main.lang["administration_gmessage_disabled"], color=self.module_embed_color)
         else:
@@ -454,7 +454,7 @@ class Administration(commands.Cog):
         if mute_role == None or mute_role != role.id:
             await Administration.update_mute_role(role, guild)
             await MuteRole.set_mute_role(guild.id, role.id)
-        
+
         return role
 
     @staticmethod
@@ -465,7 +465,7 @@ class Administration(commands.Cog):
                 channel_overwrite = channel.overwrites_for(role)
                 channel_overwrite.send_messages = False
                 channel_overwrite.add_reactions = False
-                
+
                 await channel.set_permissions(role, overwrite=channel_overwrite)
 
     @staticmethod
