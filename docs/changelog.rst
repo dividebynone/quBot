@@ -1,6 +1,21 @@
 Changelog
 =========
 
+quBot 1.1.0-rc1 (18-07-2020)
+-----------------------------
+
+.. topic:: Description
+
+    A quick update to fix an issue I noticed to the purge command in the Administration module. Server is also now using discord.py 1.3.4
+    to fix issue #5109 (https://github.com/Rapptz/discord.py/issues/5109) which potentially caused stability issues to the bot.
+
+Bug fixes
+^^^^^^^^^
+- Purge command, part of the Administration module, was raising a 404 message not found due to execution of the purge function prior to the
+  deletion of the user's command message.
+
+- Python module 'discord.py' was updated from version 1.3.3 to 1.3.4 to fix issue #5109.
+
 quBot 1.1.0-beta (25-04-2020)
 -----------------------------
 
@@ -16,7 +31,7 @@ Administration
 ~~~~~~~~~~~~~~
 
   Version 1.0 felt incomplete without the ability to delete specific user warning. It is, in fact, the reason why 1.1.0 was
-  pushed this early after version 1.0. 
+  pushed this early after version 1.0.
 
   - **New command:** ``warnings delete`` - Deletes a specific warning that was issued to the target individual;
 
@@ -57,7 +72,7 @@ Administration
 
 Bug fixes
 ^^^^^^^^^
-- HelpFormatter now works with subcommand aliases;
+- HelpFormatter now works with subcommand aliases.
 
 - Automatic warning actions did not trigger on the exact warning value but on the next one. That has been fixed.
 
@@ -68,9 +83,9 @@ quBot 1.0.0-beta (23-04-2020)
 
 .. topic:: Description
 
-    This update introduces many new features to the Administraton module, a new Dictionaries module and a few new
+    This update introduces many new features to the Administration module, a new Dictionaries module and a few new
     commands to Core, Conquest, Economy & Utility modules. There is a lot to cover so a detailed review and explanation of
-    all new additions to the bot can be viewed below. This update marks version 1.0 of the bot. 
+    all new additions to the bot can be viewed below. This update marks version 1.0 of the bot.
 
     The next few updates will most likely be of a smaller scale and will only cover very specific parts of the bot's codebase.
     Thank you for your time.
@@ -300,5 +315,3 @@ Bug fixes
 
     Since I did not keep track of all the changes prior to 0.9.1-beta, this will be the first entry
     in the changelog
-
-
