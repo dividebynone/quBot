@@ -128,18 +128,22 @@ class Core(commands.Cog):
         if input_module:
             loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
             if input_module in loaded_modules_names:
-                commands_list = ''
+                display_list = ''
                 isowner = await ctx.bot.is_owner(ctx.author)
-                for command in self.bot.get_cog(input_module).walk_commands():
+
+                cmds_list = [x for x in self.bot.get_cog(input_module).walk_commands()]
+                cmds_list = list(dict.fromkeys(cmds_list))
+
+                for command in cmds_list:
                     if not command.hidden or isowner:
                         if command.parent:
-                            commands_list += f'\u002d\u002d\u002d {command.name}\n'
+                            display_list += f'\u002d\u002d\u002d {" ".join(command.qualified_name.split()[1:])}\n'
                         else:
-                            commands_list += f'\u2022 {command.name}\n'
-                if not commands_list:
+                            display_list += f'\u2022 {command.name}\n'
+                if not display_list:
                     embed = discord.Embed(title=main.lang["core_cmds_list_empty"].format(input_module), color=self.module_embed_color)
                 else:
-                    embed = discord.Embed(title=main.lang["core_cmds_list"].format(input_module),description=commands_list, color=self.module_embed_color)
+                    embed = discord.Embed(title=main.lang["core_cmds_list"].format(input_module),description=display_list, color=self.module_embed_color)
             else:
                 embed = discord.Embed(title=main.lang["core_cmds_list_not_found"].format(input_module), color=self.module_embed_color)
         else:

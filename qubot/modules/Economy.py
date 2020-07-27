@@ -72,7 +72,7 @@ class Economy(commands.Cog):
         await user_set(ctx.author, author_info)
         await ctx.send(embed=embed)
     
-    @commands.command(name="currency", help=main.lang["command_currency_help"], description=main.lang["command_currency_description"], usage="@somebody", aliases=['$', 'money','cash'])
+    @commands.command(name="currency", help=main.lang["command_currency_help"], description=main.lang["command_currency_description"], usage="@somebody", aliases=['$', 'money','cash','balance'])
     async def currency(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         user_info = await user_get(user)
