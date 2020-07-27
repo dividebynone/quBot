@@ -1,8 +1,9 @@
-/__pycache__
-/databases
-/logs
-/modules/TopGG.py
+/qubot/__pycache__
+/qubot/databases
+/qubot/logs
+/qubot/modules/TopGG.py
 /QBEnv
+/.vscode
 *.ini
 *.pyc
 *.pyo
