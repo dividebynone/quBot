@@ -522,7 +522,8 @@ def old_logs_delete(days_int: int = 7):
 
 def get_prefix(bot, message):
     prefixes = prefixhandler.PrefixHandler()
-    return prefixes.get_prefix(message.guild.id, prefix) if message.guild else prefix
+    return_prefix = prefixes.get_prefix(message.guild.id, prefix) if message.guild else prefix
+    return commands.when_mentioned_or(return_prefix)(bot, message)
 
 #-----------------------------------#
 #Bot initialization
