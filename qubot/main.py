@@ -2,6 +2,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from libs.qulib import is_venv, data_get, makefolders, safe_cast
 import libs.prefixhandler as prefixhandler
+import libs.localizations as localizations
 import logging
 import os
 import sys
@@ -382,7 +383,7 @@ json_lang_en = {
     "core_langs_title": "Available language pack(s)",
     "core_langset_notfound": "This language does not seem to exist in the system. Please make sure your spelling is correct.",
     "core_langset_same": "The language you're trying to set the bot to is already being used.",
-    "core_langset_success": "Language was set to **{}**. Reloading modules...",
+    "core_langset_success": "Language was set to **{}**.",
     "core_latencies": "Shard **{}** ({} Servers) | Latency: {}ms\n",
     "core_latencies_msg": "Shards Overview",
     "core_leave_msg": "Thank you for having me on this server. Have a nice day!",
@@ -471,6 +472,8 @@ json_lang_en = {
     "utility_uinfo_sroles": "Server Roles ({})",
     "utility_uptime_msg": "Bot has been running for **{}** days, **{}** hours, **{}** minutes and **{}** seconds.",
     "warning_string": "Warning",
+    "economy_cgiveaway_title": "Currency Giveaway",
+    "economy_cgiveaway_msg": "React with {} to this message to claim **{} {}**",
 }
 
 with open(os.path.join(bot_path, f'data/localization/language_{languagecode}.json'), 'w') as json_file:
@@ -486,6 +489,17 @@ with open(os.path.join(bot_path, 'data/data.json'), 'r') as json_file:
 json_file.close()
 
 version = json_data["appVersion"]
+
+#-----------------------------------#
+#Localization
+
+def get_lang(guild_id: int):
+    localization = localizations.Localizations()
+    language = localization.get_language(guild_id, languagecode)
+    with open(os.path.join(bot_path, f'data/localization/language_{language}.json'), 'r', encoding="utf_8") as json_file:
+        return_dict = json.load(json_file)
+    json_file.close()
+    return return_dict
 
 #-----------------------------------#
 #Creating modules.mdls to store loaded modules

@@ -2,24 +2,24 @@ from libs.sqlhandler import sqlconnect
 import main
 import os
 
-class PrefixHandler(object):
+class Localizations(object):
 
     def __init__(self):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("CREATE TABLE IF NOT EXISTS servers(guild_id INTEGER PRIMARY KEY, prefix BLOB, language BLOB)")
 
     @classmethod
-    def set_prefix(self, guild_id: int, prefix: str):
+    def set_language(self, guild_id: int, language: str):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO servers (guild_id) VALUES(?)", (guild_id,))
-            cursor.execute("UPDATE servers SET prefix=? WHERE guild_id=?", (prefix, guild_id,))
+            cursor.execute("UPDATE servers SET language=? WHERE guild_id=?", (language, guild_id,))
 
     @classmethod
-    def get_prefix(self, guild_id: int, default_prefix: str):
+    def get_language(self, guild_id: int, default_language: str):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT IFNULL(prefix, ?) FROM servers WHERE guild_id=?",(default_prefix, guild_id,))
+            cursor.execute("SELECT IFNULL(language, ?) FROM servers WHERE guild_id=?",(default_language, guild_id,))
             output = cursor.fetchone()
-            return str(output[0]) if output else default_prefix
+            return str(output[0]) if output else default_language
 
     @classmethod
     def remove_guild(self, guild_id: int):
