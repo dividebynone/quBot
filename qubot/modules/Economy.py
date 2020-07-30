@@ -45,7 +45,7 @@ class Economy(commands.Cog):
         if user.id is not ctx.author.id:
             user_info = await user_get(user)
         time_on_command = datetime.today().replace(microsecond=0)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if author_info['daily_time']:
             daily = datetime.strptime(author_info['daily_time'], '%Y-%m-%d %H:%M:%S')
             daily_active = daily + dt.timedelta(days=1)
@@ -77,7 +77,7 @@ class Economy(commands.Cog):
     async def currency(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         user_info = await user_get(user)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["economy_currency_return_msg"].format(user, user_info['currency'], self.currency_symbol), color=self.module_embed_color)
         await ctx.send(embed=embed)
 
@@ -89,7 +89,7 @@ class Economy(commands.Cog):
         user_info = await user_get(user)
         user_info['currency'] += value
         await user_set(user,user_info)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if value > 0:
             embed = discord.Embed(title=lang["economy_adjust_award_msg"].format(user, value, self.currency_symbol), color=self.module_embed_color)
         else:
@@ -102,7 +102,7 @@ class Economy(commands.Cog):
         author = ctx.author
         author_info = await user_get(author)
         user_info = await user_get(user)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if number > 0:
             if author_info['currency'] <= 0 or number > author_info['currency']:
                 embed = discord.Embed(title=lang["economy_insufficient_funds"], color=self.module_embed_color)
@@ -120,7 +120,7 @@ class Economy(commands.Cog):
     async def bet_roll(self, ctx, number: int):
         user = ctx.author
         user_info = await user_get(user)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if number > 0:
             if user_info['currency'] <= 0 or number > user_info['currency']:
                 embed = discord.Embed(title=lang["economy_insufficient_funds"], color=self.module_embed_color)
@@ -171,7 +171,7 @@ class Economy(commands.Cog):
     @giveaway_group.command(name="start", help=main.lang["command_owner_only"], description=main.lang["command_giveaway_start_description"], usage=100)
     async def giveaway_start(self, ctx, value: int):
         await ctx.message.delete()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["economy_cgiveaway_title"], description=lang["economy_cgiveaway_msg"].format(self.currency_symbol, value, self.currency_symbol), color=self.module_embed_color)
         message = await ctx.send(embed=embed)
         await message.add_reaction(self.currency_symbol)

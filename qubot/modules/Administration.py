@@ -21,7 +21,6 @@ class BannedUser(commands.UserConverter):
         return ban_entry.user
 
 class Administration(commands.Cog):
-    """Administration"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -30,6 +29,7 @@ class Administration(commands.Cog):
 
         self.max_warnings = 20
         self.max_characters = 1500
+        self.purge_limit = 100
 
         self.Reports = Reports()
         self.Warnings = Warnings()
@@ -37,15 +37,27 @@ class Administration(commands.Cog):
         self.AutoActions = AutoWarningActions()
         self.Toggles = ServerToggles()
 
-    @commands.command(name='purge', help=main.lang["command_purge_help"], description=main.lang["command_purge_description"], usage="10", ignore_extra=True)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
+    @commands.command(name='purge', help=main.lang["command_purge_help"], description=main.lang["command_purge_description"], usage="10", ignore_extra=True)
     @commands.guild_only()
-    async def purge(self, ctx, prune_num: int):
-        lang = main.get_lang(ctx.guild.id)
+    async def purge(self, ctx, prune_num: int, filters: str = None):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if prune_num > 0:
             await ctx.message.delete()
-            await ctx.channel.purge(limit=prune_num,bulk=True)
-            embed = discord.Embed(title=lang["administration_purge_delmsg"].format(prune_num), color=self.module_embed_color)
+            prune_num = self.purge_limit if prune_num > self.purge_limit else prune_num
+            if filters:
+                if filters.lower() == "bot" or filters.lower() == "bots":
+                    def is_bot(message):
+                        return message.author.bot
+
+                    deleted = await ctx.channel.purge(limit=prune_num, check=is_bot, bulk=True)
+                    embed = discord.Embed(title=lang["administration_purge_delmsg"].format(len(deleted)), color=self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=lang["administration_purge_invalid_filter"], color=self.module_embed_color)
+            else:
+                deleted = await ctx.channel.purge(limit=prune_num, bulk=True)
+                embed = discord.Embed(title=lang["administration_purge_delmsg"].format(len(deleted)), color=self.module_embed_color)
         else:
             embed = discord.Embed(title=lang["administration_purge_prmsg"], color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=10)
@@ -56,7 +68,7 @@ class Administration(commands.Cog):
     async def kick(self, ctx, user: discord.Member, *, kick_reason: str = None):   
         await ctx.guild.kick(user, reason=kick_reason)
         await ctx.message.delete()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_kick_msg"].format(user,kick_reason), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
@@ -66,7 +78,7 @@ class Administration(commands.Cog):
     async def ban(self, ctx, user: discord.Member, *, reason: str = None):
         await ctx.guild.ban(user, reason=reason)
         await ctx.message.delete()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_ban_msg"].format(str(user), reason), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
@@ -76,7 +88,7 @@ class Administration(commands.Cog):
     async def unban(self, ctx, user: BannedUser):
         await ctx.guild.unban(user)
         await ctx.message.delete()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_unban_msg"].format(str(user)), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
@@ -87,7 +99,7 @@ class Administration(commands.Cog):
         await ctx.guild.ban(user, reason=reason)
         await ctx.guild.unban(user, reason=reason)
         await ctx.message.delete()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_softban_msg"].format(str(user), reason), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
@@ -99,7 +111,7 @@ class Administration(commands.Cog):
             role = await Administration.get_mute_role(ctx.guild)
         user_rlist = [x.id for x in user.roles]
         await ctx.message.delete()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if role.id not in user_rlist:
             await user.add_roles(role)
             embed = discord.Embed(title=lang["administration_mute_success"].format(str(user)), color=self.module_embed_color)
@@ -115,7 +127,7 @@ class Administration(commands.Cog):
             role = await Administration.get_mute_role(ctx.guild)
         user_rlist = [x.id for x in user.roles]
         await ctx.message.delete()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if role.id in user_rlist:
             await user.remove_roles(role)
             embed = discord.Embed(title=lang["administration_unmute_success"].format(str(user)), color=self.module_embed_color)
@@ -135,7 +147,7 @@ class Administration(commands.Cog):
                 if channel_id:
                     await ctx.message.delete()
                     channel = self.bot.get_channel(channel_id)
-                    lang = main.get_lang(ctx.guild.id)
+                    lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
                     embed = discord.Embed(title=lang["administration_report_title"], color=self.module_embed_color)
                     embed.add_field(name=lang["user_string"], value=user, inline=True)
                     embed.add_field(name=lang["reason_string"], value=reason, inline=True)
@@ -149,7 +161,7 @@ class Administration(commands.Cog):
     @report_group.command(name='setchannel', help=main.lang["command_setchannel_help"], description=main.lang["command_setchannel_description"], usage='#general')
     async def report_setchannel(self, ctx, channel: discord.TextChannel):
         await self.Reports.set_channel(ctx.guild.id, channel.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_setchannel_msg"].format(str(channel)), color=self.module_embed_color)
         await ctx.send(embed=embed)
 
@@ -158,7 +170,7 @@ class Administration(commands.Cog):
     @report_group.command(name='disable', help=main.lang["command_report_disable_help"], description=main.lang["command_report_disable_description"])
     async def report_disable(self, ctx):
         channel_id = await self.Reports.get_channel(ctx.guild.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if channel_id:
             await self.Reports.disable(ctx.guild.id)
             embed = discord.Embed(title=lang["administration_report_disable_success"], color=self.module_embed_color)
@@ -173,7 +185,7 @@ class Administration(commands.Cog):
         if user.id != ctx.author.id:
             await ctx.message.delete()
             user_warnings = await self.Warnings.get_warning_count(ctx.guild.id, user.id)
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             if user_warnings < self.max_warnings:
                 await self.Warnings.add_warning(user.id, warning, ctx.author.id, ctx.guild.id)
                 dm_embed = discord.Embed(title=lang["administration_warn_dm_title"], color=self.module_embed_color)
@@ -218,7 +230,7 @@ class Administration(commands.Cog):
                 page_index = page - 1
                 await ctx.message.delete()
                 warnings = await self.Warnings.get_warnings(ctx.guild.id, user.id)
-                lang = main.get_lang(ctx.guild.id)
+                lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
                 if len(warnings[(page_index*5):(page_index*5 + 5)]) > 0:
                     embed = discord.Embed(title=lang["administration_warnings_title"].format(str(user)), color=self.module_embed_color)
                     embed.set_footer(text=f'{lang["page_string"]} {page}')
@@ -235,7 +247,7 @@ class Administration(commands.Cog):
     async def warnings_reset(self, ctx, *, user: discord.User):
         await ctx.message.delete()
         await self.Warnings.reset_warnings(ctx.guild.id, user.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_warnings_reset"].format(str(user)), color=self.module_embed_color)
         await ctx.send(embed=embed)
 
@@ -243,7 +255,7 @@ class Administration(commands.Cog):
     async def warnings_delete(self, ctx, user: discord.User, number: int):
         if number >= 1:
             index = number - 1
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             try:
                 await ctx.message.delete()
                 await self.Warnings.delete_warning(ctx.guild.id, user.id, index)
@@ -256,7 +268,7 @@ class Administration(commands.Cog):
     async def warnings_autoaction(self, ctx, action: str, number: int):
         if not ctx.invoked_subcommand:
             if number > 0:
-                lang = main.get_lang(ctx.guild.id)
+                lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
                 if number <= self.max_warnings:
                     if action.lower() in ('mute', 'kick', 'ban'):
                         await self.AutoActions.set_value(ctx.guild.id, action, number)
@@ -269,7 +281,7 @@ class Administration(commands.Cog):
     async def warnings_disable_autoaction(self, ctx, action: str):
         if action.lower() in ('mute', 'kick', 'ban'):
             await self.AutoActions.disable_autoaction(ctx.guild.id, action)
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             embed = discord.Embed(title=lang["administration_autoaction_disable_msg"].format(action.lower()), color=self.module_embed_color)
             await ctx.send(embed=embed)
 
@@ -288,7 +300,7 @@ class Administration(commands.Cog):
     @server_greetings.command(name='enable', aliases=['on'], help=main.lang["command_greetings_enable_help"], description=main.lang["command_greetings_enable_description"], ignore_extra=True)
     async def greetings_enable(self, ctx):
         status = await self.Toggles.get_greet_status(ctx.guild.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status != 1:
             await self.Toggles.enable_greeting(ctx.guild.id, False)
             embed = discord.Embed(title=lang["administration_genable_success"], color=self.module_embed_color)
@@ -300,7 +312,7 @@ class Administration(commands.Cog):
     @server_greetings.command(name='disable', aliases=['off'], help=main.lang["command_greetings_disable_help"], description=main.lang["command_greetings_disable_description"], ignore_extra=True)
     async def greetings_disable(self, ctx):
         status = await self.Toggles.get_greet_status(ctx.guild.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status:
             await self.Toggles.disable_greeting(ctx.guild.id)
             embed = discord.Embed(title=lang["administration_gdisable_success"], color=self.module_embed_color)   
@@ -312,14 +324,14 @@ class Administration(commands.Cog):
     @server_greetings.command(name='dm', help=main.lang["command_greetings_dm_help"], description=main.lang["command_greetings_dm_description"], ignore_extra=True)
     async def greetings_enable_dm(self, ctx):
         await self.Toggles.enable_greeting(ctx.guild.id, True)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_gdm_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @server_greetings.group(name='message', invoke_without_command=True, help=main.lang["command_greetings_message_help"], description=main.lang["command_greetings_message_description"], usage="Welcome {mention} to {server}!")
     async def greetings_custom_message(self, ctx, *, message: str):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(message) <= self.max_characters:
             if await self.Toggles.get_greet_status(ctx.guild.id):
                 try:
@@ -337,7 +349,7 @@ class Administration(commands.Cog):
 
     @greetings_custom_message.command(name='default', help=main.lang["command_greetings_mdefault_help"], description=main.lang["command_greetings_mdefault_description"])
     async def greetings_custom_message_reset(self, ctx):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await self.Toggles.has_custom_greeting(ctx.guild.id):
             await self.Toggles.reset_greet_msg(ctx.guild.id)
             embed = discord.Embed(title=lang["administration_gmessage_default_success"], color=self.module_embed_color)
@@ -349,14 +361,14 @@ class Administration(commands.Cog):
     @server_greetings.group(name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="#general")
     async def greetings_setchannel(self, ctx, *, channel: discord.TextChannel):
         await self.Toggles.set_channel(ctx.guild.id, channel.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_gsetchannel"].format(channel.name), color=self.module_embed_color)
         await ctx.send(embed=embed)
 
     @greetings_setchannel.command(name='default', help=main.lang["command_greetings_scdefault_help"], description=main.lang["command_greetings_scdefault_description"])
     async def greetings_setchannel_reset(self, ctx):
         await self.Toggles.set_channel(ctx.guild.id, None)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_gscdefault_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
 
@@ -398,7 +410,7 @@ class Administration(commands.Cog):
     @server_goodbye.command(name='enable', aliases=['on'], help=main.lang["command_goodbye_enable_help"], description=main.lang["command_goodbye_enable_description"], ignore_extra=True)
     async def goodbye_enable(self, ctx):
         status = await self.Toggles.get_bye_status(ctx.guild.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status != 1:
             await self.Toggles.enable_goodbye(ctx.guild.id)
             embed = discord.Embed(title=lang["administration_gbenable_success"], color=self.module_embed_color)
@@ -410,7 +422,7 @@ class Administration(commands.Cog):
     @server_goodbye.command(name='disable', aliases=['off'], help=main.lang["command_goodbye_disable_help"], description=main.lang["command_goodbye_disable_description"], ignore_extra=True)
     async def goodbye_disable(self, ctx):
         status = await self.Toggles.get_bye_status(ctx.guild.id)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status:
             await self.Toggles.disable_goodbye(ctx.guild.id)
             embed = discord.Embed(title=lang["administration_gbdisable_success"], color=self.module_embed_color)
@@ -421,7 +433,7 @@ class Administration(commands.Cog):
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @server_goodbye.group(name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"], usage="Goodbye, {mention}!")
     async def goodbye_custom_message(self, ctx, *, message: str):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(message) <= self.max_characters:
             if await self.Toggles.get_bye_status(ctx.guild.id):
                 try:
@@ -439,7 +451,7 @@ class Administration(commands.Cog):
 
     @goodbye_custom_message.command(name='default', help=main.lang["command_goodbye_mdefault_help"], description=main.lang["command_goodbye_mdefault_description"])
     async def goodbye_custom_message_reset(self, ctx):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await self.Toggles.has_custom_goodbye(ctx.guild.id):
             await self.Toggles.reset_bye_msg(ctx.guild.id)
             embed = discord.Embed(title=lang["administration_gbmessage_default_success"], color=self.module_embed_color)

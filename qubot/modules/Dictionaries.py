@@ -16,7 +16,7 @@ class Dictionaries(commands.Cog):
     @commands.command(name='dict', help=main.lang["dictionaries_english_only"], description=main.lang["command_meanings_description"], aliases=['whatis', 'meaning', 'meanings'])
     async def dictionary_getmeanings(self, ctx, *, input: str):
         result = await quDict.get_top_meanings(input)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if result != None:
             embed = discord.Embed(title=lang["dictionaries_term"].format(input), color=self.module_embed_color)
             for category in result:
@@ -31,7 +31,7 @@ class Dictionaries(commands.Cog):
     @commands.command(name='synonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_synonyms_description"], usage="hot", aliases=['synonyms'])
     async def dictionary_getsynonyms(self, ctx, *, input: str):
         result = await quDict.get_top_synonyms(input)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if result != None:
             embed = discord.Embed(title=lang["dictionaries_term"].format(input), color=self.module_embed_color)
             formatted = ', '.join(result)
@@ -43,7 +43,7 @@ class Dictionaries(commands.Cog):
     @commands.command(name='antonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_antonyms_description"], usage="hot", aliases=['antonyms'])
     async def dictionary_getantonyms(self, ctx, *, input: str):
         result = await quDict.get_top_antonyms(input)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if result != None:
             embed = discord.Embed(title=lang["dictionaries_term"].format(input), color=self.module_embed_color)
             formatted = ', '.join(result)
@@ -55,7 +55,7 @@ class Dictionaries(commands.Cog):
     @commands.command(name='urbandict', help=main.lang["dictionaries_english_only"], description=main.lang["command_urbandict_description"], usage="hello", aliases=['ud'])
     async def dictionary_get_urbandict(self, ctx, *, input: str):
         result = await quDict.get_urbandict_definitions(input)
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if result != None:
             embed = discord.Embed(title=lang["dictionaries_term"].format(input), color=self.module_embed_color)
             formatted = '\n'.join(result)

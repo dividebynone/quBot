@@ -30,7 +30,7 @@ class Core(commands.Cog):
         except Exception as e:
             embed = discord.Embed(title=f'**`ERROR:`** {type(e).__name__} - {e}', color=self.module_embed_color)
         else:
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             if input_module_path in loaded_modules:
                 embed = discord.Embed(title=lang["core_module_load_fail"], color=self.module_embed_color)
             else:
@@ -50,7 +50,7 @@ class Core(commands.Cog):
         except Exception as e:
             embed = discord.Embed(title=f'**`ERROR:`** {type(e).__name__} - {e}', color=self.module_embed_color)
         else:
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             if input_module_path not in loaded_modules:
                 embed = discord.Embed(title=lang["core_module_unload_fail"], color=self.module_embed_color)
             else:
@@ -76,7 +76,7 @@ class Core(commands.Cog):
         except Exception as e:
             embed = discord.Embed(title=f'**`ERROR:`** {type(e).__name__} - {e}', color=self.module_embed_color)
         else:
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             if input_module_path not in loaded_modules:
                 embed = discord.Embed(title=lang["core_module_reload_fail"], color=self.module_embed_color)
             else:
@@ -92,7 +92,7 @@ class Core(commands.Cog):
             for i in loaded_modules_names:
                 if i not in data["hidden_modules"]:
                     modules_list += f'\u2022 {i}\n'
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             embed = discord.Embed(title=lang["core_modules_list"],description=modules_list, color=self.module_embed_color)
             await ctx.author.send(embed=embed)
     
@@ -100,7 +100,7 @@ class Core(commands.Cog):
     @commands.is_owner()
     async def hide(self, ctx, *, input_module: str):
         input_module_path = f'modules.{input_module}'
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module_path in loaded_modules:
             data = await data_get()
             if input_module not in data["hidden_modules"]:
@@ -117,7 +117,7 @@ class Core(commands.Cog):
     @commands.is_owner()
     async def unhide(self, ctx, *, input_module: str):
         input_module_path = f'modules.{input_module}'
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module_path in loaded_modules:
             data = await data_get()
             if input_module in data["hidden_modules"]:
@@ -132,7 +132,7 @@ class Core(commands.Cog):
     
     @commands.command(name='commands', aliases=['cmds'], help=main.lang["empty_string"], description=main.lang["command_cmds_description"], usage="<module name>")
     async def cmds_list(self, ctx, *, input_module: str = None):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module:
             loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
             if input_module in loaded_modules_names:
@@ -162,7 +162,7 @@ class Core(commands.Cog):
     @commands.is_owner()
     async def userid(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_userid_msg"].format(user.name,user.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
@@ -170,7 +170,7 @@ class Core(commands.Cog):
     @commands.is_owner()
     @commands.guild_only()
     async def serverid(self, ctx):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_serverid_msg"].format(ctx.guild.name,ctx.guild.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
@@ -178,7 +178,7 @@ class Core(commands.Cog):
     @commands.is_owner()
     @commands.guild_only()
     async def channelid(self, ctx):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
@@ -186,14 +186,14 @@ class Core(commands.Cog):
     @commands.is_owner()
     @commands.guild_only()
     async def roleid(self, ctx, *, role: discord.Role):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_roleid_msg"].format(ctx.guild.name, role.name, role.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
     @commands.command(name='leave', help=main.lang["empty_string"], description=main.lang["command_leave_description"], hidden=True, ignore_extra=True)
     @commands.has_permissions(kick_members=True)
     async def leave(self, ctx):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_leave_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
         await ctx.guild.leave()
@@ -202,7 +202,7 @@ class Core(commands.Cog):
     @commands.is_owner()
     async def latencies(self, ctx):
         string_output = ''
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         for shard in self.bot.latencies:
             shards_guild_counter = 0
             guild_list = (g for g in self.bot.guilds if g.shard_id is shard[0])
@@ -264,7 +264,7 @@ class Core(commands.Cog):
         for lang_item in lang_list:
             lang_string += f'\u2022 {lang_item}\n'
         localization = Localizations()
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_langs_title"], description=lang_string, color=self.module_embed_color)
         embed.set_footer(text=f'{lang["core_langs_footer"]}: {localization.get_language(ctx.guild.id, main.languagecode)}')
         await ctx.send(embed=embed)
@@ -275,7 +275,7 @@ class Core(commands.Cog):
     async def lang_set(self, ctx, lang_code: str = None):
         lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data/localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
         lang_list = [x.replace('language_', '') for x in lang_directory_list]
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if lang_code in lang_list:
             localization = Localizations()
             if lang_code != localization.get_language(ctx.guild.id, main.languagecode):
@@ -292,7 +292,7 @@ class Core(commands.Cog):
     @commands.guild_only()
     async def prefix(self, ctx, *, new_prefix: str = None):
         if not ctx.invoked_subcommand:
-            lang = main.get_lang(ctx.guild.id)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             prefixhandler = PrefixHandler()
             if not new_prefix:
                 embed = discord.Embed(title=lang["core_prefix_info"].format(prefixhandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color)
@@ -307,7 +307,7 @@ class Core(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def prefix_reset(self, ctx):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         prefixhandler = PrefixHandler()
         prefixhandler.set_prefix(ctx.guild.id, main.prefix)
         await ctx.send(embed=discord.Embed(title=lang["core_prefix_reset"].format(main.prefix), color=self.module_embed_color))
@@ -315,7 +315,7 @@ class Core(commands.Cog):
     @prefix.command(name='show', help=main.lang["empty_string"], description=main.lang["command_prefix_show_description"], ignore_extra=True)
     @commands.guild_only()
     async def prefix_show(self, ctx):
-        lang = main.get_lang(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         prefixhandler = PrefixHandler()
         await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(prefixhandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color))
 
