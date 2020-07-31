@@ -135,7 +135,8 @@ class Core(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module:
             loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
-            if input_module in loaded_modules_names:
+            input_module = input_module.capitalize()
+            if input_module.capitalize() in loaded_modules_names:
                 display_list = ''
                 isowner = await ctx.bot.is_owner(ctx.author)
 
