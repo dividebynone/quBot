@@ -33,8 +33,13 @@ class Conquest(commands.Cog):
             config.add_section('Conquest')
             if 'MinEntryFee' not in config['Conquest']:
                 config.set('Conquest', 'MinEntryFee', '100')
-
+<<<<<<< HEAD:qubot/modules/Conquest.py
+     
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
+=======
+
+        with open('config.ini', 'w', encoding="utf_8") as config_file:
+>>>>>>> 33e6feccf0f6c93b564ef98499055ef76c718a5a:modules/Conquest.py
             config.write(config_file)
         config_file.close()
 
@@ -207,7 +212,11 @@ class Conquest(commands.Cog):
                 if await quConquest.find_member(user.id):
                     embed = discord.Embed(title=lang["conquest_join_part_of"], color = self.module_embed_color)
                 elif cdata["type"] == "private":
+<<<<<<< HEAD:qubot/modules/Conquest.py
                     embed = discord.Embed(title=lang["conquest_join_private_msg"], color = self.module_embed_color)   
+=======
+                    embed = discord.Embed(title=main.lang["conquest_join_private_msg"], color = self.module_embed_color)
+>>>>>>> 33e6feccf0f6c93b564ef98499055ef76c718a5a:modules/Conquest.py
                 elif user_info["currency"] < join_fee:
                     embed = discord.Embed(title=lang["conquest_insufficient_funds"], color = self.module_embed_color)
                 elif join_fee < cdata["entry_fee"]:
@@ -237,9 +246,15 @@ class Conquest(commands.Cog):
         cdata = await quConquest.get_settlement('user', user.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if cdata and user.id in {cdata["founderid"], cdata["leaderid"]}:
+<<<<<<< HEAD:qubot/modules/Conquest.py
             embed = discord.Embed(title=lang["conquest_code_success"].format(cdata["invite_string"]), color = self.module_embed_color)     
         else:
             embed = discord.Embed(title=lang["conquest_code_fail"], color = self.module_embed_color)    
+=======
+            embed = discord.Embed(title=main.lang["conquest_code_success"].format(cdata["invite_string"]), color = self.module_embed_color)
+        else:
+            embed = discord.Embed(title=main.lang["conquest_code_fail"], color = self.module_embed_color)
+>>>>>>> 33e6feccf0f6c93b564ef98499055ef76c718a5a:modules/Conquest.py
         await ctx.author.send(embed=embed)
 
     @commands.cooldown(1, 600, commands.BucketType.user)
@@ -248,7 +263,11 @@ class Conquest(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await quConquest.generate_new_code(ctx.author.id):
             new_code = await quConquest.get_code(ctx.author.id)
+<<<<<<< HEAD:qubot/modules/Conquest.py
             embed = discord.Embed(title=lang["conquest_code_new_success"].format(new_code), color = self.module_embed_color)  
+=======
+            embed = discord.Embed(title=main.lang["conquest_code_new_success"].format(new_code), color = self.module_embed_color)
+>>>>>>> 33e6feccf0f6c93b564ef98499055ef76c718a5a:modules/Conquest.py
         else:
             embed = discord.Embed(title=lang["conquest_code_new_fail"], color = self.module_embed_color)
         await ctx.author.send(embed=embed)
@@ -353,11 +372,19 @@ class Conquest(commands.Cog):
                         cdata["size"] -= 1
                         await quConquest.update_settlement('id', settlementid, cdata)
                         await quConquest.remove_member(user.id)
+<<<<<<< HEAD:qubot/modules/Conquest.py
                         embed = discord.Embed(title=lang["conquest_leave_success"], color = self.module_embed_color)                  
                 else:
                     await quConquest.delete_settlement(settlementid)
                     await quConquest.remove_member(user.id)
                     embed = discord.Embed(title=lang["conquest_leave_success_alone"], color = self.module_embed_color)      
+=======
+                        embed = discord.Embed(title=main.lang["conquest_leave_success"], color = self.module_embed_color)
+                else:
+                    await quConquest.delete_settlement(settlementid)
+                    await quConquest.remove_member(user.id)
+                    embed = discord.Embed(title=main.lang["conquest_leave_success_alone"], color = self.module_embed_color)
+>>>>>>> 33e6feccf0f6c93b564ef98499055ef76c718a5a:modules/Conquest.py
             else:
                 embed = discord.Embed(title=lang["conquest_leave_not_found"], color = self.module_embed_color)
         else:
@@ -374,8 +401,13 @@ class Conquest(commands.Cog):
                 cdata = await quConquest.get_settlement('id', settlementid)
                 if await quConquest.find_member(user.id):
                     if settlementid == await quConquest.get_settlement_id(user.id):
-                        if ctx.author.id == cdata["leaderid"]:
+<<<<<<< HEAD:qubot/modules/Conquest.py
+                        if ctx.author.id == cdata["leaderid"]:  
                             await ctx.send(embed = discord.Embed(title=lang["conquest_promote_confirmation"].format(user), color = self.module_embed_color))
+=======
+                        if ctx.author.id == cdata["leaderid"]:
+                            await ctx.send(embed = discord.Embed(title=main.lang["conquest_promote_confirmation"].format(user), color = self.module_embed_color))
+>>>>>>> 33e6feccf0f6c93b564ef98499055ef76c718a5a:modules/Conquest.py
                             msg = await self.bot.wait_for('message', check=lambda m: (m.content == 'yes' or m.content == 'no') and m.channel == ctx.channel, timeout=60.0)
                             if msg.content == 'yes':
                                 cdata["leaderid"] = user.id

@@ -33,7 +33,7 @@ class Conquest(commands.Cog):
             config.add_section('Conquest')
             if 'MinEntryFee' not in config['Conquest']:
                 config.set('Conquest', 'MinEntryFee', '100')
-
+     
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
             config.write(config_file)
         config_file.close()
@@ -50,17 +50,17 @@ class Conquest(commands.Cog):
 
         qulib.sync_data_set(data)
         self.resources_daily.start() # pylint: disable=no-member
-
+        
     def cog_unload(self):
         self.resources_daily.cancel() # pylint: disable=no-member
-
+    
     @tasks.loop(hours=24.0, reconnect=True)
     async def resources_daily(self):
         data = await qulib.data_get()
         time_on_loop = datetime.today().replace(microsecond=0)
         daily_converted = datetime.strptime(data["Conquest"]["resources_time"], '%Y-%m-%d %H:%M:%S')
         daily_active = daily_converted + dt.timedelta(days=1)
-        if time_on_loop < daily_active:
+        if time_on_loop < daily_active:    
             time_left = (daily_active - time_on_loop).total_seconds()
             await asyncio.sleep(time_left)
             self.resources_daily.restart() # pylint: disable=no-member
@@ -243,7 +243,7 @@ class Conquest(commands.Cog):
         await ctx.author.send(embed=embed)
 
     @commands.cooldown(1, 600, commands.BucketType.user)
-    @conquest_code.command(help=main.lang["command_code_help"], description=main.lang["command_code_new_description"], ignore_extra=True)
+    @conquest_code.command(help=main.lang["command_code_help"], description=main.lang["command_code_new_description"], ignore_extra=True) 
     async def new(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await quConquest.generate_new_code(ctx.author.id):
@@ -323,7 +323,7 @@ class Conquest(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if page >= 1:
             page_index = page - 1
-            leaderboard_data = await quConquest.get_leaderboard()
+            leaderboard_data = await quConquest.get_leaderboard()     
             if len(leaderboard_data[(page_index*10):(page_index*10 + 9)]) > 0:
                 counter = page_index*10 + 1 - page_index
                 embed = discord.Embed(title=lang["conquest_leaderboard_title"], color = self.module_embed_color)
@@ -331,7 +331,7 @@ class Conquest(commands.Cog):
                 for item in leaderboard_data[(page_index*10):(page_index*10 + 9)]:
                     embed.add_field(name=f'#{counter} {item[1]} (ID:{item[0]})', value=f'{item[2]} {lang["conquest_exp"]}',
                                     inline=True)
-                    counter += 1
+                    counter += 1  
             else:
                 embed = discord.Embed(title=lang["pager_outofrange"], color = self.module_embed_color)
         else:
@@ -372,9 +372,9 @@ class Conquest(commands.Cog):
             if await quConquest.find_member(ctx.author.id):
                 settlementid = await quConquest.get_settlement_id(ctx.author.id)
                 cdata = await quConquest.get_settlement('id', settlementid)
-                if await quConquest.find_member(user.id):
+                if await quConquest.find_member(user.id):              
                     if settlementid == await quConquest.get_settlement_id(user.id):
-                        if ctx.author.id == cdata["leaderid"]:
+                        if ctx.author.id == cdata["leaderid"]:  
                             await ctx.send(embed = discord.Embed(title=lang["conquest_promote_confirmation"].format(user), color = self.module_embed_color))
                             msg = await self.bot.wait_for('message', check=lambda m: (m.content == 'yes' or m.content == 'no') and m.channel == ctx.channel, timeout=60.0)
                             if msg.content == 'yes':
@@ -443,7 +443,7 @@ class Conquest(commands.Cog):
         else:
             embed = discord.Embed(title=lang["conquest_not_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
-
+ 
     @commands.group(name='buildings', help=main.lang["empty_string"], description=main.lang["command_buildings_description"])
     async def conquest_buildings(self, ctx):
         if not ctx.invoked_subcommand:
@@ -481,7 +481,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=lang["conquest_not_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user) 
     @conquest_buildings.command(name='upgrade', help=main.lang["command_sleader"], description=main.lang["command_bupgrade_description"], usage='1', ignore_extra=True)
     async def buildings_upgrade(self, ctx, building_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -504,10 +504,10 @@ class Conquest(commands.Cog):
                                 stone = pow(int(level)+1, 2)*(level+1)*building['stone']
                                 food = pow(int(level)+1, 2)*(level+1)*building['food']
                                 cloth = pow(int(level)+1, 2)*(level+1)*building['cloth']
-
+                                
                                 if (building_id in (1,5,6,7,8) and level == 0):
                                     wood = stone = food = cloth = 0
-
+                                
                                 if (cdata['treasury']>=gold and resources['cloth']>=cloth and resources['stone']>=stone and resources['food']>=food and resources['wood']>=wood):
                                     embed = discord.Embed(title=lang["conquest_upgrade_success"].format(building['name'], level+1), color=self.module_embed_color)
                                     tech_tree = list(cdata['tech_tree'])
@@ -562,7 +562,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=lang["conquest_requirements_range"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user) 
     @commands.group(name='market', help=main.lang["command_market_help"], description=main.lang["command_market_description"])
     async def conquest_market(self, ctx):
         if not ctx.invoked_subcommand:
@@ -597,7 +597,7 @@ class Conquest(commands.Cog):
                         index = resources_dict[item] if item in resources_dict else item
                         if quantity > 0 and quantity <= resources[index]:
                             resources[index] -= quantity
-                            cdata['treasury'] += quantity*prices_dict[index]
+                            cdata['treasury'] += quantity*prices_dict[index]  
                             await quConquest.update_resources(settlementid, resources)
                             await quConquest.update_settlement("id", settlementid, cdata)
                             embed = discord.Embed(title=lang["conquest_market_sell_success"].format(quantity, index, quantity*prices_dict[index], json_data['Conquest']['gold_icon']), color = self.module_embed_color)

@@ -410,7 +410,6 @@ json_lang_en = {
     "core_prefix_length_limit": "The bot's prefix can have a maximum length of {} characters.",
     "core_prefix_success": "Changed bot server prefix to: ` {} `",
     "core_prefix_reset": "The bot's prefix has been set back to: ` {} `",
-    "day_string": "day",
     "dictionaries_antonyms": "**Antonyms**",
     "dictionaries_english_only": "This command supports only **English words & phrases**",
     "dictionaries_synonyms": "**Synonym(s)**",

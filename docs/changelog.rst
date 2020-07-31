@@ -6,6 +6,17 @@ quBot 1.1.0-rc1 (18-07-2020)
 
 .. topic:: Description
 
+    A quick update to fix an issue that was reported by a user.
+
+Bug fixes
+^^^^^^^^^
+- Fixed an issue preventing users from buying materials on the conquest game mode market.
+
+quBot 1.1.0-rc1 (18-07-2020)
+-----------------------------
+
+.. topic:: Description
+
     A quick update to fix an issue I noticed to the purge command in the Administration module. Server is also now using discord.py 1.3.4
     to fix issue #5109 (https://github.com/Rapptz/discord.py/issues/5109) which potentially caused stability issues to the bot.
 
