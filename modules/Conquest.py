@@ -121,7 +121,7 @@ class Conquest(commands.Cog):
     async def conquest_info(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         if await quConquest.find_member(user.id):
-            cdata = await quConquest.get_settlement('id', await quConquest.get_settlement_id(ctx.author.id))
+            cdata = await quConquest.get_settlement('id', await quConquest.get_settlement_id(user.id))
             json_data = await qulib.data_get()
             if cdata:
                 founder_name = ctx.guild.get_member(cdata["founderid"]) or cdata["founderid"]
