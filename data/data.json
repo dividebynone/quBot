@@ -13,7 +13,7 @@
         "warehouse_image": "https://i.postimg.cc/fWqcQ52L/warehouse-icon.png",
         "win_string_1": "Your settlement's army successfully pillaged **{}**. Your soldiers reached the enemy walls without much difficulty. A fierce battle erupted. A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat."
     },
-    "appVersion": "1.1.0-rc2",
+    "appVersion": "1.1.0-rc3",
     "hidden_modules": [
         "HelpFormatter",
         "ErrorHandler",

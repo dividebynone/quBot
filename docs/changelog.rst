@@ -1,7 +1,21 @@
 Changelog
 =========
 
-quBot 1.1.0-rc1 (18-07-2020)
+quBot 1.1.0-rc3 (03-08-2020)
+-----------------------------
+
+.. topic:: Description
+
+    A quick update to fix an issue related to the settlement info command for the Conquest module.
+
+Bug fixes
+^^^^^^^^^
+- Conquest
+
+  - Fixed an issue preventing users from seeing other people's settlement information. The command used to always
+    show the message author's settlement.
+
+quBot 1.1.0-rc2 (18-07-2020)
 -----------------------------
 
 .. topic:: Description
@@ -10,7 +24,9 @@ quBot 1.1.0-rc1 (18-07-2020)
 
 Bug fixes
 ^^^^^^^^^
-- Fixed an issue preventing users from buying materials on the conquest game mode market.
+- Conquest
+
+  - Fixed an issue preventing users from buying materials on the conquest game mode market.
 
 quBot 1.1.0-rc1 (18-07-2020)
 -----------------------------
@@ -22,10 +38,14 @@ quBot 1.1.0-rc1 (18-07-2020)
 
 Bug fixes
 ^^^^^^^^^
-- Purge command, part of the Administration module, was raising a 404 message not found due to execution of the purge function prior to the
-  deletion of the user's command message.
+- Administration    
 
-- Python module 'discord.py' was updated from version 1.3.3 to 1.3.4 to fix issue #5109.
+  - Purge command, part of the Administration module, was raising a 404 message not found due to execution of the purge function prior to the
+    deletion of the user's command message.
+
+- General
+
+  - Python module 'discord.py' was updated from version 1.3.3 to 1.3.4 to fix issue #5109.
 
 quBot 1.1.0-beta (25-04-2020)
 -----------------------------
