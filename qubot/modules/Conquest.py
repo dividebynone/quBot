@@ -124,7 +124,7 @@ class Conquest(commands.Cog):
         user = user or ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await quConquest.find_member(user.id):
-            cdata = await quConquest.get_settlement('id', await quConquest.get_settlement_id(ctx.author.id))
+            cdata = await quConquest.get_settlement('id', await quConquest.get_settlement_id(user.id))
             json_data = await qulib.data_get()
             if cdata:
                 founder_name = ctx.guild.get_member(cdata["founderid"]) or cdata["founderid"]
