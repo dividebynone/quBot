@@ -1,7 +1,7 @@
 /qubot/__pycache__
 /qubot/databases
 /qubot/logs
-/qubot/modules/TopGG.py
+/qubot/modules/Voting.py
 /QBEnv
 /.vscode
 *.ini
