@@ -136,14 +136,11 @@ class Core(commands.Cog):
         if input_module:
             loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
             input_module = input_module.capitalize()
-            if input_module.capitalize() in loaded_modules_names:
+            if input_module in loaded_modules_names:
                 display_list = ''
                 isowner = await ctx.bot.is_owner(ctx.author)
 
-                cmds_list = [x for x in self.bot.get_cog(input_module).walk_commands()]
-                cmds_list = list(dict.fromkeys(cmds_list))
-
-                for command in cmds_list:
+                for command in self.bot.get_cog(input_module).walk_commands():
                     if not command.hidden or isowner:
                         if command.parent:
                             display_list += f'\u002d\u002d\u002d {" ".join(command.qualified_name.split()[1:])}\n'

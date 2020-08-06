@@ -145,21 +145,25 @@ class Economy(commands.Cog):
     @commands.Cog.listener()
     @commands.guild_only()
     async def on_raw_reaction_add(self, payload):
-        user = await self.bot.fetch_user(payload.user_id)
-        channel = await self.bot.fetch_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        if message.author.id == self.bot.user.id and not user.bot:
-            giveaways = await qulib.get_giveaway_list()
-            if giveaways:
-                if (message.id in giveaways):
-                    if payload.emoji.name == self.currency_symbol:
-                        if await qulib.has_entered_giveaway(user.id, message.id) == False:
-                            value = await qulib.get_giveaway_value(message.id)
-                            if value:
-                                await qulib.enter_giveaway(user.id, message.id)
-                                user_info = await user_get(user)
-                                user_info['currency'] += value
-                                await user_set(user, user_info)
+        try:
+            user = await self.bot.fetch_user(payload.user_id)
+            channel = await self.bot.fetch_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+            if not [x for x in (user, channel, message) if x is None]:
+                if message.author.id == self.bot.user.id and not user.bot:
+                    giveaways = await qulib.get_giveaway_list()
+                    if giveaways:
+                        if (message.id in giveaways):
+                            if payload.emoji.name == self.currency_symbol:
+                                if await qulib.has_entered_giveaway(user.id, message.id) == False:
+                                    value = await qulib.get_giveaway_value(message.id)
+                                    if value:
+                                        await qulib.enter_giveaway(user.id, message.id)
+                                        user_info = await user_get(user)
+                                        user_info['currency'] += value
+                                        await user_set(user, user_info)
+        except discord.errors.Forbidden:
+            pass
 
     @commands.is_owner()
     @commands.guild_only()
