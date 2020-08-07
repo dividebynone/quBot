@@ -1,4 +1,5 @@
 from setuptools import setup
+from qubot.libs.qulib import data_get
 import json
 
 requirements = []
@@ -17,10 +18,7 @@ required_extras = {
     ]
 }
 
-with open('./data/data.json', 'r') as json_file:
-    json_data = json.load(json_file)
-json_file.close()
-
+json_data = await data_get() #TODO: Refactor version retrieval
 version = json_data["appVersion"]
 
 setup(name='quBot',
