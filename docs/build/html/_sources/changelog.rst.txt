@@ -1,6 +1,182 @@
 Changelog
 =========
 
+quBot 1.2.0-beta (07-08-2020)
+-----------------------------
+
+.. topic:: Description
+
+    Unlike the bot's previous major updates, this one does not introduce many new commands. However, with this update,
+    the bot goes through a lot of backend changes: configurable server-side prefixes, server-side localization, ability
+    to use the bot through mentions and much more. There is a lot to cover so a detailed review and explanation of
+    all new additions to the bot can be viewed below. 
+
+New features
+^^^^^^^^^^^^
+
+Administration
+~~~~~~~~~~~~~~
+
+  - **Changed command:** ``purge`` - The purge command can now filter messages and delete only bot messages (e.g. ``purge 10 bot``).
+    Main functionality of this command remains unchanged;
+
+Core
+~~~~
+
+  This version introduces server-side bot prefixes and localization. This means that every server will be able to configure 
+  these bot settings without affecting other servers. It is worth mentioning that the only language that is currently available
+  is only US English. With the release of 1.2, my efforts will move towards creating a localization standard and finding translators
+  to expand the list of available languages.
+
+  - **Configurable bot prefix on a per-server basis:**
+
+    The bot previously had a configurable prefix. However, it affected the whole bot. In other words, the prefix could only be changed
+    by the bot owner. With this update, every **server administrator** can change the prefix the bot uses on a server-wide scale.
+
+    - **New command:** ``prefix`` - Shows or changes the bot’s prefix on the server. This command can only be used by **server administrators**;
+
+    - **New command:** ``prefix reset`` - Resets the bot’s prefix on the server back to default.
+      This command can only be used by **server administrators**;
+
+    - **New command:** ``prefix show`` - Shows the bot’s prefix on the server. This command can be used by everyone;
+
+  - **Configurable bot language on a per-server basis:**
+
+    The bot previously had a configurable language option. However, it changed the language for the whole bot and could only be used by
+    the bot owner. With this update, every **server administrator** can change the language of the bot on a server-wide scale.
+
+    - **Changed command:** ``langs`` - The function of this command has not changed. **However, now everyone can use this command**;
+
+    - **Changed command:** ``langset`` - This command now changes the bot language for the target server. 
+      This command can only be used by **server administrators**;
+
+Utility
+~~~~~~~
+
+  - **New command:** ``botinfo`` - Displays general information about the bot. Can be used by people to check bot latency on target guild;
+
+General Changes
+^^^^^^^^^^^^^^^
+
+  - The bot can now be used by simply mentioning it. This can be used as an alternative of the prefix if you do not know what prefix the bot uses;
+
+Core
+~~~~
+
+  - The following commands **no longer require** bot owner privileges and can be used by everyone: ``userid``,``serverid``,``channelid``,``roleid``;
+
+  - The languages list command **no longer require** bot owner privileges and can be used by everyone;
+
+  - The language set command permission requirements have been changed from **bot owner** to **server administrator**;
+
+HelpFormatter
+~~~~~~~~~~~~~
+
+  - The bot's invite link in the general help command now changes bot id dynamically to work with any bot instance.
+
+Economy
+~~~~~~~
+
+  - A new command alias has been added to the currency command: ``balance``;
+
+  - Voting for the bot on discordbotlist.com now rewards users (Does not apply to self-hosted instances of the bot);
+
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+  - discord.py has been updated to 1.4.0 (previously 1.3.4);
+
+  - Small changes to documentation installation guides for Windows and Linux;
+
+  - Updated bot dependency packages (Updated requirements.txt file);
+
+Bug fixes
+^^^^^^^^^
+- Conquest
+
+  - Fixed a few syntax warnings related to the Conquest module;
+
+- Core
+
+  - Case sensitivity prevented the use of command 'commands' in certain situations. Command input is longer case sensitive.
+
+  - Case sensitivity prevented the use of commands 'modules hide' and 'modules unhide' in certain situations. Command input is no
+    longer case sensitive.
+
+- Dictionaries
+
+  - Fixed functionality of 'synonym' and 'antonym' commands. Likely changes in Thesaurus' web structure caused issues when extracting
+    required information.
+
+- Economy
+
+  - Fixed issues related to on_raw_reaction_add: Event used to raise exceptions about missing access to target user's information.
+
+- HelpFormatter
+
+  - The bot's invite link in the general help command had an outdated permissions code and asked for Administrator privileges.
+    This is no longer the case.
+
+- Utility
+
+  - Argument input type for user has been changed from discord.User to discord.Member due to an exception about a missing role attribute on discord.User on
+    userinfo command.
+
+------------
+
+quBot 1.1.0-rc3 (03-08-2020)
+-----------------------------
+
+.. topic:: Description
+
+    A quick update to fix an issue related to the settlement info command for the Conquest module.
+
+Bug fixes
+^^^^^^^^^
+- Conquest
+
+  - Fixed an issue preventing users from seeing other people's settlement information. The command used to always
+    show the message author's settlement.
+
+------------
+
+quBot 1.1.0-rc2 (18-07-2020)
+-----------------------------
+
+.. topic:: Description
+
+    A quick update to fix an issue that was reported by a user.
+
+Bug fixes
+^^^^^^^^^
+- Conquest
+
+  - Fixed an issue preventing users from buying materials on the conquest game mode market.
+
+------------
+
+quBot 1.1.0-rc1 (18-07-2020)
+-----------------------------
+
+.. topic:: Description
+
+    A quick update to fix an issue I noticed to the purge command in the Administration module. Server is also now using discord.py 1.3.4
+    to fix issue #5109 (https://github.com/Rapptz/discord.py/issues/5109) which potentially caused stability issues to the bot.
+
+Bug fixes
+^^^^^^^^^
+- Administration    
+
+  - Purge command, part of the Administration module, was raising a 404 message not found due to execution of the purge function prior to the
+    deletion of the user's command message.
+
+- General
+
+  - Python module 'discord.py' was updated from version 1.3.3 to 1.3.4 to fix issue #5109.
+
+------------
+
 quBot 1.1.0-beta (25-04-2020)
 -----------------------------
 
