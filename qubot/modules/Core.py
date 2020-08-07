@@ -167,7 +167,7 @@ class Core(commands.Cog):
         await ctx.author.send(embed=embed)
     
     @commands.cooldown(1, 15, commands.BucketType.user)
-    @commands.command(name='serverid', help=main.lang["command_owner_only"], description=main.lang["command_serverid_description"], aliases=['sid'], hidden=True, ignore_extra=True)
+    @commands.command(name='serverid', help=main.lang["empty_string"], description=main.lang["command_serverid_description"], aliases=['sid'], hidden=True, ignore_extra=True)
     @commands.guild_only()
     async def serverid(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -175,7 +175,7 @@ class Core(commands.Cog):
         await ctx.author.send(embed=embed)
 
     @commands.cooldown(1, 15, commands.BucketType.user)
-    @commands.command(name='channelid', help=main.lang["command_owner_only"], description=main.lang["command_channelid_description"], aliases=['cid'], hidden=True, ignore_extra=True)
+    @commands.command(name='channelid', help=main.lang["empty_string"], description=main.lang["command_channelid_description"], aliases=['cid'], hidden=True, ignore_extra=True)
     @commands.guild_only()
     async def channelid(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -183,7 +183,7 @@ class Core(commands.Cog):
         await ctx.author.send(embed=embed)
 
     @commands.cooldown(1, 15, commands.BucketType.user)
-    @commands.command(name='roleid', help=main.lang["command_owner_only"], description=main.lang["command_roleid_description"], aliases=['rid'], usage="Moderator", hidden=True)
+    @commands.command(name='roleid', help=main.lang["empty_string"], description=main.lang["command_roleid_description"], aliases=['rid'], usage="Moderator", hidden=True)
     @commands.guild_only()
     async def roleid(self, ctx, *, role: discord.Role):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -255,7 +255,7 @@ class Core(commands.Cog):
         await self.bot.http.close()
         await self.bot.close()
 
-    @commands.command(name="langs", help=main.lang["command_owner_only"], description=main.lang["command_langs_description"], aliases=['languages'], hidden=True, ignore_extra=True)
+    @commands.command(name="langs", help=main.lang["empty_string"], description=main.lang["command_langs_description"], aliases=['languages'], hidden=True, ignore_extra=True)
     async def lang_list(self, ctx):
         lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data/localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
         lang_list = [x.replace('language_', '') for x in lang_directory_list]
@@ -269,7 +269,7 @@ class Core(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.command(name="langset", help=main.lang["command_owner_only"], description=main.lang["command_langset_description"], usage="en-US", hidden=True)
+    @commands.command(name="langset", help=main.lang["command_langset_help"], description=main.lang["command_langset_description"], usage="en-US", hidden=True)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def lang_set(self, ctx, lang_code: str = None):
