@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-	<img src="https://img.shields.io/badge/version-1.1.0b-blue.svg">
+	<img src="https://img.shields.io/badge/version-1.2.0b-blue.svg">
 	<img src="https://img.shields.io/badge/dev-DivideByNone%239640-brightgreen.svg">
 	<a href="https://top.gg/bot/593082021325045760" >
   	<img src="https://top.gg/api/widget/status/593082021325045760.svg" alt="quBot" />
@@ -55,7 +55,7 @@ You can also write ```q!help``` in one of the servers where an instance of the b
 
 [**Discord Support Server**](https://discord.gg/TGnfsH2) : If you have any inquiries, suggestions, or just want to chat, feel free to join.
 
-My intentions are to support QuBot by occasionally pushing new versions. If the opportunity arises, I would like to grow a community which creates and supports third-party modules for the bot. 
+My intentions are to support QuBot by occasionally pushing new versions. If the opportunity arises, I would like to grow a community which creates and supports third-party modules for the bot.
 
 ## License
 
@@ -64,4 +64,3 @@ The bot was released under the [**MIT License**](#license)
 The QuBot Framework is meant to be freely used by anyone who is interested in running their own instance of the bot.
 
 To anyone who is interested in contributing to the git repository, feel free to contact me.
-
