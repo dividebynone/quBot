@@ -18,7 +18,7 @@ required_extras = {
     ]
 }
 
-json_data = await data_get() #TODO: Refactor version retrieval
+json_data = data_get() #TODO: Refactor version retrieval
 version = json_data["appVersion"]
 
 setup(name='quBot',
