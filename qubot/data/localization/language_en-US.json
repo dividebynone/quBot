@@ -160,7 +160,7 @@
     "command_promote_description": "Promotes the target individual to settlement leader.",
     "command_promote_help": "This command can **ONLY** be used by settlement leaders.",
     "command_purge_description": "Deletes a set number of messages.",
-    "command_purge_help": "This command requires a single argument - The number of messages you wish the bot to delete.",
+    "command_purge_help": "- This command requires a single argument - The number of messages you wish the bot to delete.\n- Available filters: bot *(Filters are specified after the number of messages)*",
     "command_reload_description": "Reloads modules loaded into the bot application.",
     "command_report_description": "Reports the target user for a particular reason.",
     "command_report_disable_description": "Disables user reporting for the server where the command was used.",

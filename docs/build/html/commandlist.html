@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,19 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_override.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -29,11 +35,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/theme_override.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Framework Reference" href="framework-reference.html" />
@@ -51,7 +52,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> qubot
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> qubot
           
 
           
@@ -74,6 +75,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -116,6 +118,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -154,7 +157,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Commands List</li>
     
@@ -208,11 +211,12 @@
 <td><div class="line-block">
 <div class="line">Deletes a set number of messages.</div>
 <div class="line"><strong>Note(s):</strong></div>
-<div class="line">- <em>This command requires a single argument - The number of messages you wish the bot to delete.</em></div>
+<div class="line">- <em>This command requires a single argument - The number of messages you wish the bot to delete.</em> </div>
+<div class="line">- Available filters: bot <em>(Filters are specified after the number of messages)</em></div>
 <div class="line"><strong>Needed User Permissions: Manage Messages</strong></div>
 </div>
 </td>
-<td><p><code class="docutils literal notranslate"><span class="pre">q!purge</span> <span class="pre">10</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!purge</span> <span class="pre">10</span></code>, <code class="docutils literal notranslate"><span class="pre">q!purge</span> <span class="pre">10</span> <span class="pre">bot</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kick</span></code></p></td>
 <td><div class="line-block">
@@ -696,7 +700,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">userid</span></code> <code class="docutils literal notranslate"><span class="pre">uid</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Returns the target individual’s Discord ID.</div>
-<div class="line">Note: <em>If no argument is given, the bot will use the author of the message.</em> This command can only be used by the <strong>BOT OWNER</strong>.</div>
+<div class="line">Note: <em>If no argument is given, the bot will use the author of the message.</em></div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!uid</span></code>, <code class="docutils literal notranslate"><span class="pre">q!uid</span> <span class="pre">&#64;somebody</span></code></p></td>
@@ -704,7 +708,6 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">serverid</span></code> <code class="docutils literal notranslate"><span class="pre">sid</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Returns the server’s ID for the server the command was typed in.</div>
-<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!sid</span></code></p></td>
@@ -712,7 +715,6 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">channelid</span></code> <code class="docutils literal notranslate"><span class="pre">cid</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Returns the channel’s ID for the channel the command was typed in.</div>
-<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!cid</span></code></p></td>
@@ -720,7 +722,6 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">roleid</span></code> <code class="docutils literal notranslate"><span class="pre">rid</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Returns the target role’s ID for the server the command was typed in.</div>
-<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!roleid</span> <span class="pre">Moderator</span></code>, <code class="docutils literal notranslate"><span class="pre">q!rid</span> <span class="pre">Moderator</span></code></p></td>
@@ -780,6 +781,29 @@
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!shutdown</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prefix</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Shows or changes the bot’s prefix on the server.</div>
+<div class="line"><strong>Needed User Permissions: Administrator</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!prefix</span></code>, <code class="docutils literal notranslate"><span class="pre">q!prefix</span> <span class="pre">m!</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prefix</span> <span class="pre">show</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Shows the bot’s prefix on the server.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!prefix</span> <span class="pre">show</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prefix</span> <span class="pre">reset</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Resets the bot’s prefix on the server back to default.</div>
+<div class="line"><strong>Needed User Permissions: Administrator</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!prefix</span> <span class="pre">reset</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -861,7 +885,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!daily</span></code>, <code class="docutils literal notranslate"><span class="pre">q!daily</span> <span class="pre">&#64;somebody</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">currency</span></code> <code class="docutils literal notranslate"><span class="pre">money</span></code> <code class="docutils literal notranslate"><span class="pre">cash</span></code> <code class="docutils literal notranslate"><span class="pre">$</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">currency</span></code> <code class="docutils literal notranslate"><span class="pre">money</span></code> <code class="docutils literal notranslate"><span class="pre">cash</span></code> <code class="docutils literal notranslate"><span class="pre">$</span></code> <code class="docutils literal notranslate"><span class="pre">balance</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Displays the sum of money the target individual has on their profile.</div>
 <div class="line">Note: <em>If no argument is parsed, the bot will display your profile’s money</em></div>
@@ -962,7 +986,6 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">languages</span></code> <code class="docutils literal notranslate"><span class="pre">langs</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Returns a list of locally detected language (localization) packages.</div>
-<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!langs</span></code></p></td>
@@ -970,7 +993,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">langset</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Changes the language of the bot.</div>
-<div class="line">Note: This command can only be used by the <strong>BOT OWNER</strong>.</div>
+<div class="line"><strong>Needed User Permissions: Administrator</strong></div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!langset</span> <span class="pre">en-US</span></code></p></td>
@@ -1025,14 +1048,22 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!uinfo</span></code>, <code class="docutils literal notranslate"><span class="pre">q!uinfo</span> <span class="pre">&#64;somebody</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">8ball</span></code> <code class="docutils literal notranslate"><span class="pre">8b</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">botinfo</span></code> <code class="docutils literal notranslate"><span class="pre">binfo</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Displays general information about the bot. </div>
+<div class="line">Note: <em>Server bot latency is directly tied to which shard the target server is placed in.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!binfo</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">8ball</span></code> <code class="docutils literal notranslate"><span class="pre">8b</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Returns an answer for a yes or no question.</div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!8ball</span> <span class="pre">Should</span> <span class="pre">I</span> <span class="pre">believe</span> <span class="pre">you?</span></code>, <code class="docutils literal notranslate"><span class="pre">q!8b</span> <span class="pre">Should</span> <span class="pre">I</span> <span class="pre">believe</span> <span class="pre">you?</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">choose</span></code> <code class="docutils literal notranslate"><span class="pre">pick</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">choose</span></code> <code class="docutils literal notranslate"><span class="pre">pick</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Picks a random item from a provided list of items, separated by a semicolon.</div>
 </div>
@@ -1065,11 +1096,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, Martin Georgiev
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1080,7 +1119,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

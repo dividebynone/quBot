@@ -9,6 +9,3 @@ The purpose of this page is to serve as reference for every developer that wishe
 framework to make their own bot.
 
 *To be added*
-
-.. autoclass:: modules.Core.Core
-    :members:

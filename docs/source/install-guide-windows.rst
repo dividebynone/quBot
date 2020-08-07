@@ -72,7 +72,7 @@ and write the following code:
 
 .. code-block:: bash
 
-    pip install -r requirements.txt --no-index
+    pip install -r requirements.txt
 
 6. **Creating an executable batch file**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

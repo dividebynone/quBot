@@ -22,8 +22,9 @@ Administration
 
    "``purge``", "| Deletes a set number of messages.\
    | **Note(s):**\
-   | - *This command requires a single argument - The number of messages you wish the bot to delete.*\
-   | **Needed User Permissions: Manage Messages**", "``q!purge 10``"
+   | - *This command requires a single argument - The number of messages you wish the bot to delete.* \
+   | - Available filters: bot *(Filters are specified after the number of messages)*
+   | **Needed User Permissions: Manage Messages**", "``q!purge 10``, ``q!purge 10 bot``"
    "``kick``", "| Kicks the mentioned individual for a certain reason (if any)\
    | **Note(s):**\
    | - *The kick reason is an optional argument.*\
@@ -181,13 +182,10 @@ Core
    "``modules unhide``", "| Reveals a hidden module from the list of loaded modules.\
    | Note: *This is a subcommand of the 'modules' command.* This command can only be used by the **BOT OWNER**.", "``q!modules unhide <module name>``"
    "``userid`` ``uid``", "| Returns the target individual's Discord ID.\
-   | Note: *If no argument is given, the bot will use the author of the message.* This command can only be used by the **BOT OWNER**.", "``q!uid``, ``q!uid @somebody``"
-   "``serverid`` ``sid``", "| Returns the server's ID for the server the command was typed in.\
-   | Note: This command can only be used by the **BOT OWNER**.", "``q!sid``"
-   "``channelid`` ``cid``", "| Returns the channel's ID for the channel the command was typed in.\
-   | Note: This command can only be used by the **BOT OWNER**.", "``q!cid``"
-   "``roleid`` ``rid``", "| Returns the target role's ID for the server the command was typed in.\
-   | Note: This command can only be used by the **BOT OWNER**.", "``q!roleid Moderator``, ``q!rid Moderator``"
+   | Note: *If no argument is given, the bot will use the author of the message.*", "``q!uid``, ``q!uid @somebody``"
+   "``serverid`` ``sid``", "| Returns the server's ID for the server the command was typed in.", "``q!sid``"
+   "``channelid`` ``cid``", "| Returns the channel's ID for the channel the command was typed in.", "``q!cid``"
+   "``roleid`` ``rid``", "| Returns the target role's ID for the server the command was typed in.", "``q!roleid Moderator``, ``q!rid Moderator``"
    "``leave``", "| Politely kicks the bot off your server.\
    | **Needed User Permissions: Kick Members**", "``q!leave``"
    "``latencies``", "| Returns the latencies (in miliseconds) for every active shard.\
@@ -202,6 +200,11 @@ Core
    | Note: This command can only be used by the **BOT OWNER**.", "``q!restart``"
    "``shutdown``", "| Shutdowns the bot.\
    | Note: This command can only be used by the **BOT OWNER**.", "``q!shutdown``"
+   "``prefix``", "| Shows or changes the bot's prefix on the server.\
+   | **Needed User Permissions: Administrator**", "``q!prefix``, ``q!prefix m!``"
+   "``prefix show``", "| Shows the bot's prefix on the server.", "``q!prefix show``"
+   "``prefix reset``", "| Resets the bot's prefix on the server back to default.\
+   | **Needed User Permissions: Administrator**", "``q!prefix reset``"
 
 Dictionaries
 ^^^^^^^^^^^^
@@ -232,7 +235,7 @@ Economy
 
    "``daily``", "| Lets you claim a set sum of money on a daily basis.\
    | Note: *If you wish to gift your daily reward instead of claiming it for yourself, you can mention the individual when using the command.*", "``q!daily``, ``q!daily @somebody``"
-   "``currency`` ``money`` ``cash`` ``$``", "| Displays the sum of money the target individual has on their profile.\
+   "``currency`` ``money`` ``cash`` ``$`` ``balance``", "| Displays the sum of money the target individual has on their profile.\
    | Note: *If no argument is parsed, the bot will display your profile's money*", "``q!cash`` ``q!cash @somebody``"
    "``adjust``", "| Awards/Subtracts a set amount of money to/from the target individual.\
    | Note: This command can only be used by the **BOT OWNER**.", "``q!adjust @somebody 100``, ``q!adjust @somebody -50``"
@@ -265,10 +268,9 @@ Localization
    :header: "Commands & Aliases", "Description", "Usage"
    :widths: 20, 60, 30
 
-   "``languages`` ``langs``", "| Returns a list of locally detected language (localization) packages.\
-   | Note: This command can only be used by the **BOT OWNER**.", "``q!langs``"
+   "``languages`` ``langs``", "| Returns a list of locally detected language (localization) packages.", "``q!langs``"
    "``langset``", "| Changes the language of the bot.\
-   | Note: This command can only be used by the **BOT OWNER**.", "``q!langset en-US``"
+   | **Needed User Permissions: Administrator**", "``q!langset en-US``"
 
 Utility
 ^^^^^^^
@@ -285,5 +287,7 @@ Utility
    | **Needed User Permissions: Administrator**", "``q!uptime``"
    "``userinfo`` ``uinfo``", "| Shows the target individual's user information. \
    | Note: *If no argument is parsed, the bot will return your information instead.*", "``q!uinfo``, ``q!uinfo @somebody``"
+   "``botinfo`` ``binfo``", "| Displays general information about the bot. \
+   | Note: *Server bot latency is directly tied to which shard the target server is placed in.*", "``q!binfo``"
    "``8ball`` ``8b``", "| Returns an answer for a yes or no question.", "``q!8ball Should I believe you?``, ``q!8b Should I believe you?``"
    "``choose`` ``pick``", "| Picks a random item from a provided list of items, separated by a semicolon.", "``q!choose item 1;item 2;item 3``, ``q!pick item 1;item 2;item 3``"

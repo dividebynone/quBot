@@ -88,7 +88,7 @@ If you decide not to use a virtual environment, skip to step 4.6
 
 .. code-block:: bash
 
-    4.6 ) ~$ pip3 install -r requirements.txt --no-index
+    4.6 ) ~$ pip3 install -r requirements.txt
 
 5. **Creating an executable bash file**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
