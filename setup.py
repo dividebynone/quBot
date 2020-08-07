@@ -1,6 +1,12 @@
 from setuptools import setup
-from qubot.libs.qulib import data_get
 import json
+import os
+
+def data_get():
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qubot', 'data','data.json'), 'r') as json_file:
+        json_data = json.load(json_file)
+    json_file.close()
+    return json_data
 
 requirements = []
 with open('requirements.txt') as reqs_file:
