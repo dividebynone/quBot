@@ -1,6 +1,5 @@
 from discord.ext import commands
 from datetime import datetime, timedelta
-from libs.qulib import is_venv, data_get, makefolders, safe_cast
 import libs.prefixhandler as prefixhandler
 import libs.localizations as localizations
 import logging
@@ -9,6 +8,22 @@ import sys
 import sqlite3
 import configparser
 import json
+
+#-----------------------------------#
+# Utility functions
+def is_venv():
+    return (hasattr(sys, 'real_prefix') or
+            (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
+
+def makefolders(root_path, folders_list):
+    for folder in folders_list:
+        os.makedirs(os.path.join(root_path, folder), exist_ok=True)
+
+def safe_cast(value, to_type, default=None):
+    try:
+        return to_type(value)
+    except (ValueError, TypeError):
+        return default
 
 #-----------------------------------#
 #Path checks and initalization
@@ -434,7 +449,7 @@ json_lang_en = {
     "errorhandler_missing_perms": "The bot is missing the following permissions to execute this command: {}",
     "helpformatter_cmd_not_found": "This command either does not exist or your spelling is incorrect.",
     "helpformatter_help": "**General Help Command**",
-    "helpformatter_help_description": "You can use **{}modules** to see a list of all available modules.\nYou can use **{}commands <Module>** to see all commands inside a certain module.\n\nYou could also view a detailed profile of every command using **{}h <command>**\n\nYou can add me to your server using this link: https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=8\n\nIf you have any inquiries, suggestions or just want to chat, you could join\nthe **quBot Support Server** here: https://discord.gg/TGnfsH2\n\nHave a nice day!",
+    "helpformatter_help_description": "You can use **{}modules** to see a list of all available modules.\nYou can use **{}commands <Module>** to see all commands inside a certain module.\n\nYou could also view a detailed profile of every command using **{}h <command>**\n\nYou can add me to your server using this link: https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=1073212790\n\nIf you have any inquiries, suggestions or just want to chat, you could join\nthe **quBot Support Server** here: https://discord.gg/TGnfsH2\n\nHave a nice day!",
     "helpformatter_nohelp_parameter": "This command does not have a description/help string attached to it yet.",
     "module_string": "Module",
     "notes_string": "Note(s)",

@@ -49,13 +49,13 @@ class quConquest(object):
     @staticmethod
     async def get_settlement(get_string:str, input_data):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
-            if get_string is 'user':
+            if get_string == 'user':
                 cursor.execute("SELECT * FROM conquest WHERE founderid=? OR leaderid=?", (input_data,input_data,))
-            elif get_string is 'settlement':
+            elif get_string == 'settlement':
                 cursor.execute("SELECT * FROM conquest WHERE name=?", (input_data,))
-            elif get_string is 'code':
+            elif get_string == 'code':
                 cursor.execute("SELECT * FROM conquest WHERE invite_string=?", (input_data,))
-            elif get_string is 'id':
+            elif get_string == 'id':
                 cursor.execute("SELECT * FROM conquest WHERE settlement_id=?", (input_data,))
             else:
                 return None
@@ -83,17 +83,17 @@ class quConquest(object):
     @staticmethod
     async def update_settlement(get_string:str, input_data, dict_input):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
-            if get_string is 'user':
+            if get_string == 'user':
                 cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE founderid=? OR leaderid=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
                                 dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], dict_input["tech_tree"], dict_input["type"],
                                 dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data, input_data])
-            elif get_string is 'invite':
+            elif get_string == 'invite':
                 cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE invite_string=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
                                 dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], dict_input["tech_tree"], dict_input["type"],
                                 dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data])
-            elif get_string is 'id':
+            elif get_string == 'id':
                 cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE settlement_id=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
                                 dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], dict_input["tech_tree"], dict_input["type"],

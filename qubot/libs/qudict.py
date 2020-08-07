@@ -36,7 +36,7 @@ class quDict(object):
         input = input.replace(" ", "%20")
         try:
             html_parser = await get_soup_object(f"http://www.thesaurus.com/browse/{input}")
-            synonyms = html_parser.select(".MainContentContainer > section > div > section > ul")[0].find_all("a")[:limit]
+            synonyms = html_parser.select(".MainContentContainer > section > div:nth-of-type(2) > ul")[0].find_all("a")[:limit]
             result = []
             for s in synonyms:
                 result.append(s.text)
@@ -49,7 +49,7 @@ class quDict(object):
         input = input.replace(" ", "%20")
         try:
             html_parser = await get_soup_object(f"http://www.thesaurus.com/browse/{input}")
-            antonyms = html_parser.select(".MainContentContainer > section > div > section > ul")[1].find_all("a")[:limit]
+            antonyms = html_parser.select(".MainContentContainer > section > div > ul")[1].find_all("a")[:limit]
             result = []
             for s in antonyms:
                 result.append(s.text)

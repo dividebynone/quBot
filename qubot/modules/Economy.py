@@ -37,7 +37,7 @@ class Economy(commands.Cog):
             self.currency_symbol = config.get('Economy', 'CurrencySymbol')
         config_file.close()
 
-    @commands.cooldown(1, 30,commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.command(name='daily', help=main.lang["command_daily_help"], description=main.lang["command_daily_description"], usage="@somebody (Optional Argument)")
     async def daily(self, ctx, *, user: discord.User = None):
         author_info = await user_get(ctx.author)

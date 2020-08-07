@@ -131,9 +131,9 @@ class Conquest(commands.Cog):
                 leader_name = ctx.guild.get_member(cdata["leaderid"]) or cdata["leaderid"]
                 if cdata["wins"] == cdata["losses"] == 0:
                     win_ratio = 0
-                elif cdata["wins"] > 0 and cdata["losses"] is 0:
+                elif cdata["wins"] > 0 and cdata["losses"] == 0:
                     win_ratio = 100
-                elif cdata["losses"] > 0 and cdata["wins"] is 0:
+                elif cdata["losses"] > 0 and cdata["wins"] == 0:
                     win_ratio = 0
                 else:
                     win_ratio = "%.2f" % float((cdata["wins"]/(cdata["losses"]+cdata["wins"]))*100)

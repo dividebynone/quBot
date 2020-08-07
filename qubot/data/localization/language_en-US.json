@@ -363,7 +363,7 @@
     "errorhandler_missing_perms": "The bot is missing the following permissions to execute this command: {}",
     "helpformatter_cmd_not_found": "This command either does not exist or your spelling is incorrect.",
     "helpformatter_help": "**General Help Command**",
-    "helpformatter_help_description": "You can use **{}modules** to see a list of all available modules.\nYou can use **{}commands <Module>** to see all commands inside a certain module.\n\nYou could also view a detailed profile of every command using **{}h <command>**\n\nYou can add me to your server using this link: https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=8\n\nIf you have any inquiries, suggestions or just want to chat, you could join\nthe **quBot Support Server** here: https://discord.gg/TGnfsH2\n\nHave a nice day!",
+    "helpformatter_help_description": "You can use **{}modules** to see a list of all available modules.\nYou can use **{}commands <Module>** to see all commands inside a certain module.\n\nYou could also view a detailed profile of every command using **{}h <command>**\n\nYou can add me to your server using this link: https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=1073212790\n\nIf you have any inquiries, suggestions or just want to chat, you could join\nthe **quBot Support Server** here: https://discord.gg/TGnfsH2\n\nHave a nice day!",
     "helpformatter_nohelp_parameter": "This command does not have a description/help string attached to it yet.",
     "hour_string": "hour",
     "hours_string": "hours",

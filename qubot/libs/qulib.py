@@ -1,4 +1,5 @@
 from libs.sqlhandler import sqlconnect
+from main import bot_path
 import sqlite3
 import discord
 import os
@@ -6,8 +7,6 @@ import sys
 import random
 import string
 import json
-
-bot_path = os.path.join(os.getcwd(), 'qubot')
 
 #Check if the bot is running inside a virtual environment
 def is_venv():
@@ -26,24 +25,24 @@ def safe_cast(value, to_type, default=None):
 
 #data.json initialization
 def sync_data_get():
-    with open(os.path.join(bot_path, 'data/data.json'), 'r') as json_file:
+    with open(os.path.join(bot_path, 'data','data.json'), 'r') as json_file:
         json_data = json.load(json_file)
     json_file.close()
     return json_data
 
 async def data_get():
-    with open(os.path.join(bot_path, 'data/data.json'), 'r') as json_file:
+    with open(os.path.join(bot_path, 'data','data.json'), 'r') as json_file:
         json_data = json.load(json_file)
     json_file.close()
     return json_data
 
 def sync_data_set(json_dump: dict):
-    with open(os.path.join(bot_path, 'data/data.json'), 'w') as json_file: 
+    with open(os.path.join(bot_path, 'data','data.json'), 'w') as json_file: 
         json.dump(json_dump, json_file, indent=4, sort_keys=True,separators=(',', ': '))
     json_file.close()
 
 async def data_set(json_dump: dict):
-    with open(os.path.join(bot_path, 'data/data.json'), 'w') as json_file: 
+    with open(os.path.join(bot_path, 'data','data.json'), 'w') as json_file: 
         json.dump(json_dump, json_file, indent=4, sort_keys=True,separators=(',', ': '))
     json_file.close()
 

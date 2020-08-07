@@ -96,9 +96,10 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_modules_list"],description=modules_list, color=self.module_embed_color)
             await ctx.author.send(embed=embed)
     
-    @modules.command(help=main.lang["command_modules_hide_help"], description=main.lang["command_modules_hide_description"], usage="<module name>")
+    @modules.command(name='hide', help=main.lang["command_modules_hide_help"], description=main.lang["command_modules_hide_description"], usage="<module name>")
     @commands.is_owner()
     async def hide(self, ctx, *, input_module: str):
+        input_module = input_module.capitalize()
         input_module_path = f'modules.{input_module}'
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module_path in loaded_modules:
@@ -113,9 +114,10 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_hide_fail"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
-    @modules.command(help=main.lang["command_modules_unhide_help"], description=main.lang["command_modules_unhide_description"], usage="<module name>")
+    @modules.command(name='unhide', help=main.lang["command_modules_unhide_help"], description=main.lang["command_modules_unhide_description"], usage="<module name>")
     @commands.is_owner()
     async def unhide(self, ctx, *, input_module: str):
+        input_module = input_module.capitalize()
         input_module_path = f'modules.{input_module}'
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module_path in loaded_modules:
@@ -156,32 +158,32 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_cmds_list_marg"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
+    @commands.cooldown(1, 15, commands.BucketType.user)
     @commands.command(name='userid', help=main.lang["command_userid_help"], description=main.lang["command_userid_description"], aliases=['uid'], usage="@somebody", hidden=True)
-    @commands.is_owner()
     async def userid(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_userid_msg"].format(user.name,user.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
+    @commands.cooldown(1, 15, commands.BucketType.user)
     @commands.command(name='serverid', help=main.lang["command_owner_only"], description=main.lang["command_serverid_description"], aliases=['sid'], hidden=True, ignore_extra=True)
-    @commands.is_owner()
     @commands.guild_only()
     async def serverid(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_serverid_msg"].format(ctx.guild.name,ctx.guild.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
+    @commands.cooldown(1, 15, commands.BucketType.user)
     @commands.command(name='channelid', help=main.lang["command_owner_only"], description=main.lang["command_channelid_description"], aliases=['cid'], hidden=True, ignore_extra=True)
-    @commands.is_owner()
     @commands.guild_only()
     async def channelid(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
+    @commands.cooldown(1, 15, commands.BucketType.user)
     @commands.command(name='roleid', help=main.lang["command_owner_only"], description=main.lang["command_roleid_description"], aliases=['rid'], usage="Moderator", hidden=True)
-    @commands.is_owner()
     @commands.guild_only()
     async def roleid(self, ctx, *, role: discord.Role):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -254,7 +256,6 @@ class Core(commands.Cog):
         await self.bot.close()
 
     @commands.command(name="langs", help=main.lang["command_owner_only"], description=main.lang["command_langs_description"], aliases=['languages'], hidden=True, ignore_extra=True)
-    @commands.is_owner()
     async def lang_list(self, ctx):
         lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data/localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
         lang_list = [x.replace('language_', '') for x in lang_directory_list]
@@ -267,8 +268,9 @@ class Core(commands.Cog):
         embed.set_footer(text=f'{lang["core_langs_footer"]}: {localization.get_language(ctx.guild.id, main.languagecode)}')
         await ctx.send(embed=embed)
 
+    @commands.cooldown(1, 60, commands.BucketType.user)
     @commands.command(name="langset", help=main.lang["command_owner_only"], description=main.lang["command_langset_description"], usage="en-US", hidden=True)
-    @commands.is_owner()
+    @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def lang_set(self, ctx, lang_code: str = None):
         lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data/localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
