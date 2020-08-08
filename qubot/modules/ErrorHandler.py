@@ -31,6 +31,9 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, commands.BotMissingPermissions):
             embed = discord.Embed(title=main.lang["errorhandler_missing_perms"].format(error.missing_perms), color=self.module_embed_color)
 
+        elif isinstance(error, commands.NSFWChannelRequired):
+            embed = discord.Embed(title=main.lang["errorhandler_nsfw_channel_required"].format(ctx.command), color=self.module_embed_color)
+
         if embed:
             await ctx.send(embed=embed, delete_after=15)
 

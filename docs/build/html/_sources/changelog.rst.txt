@@ -25,7 +25,7 @@ Core
 
   This version introduces server-side bot prefixes and localization. This means that every server will be able to configure 
   these bot settings without affecting other servers. It is worth mentioning that the only language that is currently available
-  is only US English. With the release of 1.2, my efforts will move towards creating a localization standard and finding translators
+  is US English. With the release of 1.2, my efforts will move towards creating a localization standard and finding translators
   to expand the list of available languages.
 
   - **Configurable bot prefix on a per-server basis:**
@@ -63,7 +63,7 @@ General Changes
 Core
 ~~~~
 
-  - The following commands **no longer require** bot owner privileges and can be used by everyone: ``userid``,``serverid``,``channelid``,``roleid``;
+  - The following commands **no longer require** bot owner privileges and can be used by everyone: ``userid``, ``serverid``, ``channelid``, ``roleid``;
 
   - The languages list command **no longer require** bot owner privileges and can be used by everyone;
 

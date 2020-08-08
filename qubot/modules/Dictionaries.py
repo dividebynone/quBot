@@ -14,6 +14,7 @@ class Dictionaries(commands.Cog):
         print(f'Module {self.__class__.__name__} loaded')
 
     @commands.command(name='dict', help=main.lang["dictionaries_english_only"], description=main.lang["command_meanings_description"], aliases=['whatis', 'meaning', 'meanings'])
+    @commands.is_nsfw()
     async def dictionary_getmeanings(self, ctx, *, input: str):
         result = await quDict.get_top_meanings(input)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -29,6 +30,7 @@ class Dictionaries(commands.Cog):
             await ctx.send(lang["dictionaries_word_not_found"])
 
     @commands.command(name='synonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_synonyms_description"], usage="hot", aliases=['synonyms'])
+    @commands.is_nsfw()
     async def dictionary_getsynonyms(self, ctx, *, input: str):
         result = await quDict.get_top_synonyms(input)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -41,6 +43,7 @@ class Dictionaries(commands.Cog):
             await ctx.send(lang["dictionaries_word_not_found"])
 
     @commands.command(name='antonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_antonyms_description"], usage="hot", aliases=['antonyms'])
+    @commands.is_nsfw()
     async def dictionary_getantonyms(self, ctx, *, input: str):
         result = await quDict.get_top_antonyms(input)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -53,6 +56,7 @@ class Dictionaries(commands.Cog):
             await ctx.send(lang["dictionaries_word_not_found"])
 
     @commands.command(name='urbandict', help=main.lang["dictionaries_english_only"], description=main.lang["command_urbandict_description"], usage="hello", aliases=['ud'])
+    @commands.is_nsfw()
     async def dictionary_get_urbandict(self, ctx, *, input: str):
         result = await quDict.get_urbandict_definitions(input)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang

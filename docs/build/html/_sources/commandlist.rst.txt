@@ -215,16 +215,20 @@ Dictionaries
 
    "``dict`` ``whatis`` ``meaning`` ``meanings``", "| Returns a list of definitions based on the term you parse to the bot.\
    | **Note(s):**\
-   | - *This command only supports English words & phrases*", "``q!dict life``, ``q!whatis life``, ``q!meaning life``, ``q!meanings life``"
+   | - *This command only supports English words & phrases* \
+   | - *This command can only be used in NSFW text channels*", "``q!dict life``, ``q!whatis life``, ``q!meaning life``, ``q!meanings life``"
    "``synonym`` ``synonyms``", "| Returns a list of the top synonyms from Thesaurus based on the term you parse to the bot.\
    | **Note(s):**\
-   | - *This command only supports English words & phrases*", "``q!synonym hot``, ``q!synonyms hot``"
+   | - *This command only supports English words & phrases* \
+   | - *This command can only be used in NSFW text channels*", "``q!synonym hot``, ``q!synonyms hot``"
    "``antonym`` ``antonyms``", "| Returns a list of the top antonyms from Thesaurus based on the term you parse to the bot.\
    | **Note(s):**\
-   | - *This command only supports English words & phrases*", "``q!antonym hot``, ``q!antonyms hot``"
+   | - *This command only supports English words & phrases* \
+   | - *This command can only be used in NSFW text channels*", "``q!antonym hot``, ``q!antonyms hot``"
    "``urbandict`` ``ud``", "| Returns the top urban dictionary definition based on the term you parse to the bot.\
    | **Note(s):**\
-   | - *This command only supports English words & phrases*", "``q!urbandict hello``, ``q!ud hello``"
+   | - *This command only supports English words & phrases* \
+   | - *This command can only be used in NSFW text channels*", "``q!urbandict hello``, ``q!ud hello``"
 
 Economy
 ^^^^^^^
