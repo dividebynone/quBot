@@ -346,18 +346,25 @@ class Conquest(commands.Cog):
             settlementid = await quConquest.get_settlement_id(user.id)
             cdata = await quConquest.get_settlement('id', settlementid)
             if cdata:
-                if cdata["size"] > 1:
-                    if user.id == cdata["leaderid"]:
-                        embed = discord.Embed(title=lang["conquest_leave_leader"], color = self.module_embed_color)
-                    else:
-                        cdata["size"] -= 1
-                        await quConquest.update_settlement('id', settlementid, cdata)
-                        await quConquest.remove_member(user.id)
-                        embed = discord.Embed(title=lang["conquest_leave_success"], color = self.module_embed_color)                  
+                if cdata["size"] > 1 and user.id == cdata["leaderid"]:
+                    embed = discord.Embed(title=lang["conquest_leave_leader"], color = self.module_embed_color)
                 else:
-                    await quConquest.delete_settlement(settlementid)
-                    await quConquest.remove_member(user.id)
-                    embed = discord.Embed(title=lang["conquest_leave_success_alone"], color = self.module_embed_color)      
+                    await ctx.send(embed = discord.Embed(title=lang["conquest_leave_confirmation"], color = self.module_embed_color))
+                    try:
+                        msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() == 'yes' or m.content.lower() == 'no') and m.channel == ctx.channel, timeout=60.0)
+                        if msg.content.lower() == 'yes':
+                            if cdata["size"] > 1:
+                                    cdata["size"] -= 1
+                                    await quConquest.update_settlement('id', settlementid, cdata)
+                                    embed = discord.Embed(title=lang["conquest_leave_success"], color = self.module_embed_color)                  
+                            else:
+                                await quConquest.delete_settlement(settlementid)
+                                embed = discord.Embed(title=lang["conquest_leave_success_alone"], color = self.module_embed_color)
+                            await quConquest.remove_member(user.id)  
+                        else:
+                            embed = discord.Embed(title=lang["wait_for_cancelled"].format(user), color = self.module_embed_color)
+                    except asyncio.TimeoutError:
+                        embed = discord.Embed(title=lang["wait_for_timeout"].format(user), color = self.module_embed_color)
             else:
                 embed = discord.Embed(title=lang["conquest_leave_not_found"], color = self.module_embed_color)
         else:
@@ -376,11 +383,16 @@ class Conquest(commands.Cog):
                     if settlementid == await quConquest.get_settlement_id(user.id):
                         if ctx.author.id == cdata["leaderid"]:
                             await ctx.send(embed = discord.Embed(title=lang["conquest_promote_confirmation"].format(user), color = self.module_embed_color))
-                            msg = await self.bot.wait_for('message', check=lambda m: (m.content == 'yes' or m.content == 'no') and m.channel == ctx.channel, timeout=60.0)
-                            if msg.content == 'yes':
-                                cdata["leaderid"] = user.id
-                                await quConquest.update_settlement('id', settlementid, cdata)
-                                embed = discord.Embed(title=lang["conquest_promote_success"].format(user), color = self.module_embed_color)
+                            try:
+                                msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() == 'yes' or m.content.lower() == 'no') and m.channel == ctx.channel, timeout=60.0)
+                                if msg.content.lower() == 'yes':
+                                    cdata["leaderid"] = user.id
+                                    await quConquest.update_settlement('id', settlementid, cdata)
+                                    embed = discord.Embed(title=lang["conquest_promote_success"].format(user), color = self.module_embed_color)
+                                else:
+                                    embed = discord.Embed(title=lang["wait_for_cancelled"].format(user), color = self.module_embed_color)
+                            except asyncio.TimeoutError:
+                                embed = discord.Embed(title=lang["wait_for_timeout"].format(user), color = self.module_embed_color)
                         else:
                             embed = discord.Embed(title=lang["conquest_not_leader"], color = self.module_embed_color)
                     else:

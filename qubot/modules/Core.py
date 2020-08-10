@@ -3,8 +3,10 @@ from main import bot_starttime, config, bot_path
 from main import modules as loaded_modules
 from main import logger
 from libs.qulib import data_get, data_set
+from libs.utils.admintools import BlacklistedUsers
 from libs.prefixhandler import PrefixHandler
 from libs.localizations import Localizations
+from libs.commandscontroller import CommandController, CogController
 from datetime import datetime
 import discord
 import json
@@ -19,6 +21,30 @@ class Core(commands.Cog):
         self.bot = bot
         self.module_embed_color =  0xf0f3f4
         print(f'Module {self.__class__.__name__} loaded')
+
+        self.BlacklistedUsers = BlacklistedUsers()
+        self.CommandController = CommandController()
+        self.CogController = CogController()
+        self.PrefixHandler = PrefixHandler()
+
+        #Command + Module enable/disable
+
+        # data = qulib.sync_data_get()
+        # time_on_init = datetime.today().replace(microsecond=0)
+        # if "resources_time" not in data["Conquest"]:
+        #     data["Conquest"]["resources_time"] = time_on_init.strftime('%Y-%m-%d %H:%M:%S')
+
+    def bot_check(self, ctx):
+        if ctx.guild:
+            if not CommandController.is_disabled(ctx.command.qualified_name, ctx.guild.id):
+                if not BlacklistedUsers.is_blacklisted(ctx.author.id, ctx.guild.id):
+                    return True
+                else:
+                    raise commands.CheckFailure("Failed global check because user is blacklisted.")
+            else:
+                raise commands.DisabledCommand("This command is disabled on the server.")
+        else:
+            return True
 
     @commands.command(name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module name>", hidden=True)
     @commands.is_owner()
@@ -293,13 +319,12 @@ class Core(commands.Cog):
     async def prefix(self, ctx, *, new_prefix: str = None):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            prefixhandler = PrefixHandler()
             if not new_prefix:
-                embed = discord.Embed(title=lang["core_prefix_info"].format(prefixhandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color)
             elif len(new_prefix) > main.max_prefix_length:
                 embed = discord.Embed(title=lang["core_prefix_length_limit"].format(main.max_prefix_length), color=self.module_embed_color)
             else:
-                prefixhandler.set_prefix(ctx.guild.id, new_prefix)
+                PrefixHandler.set_prefix(ctx.guild.id, new_prefix)
                 embed = discord.Embed(title=lang["core_prefix_success"].format(new_prefix), color=self.module_embed_color)
             await ctx.send(embed=embed)
 
@@ -308,22 +333,107 @@ class Core(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def prefix_reset(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        prefixhandler = PrefixHandler()
-        prefixhandler.set_prefix(ctx.guild.id, main.prefix)
+        PrefixHandler.set_prefix(ctx.guild.id, main.prefix)
         await ctx.send(embed=discord.Embed(title=lang["core_prefix_reset"].format(main.prefix), color=self.module_embed_color))
 
     @prefix.command(name='show', help=main.lang["empty_string"], description=main.lang["command_prefix_show_description"], ignore_extra=True)
     @commands.guild_only()
     async def prefix_show(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        prefixhandler = PrefixHandler()
-        await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(prefixhandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color))
+
+    @commands.cooldown(10, 30, commands.BucketType.guild)
+    @commands.group(name='command', invoke_without_command=True, help=main.lang["command_command_help"], description=main.lang["command_command_toggle_description"], usage='userid')
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def commands_toggle(self, ctx, *, command: str):
+        if not ctx.invoked_subcommand:
+            cmds_list = [x.name for x in self.bot.commands]
+            aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
+            aliases_list = [item for sublist in aliases_list for item in sublist]
+            if ctx.command.name in cmds_list: cmds_list.remove(ctx.command.name)
+            
+            if command.lower() in cmds_list or command.lower() in aliases_list:
+                command_obj = self.bot.get_command(command)
+                lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+                if not CommandController.is_disabled(command_obj.name, ctx.guild.id):
+                    await CommandController.disable_command(command_obj.name, ctx.guild.id)
+                    embed = discord.Embed(title=lang["core_command_disable"].format(command_obj.name), color=self.module_embed_color)
+                else:
+                    await CommandController.enable_command(command_obj.name, ctx.guild.id)
+                    embed = discord.Embed(title=lang["core_command_enable"].format(command_obj.name), color=self.module_embed_color)
+
+                await ctx.send(embed=embed, delete_after=15)
+            else:
+                raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")
+
+    @commands.cooldown(10, 30, commands.BucketType.guild)
+    @commands_toggle.command(name='enable', help=main.lang["command_command_help"], description=main.lang["command_command_enable_description"], usage='userid')
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def commands_enable(self, ctx, *, command:str):
+        cmds_list = [x.name for x in self.bot.commands]
+        aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
+        aliases_list = [item for sublist in aliases_list for item in sublist]
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: cmds_list.remove(str(ctx.command.root_parent).strip())
+
+        if command.lower() in cmds_list or command.lower() in aliases_list:
+            command_obj = self.bot.get_command(command)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if CommandController.is_disabled(command_obj.name, ctx.guild.id):
+                await CommandController.enable_command(command_obj.name, ctx.guild.id)
+                embed = discord.Embed(title=lang["core_command_enable"].format(command_obj.name), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["core_command_already_enabled"].format(command_obj.name), color=self.module_embed_color)
+            await ctx.send(embed=embed, delete_after=15)
+        else:
+            raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")
+
+    @commands.cooldown(10, 30, commands.BucketType.guild)
+    @commands_toggle.command(name='disable', help=main.lang["command_command_help"], description=main.lang["command_command_disable_description"], usage='userid')
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def commands_disable(self, ctx, *, command:str):
+        cmds_list = [x.name for x in self.bot.commands]
+        aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
+        aliases_list = [item for sublist in aliases_list for item in sublist]
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: cmds_list.remove(str(ctx.command.root_parent).strip())
+
+        if command.lower() in cmds_list or command.lower() in aliases_list:
+            command_obj = self.bot.get_command(command)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if not CommandController.is_disabled(command_obj.name, ctx.guild.id):
+                await CommandController.disable_command(command_obj.name, ctx.guild.id)
+                embed = discord.Embed(title=lang["core_command_disable"].format(command_obj.name), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["core_command_already_disabled"].format(command_obj.name), color=self.module_embed_color)
+            await ctx.send(embed=embed, delete_after=15)
+        else:
+            raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")
+
+    #TODO: Implement Cog(Module) enable/disable command group
+
+    @commands.Cog.listener()
+    @commands.guild_only()
+    async def on_guild_join(self, guild):
+        lang = main.get_lang(guild.id) if guild else main.lang
+        guild_prefix = PrefixHandler.get_prefix(guild.id, main.prefix) if guild else main.prefix
+        app_info = await self.bot.application_info()
+
+        channel = discord.utils.find(lambda c: c.name == "general", guild.text_channels)
+        if not channel:
+            channel = discord.utils.find(lambda c: guild.me.permissions_in(c).send_messages == True, guild.text_channels)
+        if channel:
+            embed = discord.Embed(title=lang["bot_guild_join_title"], description=lang["bot_guild_join_description"].format(app_info.name, guild_prefix), color = self.module_embed_color)
+            embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
+            await channel.send(embed=embed)
 
     @commands.Cog.listener()
     @commands.guild_only()
     async def on_guild_remove(self, guild):
-        prefixhandler = PrefixHandler()
-        prefixhandler.remove_guild(guild.id) # PrefixHandler takes care of language data removal as well since its tied to the same table
+        PrefixHandler.remove_guild(guild.id) # PrefixHandler takes care of language data removal as well since its tied to the same table
+        await CommandController.remove_disabled_commands(guild.id)
+        await CogController.remove_disabled_cogs(guild.id)
 
 def setup(bot):
     bot.add_cog(Core(bot))

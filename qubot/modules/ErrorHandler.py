@@ -15,15 +15,15 @@ class ErrorHandler(commands.Cog):
         if hasattr(ctx.command, 'on_error'):
             return
 
-        ignored = (commands.CommandNotFound, commands.MissingPermissions, commands.UserInputError, commands.NotOwner, commands.NoPrivateMessage, asyncio.TimeoutError)
+        ignored = (commands.CommandNotFound, commands.DisabledCommand, commands.MissingPermissions, commands.UserInputError, commands.NotOwner, commands.NoPrivateMessage, asyncio.TimeoutError)
         error = getattr(error, 'original', error)
         embed = None
 
         if isinstance(error, ignored):
             return
         
-        elif isinstance(error, commands.DisabledCommand):
-            embed = discord.Embed(title=main.lang["errorhandler_dcmd"].format(ctx.command), color=self.module_embed_color)
+        # elif isinstance(error, commands.DisabledCommand):
+        #     embed = discord.Embed(title=main.lang["errorhandler_dcmd"].format(ctx.command), color=self.module_embed_color)
         
         elif isinstance(error, commands.CommandOnCooldown):
             embed = discord.Embed(title=main.lang["errorhandler_cooldown"].format(ctx.command, "%.1f" % error.retry_after), color=self.module_embed_color)
