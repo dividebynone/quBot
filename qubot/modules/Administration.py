@@ -31,6 +31,13 @@ class Administration(commands.Cog):
         self.max_characters = 1500
         self.purge_limit = 100
 
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = False
+        self.module_dependencies = []
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
+
         self.Reports = Reports()
         self.Warnings = Warnings()
         self.MuteRole = MuteRole()

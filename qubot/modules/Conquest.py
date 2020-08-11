@@ -27,6 +27,13 @@ class Conquest(commands.Cog):
         self.rename_price = 500
         print(f'Module {self.__class__.__name__} loaded')
 
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = False
+        self.module_dependencies = ['Economy']
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
+
         quConquest.database_init()
 
         if 'Conquest' not in config.sections():

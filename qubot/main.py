@@ -203,7 +203,9 @@ json_lang_en = {
     "command_goodbye_description": "Toggles server goodbye messages on/off on the server.",
     "command_goodbye_disable_description": "Disables server goodbye messages on the server.",
     "command_goodbye_disable_help": "This command can only be used by users with the ability to **manage servers**.",
-    "command_command_toggle_description": "Enables/disables a command for the server where the command was executed in.",
+    "command_modules_enable_description": "Enables the target cog/module on the server where the command was executed.",
+    "command_modules_disable_description": "Disables the target cog/module on the server where the command was executed.",
+    "command_modules_change_help": "This command can only be used by server **administrators**.",
     "command_command_enable_description": "Enables a command for the server where the command was executed in.",
     "command_command_disable_description": "Disables a command for the server where the command was executed in.",
     "command_command_help": "This command can only be used by server **administrators**.",
@@ -453,6 +455,13 @@ json_lang_en = {
     "core_command_already_enabled": "Command ({}) is already enabled on this server.",
     "core_command_disable": "Successfully disabled command ({}) in server.",
     "core_command_already_disabled": "Command ({}) is already disabled on this server.",
+    "core_module_enable_msg": "Successfully enabled module '**{}**' on this server.",
+    "core_module_enable_already_enabled": "Module '**{}**' is already enabled on this server.",
+    "core_module_enable_not_found": "Could not enable module. Invalid module name provided.",
+    "core_module_disable_msg": "Successfully disabled module '**{}**' on this server.",
+    "core_module_disable_already_disabled": "Module '**{}**' is already disabled on this server.",
+    "core_module_disable_restricted": "Module '**{}**' is marked as integral and can't be disabled.",
+    "core_module_disable_not_found": "Could not disable module. Invalid module name provided.",
     "day_string": "day",
     "days_string": "days",
     "dictionaries_antonyms": "**Antonyms**",
@@ -572,8 +581,8 @@ def get_lang(guild_id: int):
 #-----------------------------------#
 #Creating modules.mdls to store loaded modules
 
-if not os.path.isfile(os.path.join(bot_path, 'data/modules.mdls')):
-    with open(os.path.join(bot_path, 'data/modules.mdls'), 'w') as modules_file:
+if not os.path.isfile(os.path.join(bot_path, 'data', 'modules.mdls')):
+    with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'w') as modules_file:
         print("[modules.mdls] file not found. Creating a new file")
         #The core module is added upon file creation
         modules_file.write("Core\n")

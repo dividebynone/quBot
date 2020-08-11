@@ -1,4 +1,5 @@
 from discord.ext import commands
+import libs.qulib as qulib
 import main
 import discord
 import asyncio
@@ -9,6 +10,13 @@ class ErrorHandler(commands.Cog):
         self.bot = bot
         self.module_embed_color =  0xc10000
         print(f'Module {self.__class__.__name__} loaded')
+
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = True
+        self.module_dependencies = []
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
