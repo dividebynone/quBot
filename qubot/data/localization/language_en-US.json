@@ -335,6 +335,7 @@
     "core_command_already_enabled": "Command ({}) is already enabled on this server.",
     "core_command_disable": "Successfully disabled command ({}) in server.",
     "core_command_enable": "Successfully enabled command ({}) in server.",
+    "core_command_restricted_module": "This command is part of a module (**{}**) that is marked as integral and can't be disabled.",
     "core_langs_footer": "Current bot language",
     "core_langs_title": "Available language pack(s)",
     "core_langset_notfound": "This language does not seem to exist in the system. Please make sure your spelling is correct.",

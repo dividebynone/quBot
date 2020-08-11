@@ -455,6 +455,7 @@ json_lang_en = {
     "core_command_already_enabled": "Command ({}) is already enabled on this server.",
     "core_command_disable": "Successfully disabled command ({}) in server.",
     "core_command_already_disabled": "Command ({}) is already disabled on this server.",
+    "core_command_restricted_module": "This command is part of a module (**{}**) that is marked as integral and can't be disabled.",
     "core_module_enable_msg": "Successfully enabled module '**{}**' on this server.",
     "core_module_enable_already_enabled": "Module '**{}**' is already enabled on this server.",
     "core_module_enable_not_found": "Could not enable module. Invalid module name provided.",

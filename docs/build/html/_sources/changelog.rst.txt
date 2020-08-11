@@ -1,6 +1,102 @@
 Changelog
 =========
 
+quBot 1.2.5-beta (12-08-2020)
+-----------------------------
+
+.. topic:: Description
+
+    This update is essentially a continuation of version 1.2.0. It aims to provide more freedom to server administrators/owners by giving more
+    configuration options. That is why ths update introduces features such as: server-side blacklisting, server-side command enabling and disabling,
+    server-side cog/module enabling and disabling, a few minor changes and some bug fixes. While this version is almost as big in terms of relevant user content as
+    version 1.2.0, I believe that the current version is better suited than 1.3.0. Instead, version 1.3.0 will focus on bringing quality of life improvements, 
+    optimizations and better user experience.
+
+New features
+^^^^^^^^^^^^
+
+Administration
+~~~~~~~~~~~~~~
+
+  - **New feature:** Blacklisting users - A set of commands to prevent users from using the bot's commands in your discord server.
+
+    - **New command:** ``blacklist`` - Blacklists the target user. As a result, they will no longer be able to use the bot in that server. 
+      If the target user is already blacklisted, they will get removed from the blacklist and regain access to bot commands.
+      This command can only be used by **server administrators**;
+
+    - **New command:** ``blacklist add`` - Blacklists the target user. As a result, they will no longer be able to use the bot in that server.
+      This command can only be used by **server administrators**;
+
+    - **New command:** ``blacklist remove`` - Removes the target user from the bot blacklist. As a result, they will regain access to the
+      bot's commands in that server.
+      This command can only be used by **server administrators**;
+
+  - **New command:** ``greet test`` - Command to test your custom server greetings message. This command requires users to have **Manage Server** permission;
+
+  - **New command:** ``bye test`` - Command to test your custom server goodbye message. This command requires users to have **Manage Server** permission;
+
+Core
+~~~~
+
+  - **New feature:** Enabling/disabling command (groups) - A set of commands to enable/disable command(s) and/or command group(s) in your discord server.
+
+    - **New command:** ``commands enable`` - Enables a command for the server where the command was executed in. This command can only be used by **server administrators**;
+
+    - **New command:** ``commands disable`` - Disables a command for the server where the command was executed in. Only commands that are not part of
+      integral cogs/modules can be disabled. This command can only be used by **server administrators**;
+
+  - **New feature:** Enabling/disabling modules (also known as cogs) - A set of commands to enable/disable modules in your discord server.
+
+    - **New command:** ``modules enable`` - Enables the target cog/module on the server where the command was executed. This command can only be used
+       by **server administrators**;
+
+    - **New command:** ``modules disable`` - Disables the target cog/module on the server where the command was executed. Only non-integral modules can
+      be disabled by server administrators. This command can only be used by **server administrators**;
+
+General Changes
+^^^^^^^^^^^^^^^
+
+- Administration
+
+  - ``warnings`` command now shows the total number of pages. Acts as a better indication of how many pages of warnings a user has.
+
+- Conquest
+
+  - ``sleave`` command now asks for a confirmation if you want to leave the settlement and are the only person left in it since it gets destroyed in the process.
+
+- Core
+
+  - The bot now shows a welcome message with instructions and general information when it joins your server.
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+  - discord.py has been updated to 1.4.1 (previously 1.4.0);
+
+  - Updated bot dependency packages (Updated requirements.txt file);
+
+Bug fixes
+^^^^^^^^^
+
+- Administration
+
+  - If the user does not specify a channel, greeting and goodbye messages will now be posted in the first channel where bot has permissions to send messages 
+    instead of text channel with position 0. This is considered a bug fix as said messages would not appear if your server's top text channel limits the bot's permission
+    to send messages.
+
+  - Fixed an issue preventing the bot from sending a message once a user reaches the maximum number of warnings.
+
+- Conquest
+
+  - User input to confirm action for command ``promote`` is longer case sensitive.
+
+- Core
+
+  - Reverted changes from 1.2.0: 'Case sensitivity prevented the use of commands 'modules hide' and 'modules unhide' in certain situations. Command input is no
+    longer case sensitive.' - This caused unexpected issues due to its implementation. It will likely be fixed in version 1.3.0
+
+------------
+
 quBot 1.2.0-beta (07-08-2020)
 -----------------------------
 

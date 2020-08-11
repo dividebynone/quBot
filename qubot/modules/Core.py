@@ -236,7 +236,10 @@ class Core(commands.Cog):
         cmds_list = [x.name for x in self.bot.commands]
         aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
         aliases_list = [item for sublist in aliases_list for item in sublist]
-        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: cmds_list.remove(str(ctx.command.root_parent).strip())
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: 
+            cmds_list.remove(str(ctx.command.root_parent).strip())
+            if len(ctx.command.root_parent.aliases) > 0:
+                for alias in ctx.command.root_parent.aliases: aliases_list.remove(alias.strip())    
 
         if command.lower() in cmds_list or command.lower() in aliases_list:
             command_obj = self.bot.get_command(command)
@@ -258,16 +261,23 @@ class Core(commands.Cog):
         cmds_list = [x.name for x in self.bot.commands]
         aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
         aliases_list = [item for sublist in aliases_list for item in sublist]
-        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: cmds_list.remove(str(ctx.command.root_parent).strip())
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: # Removes command from list to prevent from it disabling its own command
+            cmds_list.remove(str(ctx.command.root_parent).strip())
+            if len(ctx.command.root_parent.aliases) > 0:
+                for alias in ctx.command.root_parent.aliases: aliases_list.remove(alias.strip())    
 
         if command.lower() in cmds_list or command.lower() in aliases_list:
             command_obj = self.bot.get_command(command)
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            if not CommandController.is_disabled(command_obj.name, ctx.guild.id):
-                await CommandController.disable_command(command_obj.name, ctx.guild.id)
-                embed = discord.Embed(title=lang["core_command_disable"].format(command_obj.name), color=self.module_embed_color)
+            modules_config = qulib.get_module_config()
+            if command_obj.cog_name not in modules_config["restricted_modules"]:
+                if not CommandController.is_disabled(command_obj.name, ctx.guild.id):
+                    await CommandController.disable_command(command_obj.name, ctx.guild.id)
+                    embed = discord.Embed(title=lang["core_command_disable"].format(command_obj.name), color=self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=lang["core_command_already_disabled"].format(command_obj.name), color=self.module_embed_color)
             else:
-                embed = discord.Embed(title=lang["core_command_already_disabled"].format(command_obj.name), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["core_command_restricted_module"].format(command_obj.cog_name), color=self.module_embed_color)
             await ctx.send(embed=embed, delete_after=15)
         else:
             raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")

@@ -314,7 +314,7 @@ class Administration(commands.Cog):
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @blacklist.command(name='add', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_add_description"], usage='@someone')
+    @blacklist.command(name='add', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_add_description"], usage='@someone', aliases=['a'])
     async def blacklist_add(self, ctx, member: discord.Member):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if ctx.message.author.id != member.id:
@@ -329,7 +329,7 @@ class Administration(commands.Cog):
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @blacklist.command(name='remove', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_remove_description"], usage='@someone')
+    @blacklist.command(name='remove', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_remove_description"], usage='@someone', aliases=['r'])
     async def blacklist_remove(self, ctx, member: discord.Member):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if ctx.message.author.id != member.id:
