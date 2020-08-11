@@ -46,6 +46,39 @@ async def data_set(json_dump: dict):
         json.dump(json_dump, json_file, indent=4, sort_keys=True,separators=(',', ': '))
     json_file.close()
 
+#Modules configuration
+
+def get_module_config():
+    if not os.path.isfile(os.path.join(bot_path, 'data','modules.json')):
+        print("Creating missing modules.json file...")
+        with open(os.path.join(bot_path, 'data','modules.json'), 'w+') as json_file:
+            json.dump({}, json_file, indent=4, sort_keys=True, separators=(',', ': '))
+        json_file.close()
+
+    with open(os.path.join(bot_path, 'data','modules.json'), 'r') as json_file:
+        json_data = json.load(json_file)
+    json_file.close()
+    return json_data
+
+def update_module_config(json_dump: dict):
+    with open(os.path.join(bot_path, 'data','modules.json'), 'w') as json_file: 
+        json.dump(json_dump, json_file, indent=4, sort_keys=True, separators=(',', ': '))
+    json_file.close()
+
+def module_configuration(module_name: str, is_restricted: bool, module_dependencies: list):
+    module_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'modules'))]
+
+    module_config = get_module_config()
+    if is_restricted and module_name not in module_config.setdefault("restricted_modules", []):
+        module_config.setdefault("restricted_modules", []).append(module_name)
+    if len(module_dependencies) > 0:
+        for dependency in module_dependencies:
+            if dependency in module_directory_list and dependency not in module_config.setdefault("dependencies", {}).setdefault(module_name, []):
+                module_config.setdefault("dependencies", {}).setdefault(module_name, []).append(dependency)
+    else:
+        module_config.setdefault("dependencies", {}).pop(module_name, None)
+    update_module_config(module_config)
+
 #Database folder creation(if missing) #TODO: Delete in the future (duplicate code <-> main.py)
 if not os.path.exists(os.path.join(bot_path, 'databases')):
     os.makedirs(os.path.join(bot_path, 'databases'), exist_ok=True)

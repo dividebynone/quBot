@@ -116,8 +116,8 @@ def get_lang(guild_id: int):
 #-----------------------------------#
 #Creating modules.mdls to store loaded modules
 
-if not os.path.isfile(os.path.join(bot_path, 'data/modules.mdls')):
-    with open(os.path.join(bot_path, 'data/modules.mdls'), 'w') as modules_file:
+if not os.path.isfile(os.path.join(bot_path, 'data', 'modules.mdls')):
+    with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'w') as modules_file:
         print("[modules.mdls] file not found. Creating a new file")
         #The core module is added upon file creation
         modules_file.write("Core\n")

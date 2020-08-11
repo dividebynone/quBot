@@ -18,6 +18,13 @@ class Economy(commands.Cog):
         self.module_embed_color =  0x28b463
         print(f'Module {self.__class__.__name__} loaded')
 
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = False
+        self.module_dependencies = []
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
+
         qulib.user_database_init()
 
         if 'Economy' not in config.sections():

@@ -1,4 +1,5 @@
 {
     "python.pythonPath": "QBEnv\\Scripts\\python.exe",
+    "python.linting.pylintPath": "QBEnv\\Scripts\\pylint.exe",
     "restructuredtext.confPath": "${workspaceFolder}\\docs"
 }

@@ -1,4 +1,5 @@
 /qubot/__pycache__
+/qubot/data/modules.json
 /qubot/databases
 /qubot/logs
 /qubot/modules/Voting.py

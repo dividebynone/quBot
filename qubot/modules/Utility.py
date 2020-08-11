@@ -2,6 +2,7 @@ from discord.ext import commands
 from main import bot_starttime
 from main import modules as loaded_modules
 from datetime import datetime
+import libs.qulib as qulib
 import main
 import discord
 import secrets
@@ -14,6 +15,13 @@ class Utility(commands.Cog):
         self.bot = bot
         self.module_embed_color =  0xb405e3
         print(f'Module {self.__class__.__name__} loaded')
+
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = False
+        self.module_dependencies = []
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
     @commands.command(name='avatar', help=main.lang["command_avatar_help"], description=main.lang["command_avatar_description"], usage="@somebody")
     async def avatar(self, ctx, *, user: discord.User = None):

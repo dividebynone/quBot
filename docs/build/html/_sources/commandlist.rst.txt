@@ -80,6 +80,12 @@ Administration
    | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings auto mute 5``, ``q!warnings auto kick 8``, ``q!warnings auto kick 10``"
    "``warnings auto disable``", "| Disables the target automatic action from triggering for future user warnings.\
    | **Needed User Permissions: Kick Members, Ban Members**", "``q!warnings auto disable mute``, ``q!warnings auto disable kick``, ``q!warnings auto disable ban``"
+   "``blacklist``", "| Blacklists the target user. As a result, they will no longer be able to use the bot in that server. If the target user is already blacklisted, they will get removed from the blacklist and regain access to bot commands.\
+   | **Needed User Permissions: Administrator**", "``q!blacklist @someone``"
+   "``blacklist add`` ``blacklist a``", "| Blacklists the target user. As a result, they will no longer be able to use the bot in that server.\
+   | **Needed User Permissions: Administrator**", "``q!blacklist add @someone``, ``q!blacklist a @someone``"
+   "``blacklist remove`` ``blacklist r``", "| Removes the target user from the bot blacklist. As a result, they will regain access to the bot's commands in that server.\
+   | **Needed User Permissions: Administrator**", "``q!blacklist remove @someone``, ``q!blacklist r @someone``"
    "``greet`` ``greetings``", "| Toggles server greeting messages on/off on the server.\
    | **Needed User Permissions: Manage Server**", "``q!greet``, ``q!greetings``"
    "``bye`` ``goodbye``", "| Toggles server goodbye messages on/off on the server.\
@@ -92,6 +98,10 @@ Administration
    | **Needed User Permissions: Manage Server**", "``q!greet disable``, ``q!greet off``"
    "``bye disable`` ``bye off``", "| Disables server goodbye messages on the server.\
    | **Needed User Permissions: Manage Server**", "``q!bye disable``, ``q!bye off``"
+   "``greet test``", "| Command to test your custom server greetings message.\
+   | **Needed User Permissions: Manage Server**", "``q!greet test``"
+   "``bye test``", "| Command to test your custom server goodbye message.\
+   | **Needed User Permissions: Manage Server**", "``q!bye test``"
    "``greet dm``", "| Enables server greetings on the server. Instead of the server's text channel, future messages will instead be sent to users' direct messages.\
    | **Needed User Permissions: Manage Server**", "``q!greet dm``"
    "``greet message`` ``bye message``", "| Changes the greeting or goodbye message to a custom one. Feel free to check the notes to be able to fully utilize this command.\
@@ -177,10 +187,18 @@ Core
    | Note: *The module file needs to be present in the modules folder of the bot.* This command can only be used by the **BOT OWNER**.", "``q!unload <module name>``"
    "``reload``", "| Reloads modules loaded into the bot application.\
    | Note: *The module file needs to be present in the modules folder of the bot.* This command can only be used by the **BOT OWNER**.", "``q!reload <module name>``"
+   "``modules enable``", "| Enables the target cog/module on the server where the command was executed.\
+   | **Needed User Permissions: Administrator**", "``q!modules enable Utility``, ``q!modules e Utility``, ``q!mdls e Utility``"
+   "``modules disable``", "| Disables the target cog/module on the server where the command was executed.\
+   | **Needed User Permissions: Administrator**", "``q!modules disable Utility``, ``q!modules d Utility``, ``q!mdls d Utility``"
    "``modules hide``", "| Hides a module from the list of loaded modules.\
    | Note: *This is a subcommand of the 'modules' command.* This command can only be used by the **BOT OWNER**.", "``q!modules hide <module name>``"
    "``modules unhide``", "| Reveals a hidden module from the list of loaded modules.\
    | Note: *This is a subcommand of the 'modules' command.* This command can only be used by the **BOT OWNER**.", "``q!modules unhide <module name>``"
+   "``commands enable``", "| Enables a command for the server where the command was executed in.\
+   | **Needed User Permissions: Administrator**", "``q!commands enable userid``, ``q!commands e userid``, ``q!cmds e userid``"
+   "``commands disable``", "| Disables a command for the server where the command was executed in.\
+   | **Needed User Permissions: Administrator**", "``q!commands disable userid``, ``q!commands d userid``, ``q!cmds d userid``"
    "``userid`` ``uid``", "| Returns the target individual's Discord ID.\
    | Note: *If no argument is given, the bot will use the author of the message.*", "``q!uid``, ``q!uid @somebody``"
    "``serverid`` ``sid``", "| Returns the server's ID for the server the command was typed in.", "``q!sid``"

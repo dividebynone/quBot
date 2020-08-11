@@ -1,4 +1,4 @@
-from libs.utils.admintools import Reports, Warnings, MuteRole, AutoWarningActions
+from libs.utils.admintools import Reports, Warnings, MuteRole, AutoWarningActions, BlacklistedUsers
 from libs.utils.servertoggles import ServerToggles
 from discord.ext import commands
 from main import bot_starttime
@@ -31,11 +31,19 @@ class Administration(commands.Cog):
         self.max_characters = 1500
         self.purge_limit = 100
 
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = False
+        self.module_dependencies = []
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
+
         self.Reports = Reports()
         self.Warnings = Warnings()
         self.MuteRole = MuteRole()
         self.AutoActions = AutoWarningActions()
         self.Toggles = ServerToggles()
+        self.BlacklistedUsers = BlacklistedUsers()
 
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
@@ -218,6 +226,7 @@ class Administration(commands.Cog):
                            await user.add_roles(role)
             else:
                 embed = discord.Embed(title=lang["administration_warn_max"].format(self.max_warnings), color=self.module_embed_color)
+                await ctx.send(embed=embed, delete_after=30)
         else:
             raise commands.BadArgument("Failed to warn user. Message author matches target user.")
 
@@ -230,10 +239,11 @@ class Administration(commands.Cog):
                 page_index = page - 1
                 await ctx.message.delete()
                 warnings = await self.Warnings.get_warnings(ctx.guild.id, user.id)
+                pages = int(len(warnings)/5)
                 lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
                 if len(warnings[(page_index*5):(page_index*5 + 5)]) > 0:
                     embed = discord.Embed(title=lang["administration_warnings_title"].format(str(user)), color=self.module_embed_color)
-                    embed.set_footer(text=f'{lang["page_string"]} {page}')
+                    embed.set_footer(text=f'{lang["page_string"]} {page}/{pages}')
                     for warning in warnings[(page_index*5):(page_index*5 + 5)]:
                         warned_by = self.bot.get_user(warning[1])
                         embed.add_field(name=f'{lang["warning_string"]}: **{warning[0]}**', value=lang["administration_warnings_issuedby"].format(warned_by), inline=False)
@@ -285,6 +295,53 @@ class Administration(commands.Cog):
             embed = discord.Embed(title=lang["administration_autoaction_disable_msg"].format(action.lower()), color=self.module_embed_color)
             await ctx.send(embed=embed)
 
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @commands.group(name='blacklist', invoke_without_command=True, help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_description"], usage='@someone')
+    async def blacklist(self, ctx, member: discord.Member):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if not ctx.invoked_subcommand:
+            if ctx.message.author.id != member.id:
+                if not BlacklistedUsers.is_blacklisted(member.id, ctx.guild.id):
+                    await BlacklistedUsers.blacklist(member.id, ctx.guild.id)
+                    embed = discord.Embed(title=lang["administration_blacklist_add"].format(str(member)), color=self.module_embed_color)
+                else:
+                    await BlacklistedUsers.remove_blacklist(member.id, ctx.guild.id)
+                    embed = discord.Embed(title=lang["administration_blacklist_remove"].format(str(member)), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["administration_blacklist_self"], color=self.module_embed_color)
+            await ctx.send(embed=embed, delete_after=15)
+
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @blacklist.command(name='add', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_add_description"], usage='@someone', aliases=['a'])
+    async def blacklist_add(self, ctx, member: discord.Member):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if ctx.message.author.id != member.id:
+            if not BlacklistedUsers.is_blacklisted(member.id, ctx.guild.id):
+                await BlacklistedUsers.blacklist(member.id, ctx.guild.id)
+                embed = discord.Embed(title=lang["administration_blacklist_add"].format(str(member)), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["administration_blacklist_in_list"].format(str(member)), color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=lang["administration_blacklist_self"], color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=15)
+
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @blacklist.command(name='remove', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_remove_description"], usage='@someone', aliases=['r'])
+    async def blacklist_remove(self, ctx, member: discord.Member):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if ctx.message.author.id != member.id:
+            if BlacklistedUsers.is_blacklisted(member.id, ctx.guild.id):
+                await BlacklistedUsers.remove_blacklist(member.id, ctx.guild.id)
+                embed = discord.Embed(title=lang["administration_blacklist_remove"].format(str(member)), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["administration_blacklist_not_in_list"].format(str(member)), color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=lang["administration_blacklist_remove_self"], color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=15)
+
     @commands.has_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.group(name='greet', help=main.lang["command_greetings_help"], description=main.lang["command_greetings_description"], aliases=['greetings'])
@@ -327,6 +384,12 @@ class Administration(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_gdm_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @server_greetings.command(name='test', help=main.lang["command_greetings_test_help"], description=main.lang["command_greetings_test_description"], ignore_extra=True)
+    @commands.has_permissions(administrator=True)
+    async def greetings_test(self, ctx):
+        await self.on_member_join(ctx.message.author)
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @server_greetings.group(name='message', invoke_without_command=True, help=main.lang["command_greetings_message_help"], description=main.lang["command_greetings_message_description"], usage="Welcome {mention} to {server}!")
@@ -382,18 +445,19 @@ class Administration(commands.Cog):
             else:
                 channel = discord.utils.find(lambda c: c.name == "general", member.guild.text_channels)
                 if not channel:
-                    channel = discord.utils.find(lambda c: c.position == 0, member.guild.text_channels)
-            if await self.Toggles.has_custom_greeting(member.guild.id):
-                message = await self.Toggles.get_custom_greeting(member.guild.id)
-                message = await Administration.format_message(message, member)
-            else:
-                lang = main.get_lang(member.guild.id)
-                message = lang["administration_greet_default"].format(member.mention, member.guild.name)
+                    channel = discord.utils.find(lambda c: member.guild.me.permissions_in(c).send_messages == True, member.guild.text_channels)
+            if channel:
+                if await self.Toggles.has_custom_greeting(member.guild.id):
+                    message = await self.Toggles.get_custom_greeting(member.guild.id)
+                    message = await Administration.format_message(message, member)
+                else:
+                    lang = main.get_lang(member.guild.id)
+                    message = lang["administration_greet_default"].format(member.mention, member.guild.name)
 
-            if status == 2:
-                await member.send(message)
-            else:
-                await channel.send(message)
+                if status == 2:
+                    await member.send(message)
+                else:
+                    await channel.send(message)
 
     @commands.has_permissions(manage_guild=True)
     @commands.guild_only()
@@ -429,6 +493,12 @@ class Administration(commands.Cog):
         else:
             embed = discord.Embed(title=lang["administration_gbdisable_disabled"], color=self.module_embed_color)
         await ctx.send(embed=embed)
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @server_goodbye.command(name='test', help=main.lang["command_goodbye_test_help"], description=main.lang["command_goodbye_test_description"], ignore_extra=True)
+    @commands.has_permissions(administrator=True)
+    async def goodbye_test(self, ctx):
+        await self.on_member_remove(ctx.message.author)
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @server_goodbye.group(name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"], usage="Goodbye, {mention}!")
@@ -469,23 +539,29 @@ class Administration(commands.Cog):
         await ctx.invoke(self.greetings_setchannel_reset)
 
     @commands.Cog.listener()
+    @commands.guild_only()
+    async def on_guild_remove(self, guild):
+        await BlacklistedUsers.remove_blacklist_guild(guild.id)
+
+    @commands.Cog.listener()
     async def on_member_remove(self, member):
         status = await self.Toggles.get_bye_status(member.guild.id)
-        if status:
+        if member and member.id != self.bot.user.id and status:
             channel_id = await self.Toggles.get_channel(member.guild.id)
             if channel_id:
                 channel = await self.bot.fetch_channel(channel_id)
             else:
                 channel = discord.utils.find(lambda c: c.name == "general", member.guild.text_channels)
                 if not channel:
-                    channel = discord.utils.find(lambda c: c.position == 0, member.guild.text_channels)
-            if await self.Toggles.has_custom_goodbye(member.guild.id):
-                message = await self.Toggles.get_custom_goodbye(member.guild.id)
-                message = await Administration.format_message(message, member)
-            else:
-                lang = main.get_lang(member.guild.id)
-                message = lang["administration_bye_default"].format(str(member), member.guild.name)
-            await channel.send(message)
+                    channel = discord.utils.find(lambda c: member.guild.me.permissions_in(c).send_messages == True, member.guild.text_channels)
+            if channel:
+                if await self.Toggles.has_custom_goodbye(member.guild.id):
+                    message = await self.Toggles.get_custom_goodbye(member.guild.id)
+                    message = await Administration.format_message(message, member)
+                else:
+                    lang = main.get_lang(member.guild.id)
+                    message = lang["administration_bye_default"].format(str(member), member.guild.name)
+                await channel.send(message)
 
     @staticmethod
     async def get_mute_role(guild: discord.Guild):

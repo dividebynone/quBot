@@ -2,9 +2,11 @@ from discord.ext import commands
 from main import bot_starttime, config, bot_path
 from main import modules as loaded_modules
 from main import logger
-from libs.qulib import data_get, data_set
+import libs.qulib as qulib
+from libs.utils.admintools import BlacklistedUsers
 from libs.prefixhandler import PrefixHandler
 from libs.localizations import Localizations
+from libs.commandscontroller import CommandController, CogController
 from datetime import datetime
 import discord
 import json
@@ -19,6 +21,33 @@ class Core(commands.Cog):
         self.bot = bot
         self.module_embed_color =  0xf0f3f4
         print(f'Module {self.__class__.__name__} loaded')
+
+        self.BlacklistedUsers = BlacklistedUsers()
+        self.CommandController = CommandController()
+        self.CogController = CogController()
+        self.PrefixHandler = PrefixHandler()
+
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = True
+        self.module_dependencies = []
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
+
+    def bot_check(self, ctx):
+        if ctx.guild:
+            if not CogController.is_disabled(ctx.command.cog_name, ctx.guild.id):
+                if not CommandController.is_disabled(ctx.command.qualified_name, ctx.guild.id):
+                    if not BlacklistedUsers.is_blacklisted(ctx.author.id, ctx.guild.id):
+                        return True
+                    else:
+                        raise commands.CheckFailure("Failed global check because user is blacklisted.")
+                else:
+                    raise commands.DisabledCommand("This command is disabled on the server.")
+            else:
+                raise commands.DisabledCommand("Failed attempt to use command from a disabled module.")
+        else:
+            return True
 
     @commands.command(name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module name>", hidden=True)
     @commands.is_owner()
@@ -83,30 +112,71 @@ class Core(commands.Cog):
                 embed = discord.Embed(title=lang["core_module_reload_success"].format(input_module), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=20)
     
-    @commands.group(name='modules', aliases=['mdls'], help=main.lang["empty_string"], description=main.lang["command_modules_description"])
+    @commands.group(name='modules', invoke_without_command=True, help=main.lang["empty_string"], description=main.lang["command_modules_description"], aliases=['mdls'])
     async def modules(self, ctx):
         if not ctx.invoked_subcommand:
             modules_list = ''
             loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
-            data = await data_get()
+            modules_config = qulib.get_module_config()
             for i in loaded_modules_names:
-                if i not in data["hidden_modules"]:
+                if i not in modules_config.setdefault("hidden_modules", []):
                     modules_list += f'\u2022 {i}\n'
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             embed = discord.Embed(title=lang["core_modules_list"],description=modules_list, color=self.module_embed_color)
             await ctx.author.send(embed=embed)
-    
+
+    @commands.cooldown(10, 60, commands.BucketType.guild)
+    @modules.command(name='enable', help=main.lang["command_modules_change_help"], description=main.lang["command_modules_enable_description"], usage="<module name>", aliases=['e'])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def modules_enable(self, ctx, *, input_module: str):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
+        loaded_modules_lowercase = [i.lower() for i in loaded_modules_names]
+        if input_module.lower() in loaded_modules_lowercase:
+            cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
+            if CogController.is_disabled(cog_name, ctx.guild.id):
+                await CogController.enable_cog(cog_name, ctx.guild.id)
+                embed = discord.Embed(title=lang["core_module_enable_msg"].format(cog_name), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["core_module_enable_already_enabled"].format(cog_name), color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=lang["core_module_enable_not_found"], color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=30)
+
+    @commands.cooldown(10, 60, commands.BucketType.guild)
+    @modules.command(name='disable', help=main.lang["command_modules_change_help"], description=main.lang["command_modules_disable_description"], usage="<module name>", aliases=['d'])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def modules_disable(self, ctx, *, input_module: str):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        modules_config = qulib.get_module_config()
+        loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
+        loaded_modules_lowercase = [i.lower() for i in loaded_modules_names]
+        if input_module.lower() in loaded_modules_lowercase:
+            cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
+            if cog_name not in modules_config["restricted_modules"]:
+                if not CogController.is_disabled(cog_name, ctx.guild.id):
+                    await CogController.disable_cog(cog_name, ctx.guild.id)
+                    embed = discord.Embed(title=lang["core_module_disable_msg"].format(cog_name), color=self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=lang["core_module_disable_already_disabled"].format(cog_name), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["core_module_disable_restricted"].format(cog_name), color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=lang["core_module_disable_not_found"], color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=30)
+        
     @modules.command(name='hide', help=main.lang["command_modules_hide_help"], description=main.lang["command_modules_hide_description"], usage="<module name>")
     @commands.is_owner()
     async def hide(self, ctx, *, input_module: str):
-        input_module = input_module.capitalize()
         input_module_path = f'modules.{input_module}'
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module_path in loaded_modules:
-            data = await data_get()
-            if input_module not in data["hidden_modules"]:
-                data["hidden_modules"].append(input_module)
-                await data_set(data)
+            modules_config = qulib.get_module_config()
+            if input_module not in modules_config.setdefault("hidden_modules", []):
+                modules_config.setdefault("hidden_modules", []).append(input_module)
+                qulib.update_module_config(modules_config)
                 embed = discord.Embed(title=lang["core_module_hide_success"].format(input_module), color=self.module_embed_color)
             else:
                 embed = discord.Embed(title=lang["core_module_hide_hidden"], color=self.module_embed_color)
@@ -117,14 +187,13 @@ class Core(commands.Cog):
     @modules.command(name='unhide', help=main.lang["command_modules_unhide_help"], description=main.lang["command_modules_unhide_description"], usage="<module name>")
     @commands.is_owner()
     async def unhide(self, ctx, *, input_module: str):
-        input_module = input_module.capitalize()
         input_module_path = f'modules.{input_module}'
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if input_module_path in loaded_modules:
-            data = await data_get()
-            if input_module in data["hidden_modules"]:
-                data["hidden_modules"].remove(input_module)
-                await data_set(data)
+            modules_config = qulib.get_module_config()
+            if input_module in modules_config.setdefault("hidden_modules", []):
+                modules_config.setdefault("hidden_modules", []).remove(input_module)
+                qulib.update_module_config(modules_config)
                 embed = discord.Embed(title=lang["core_module_unhide_success"].format(input_module), color=self.module_embed_color)
             else:
                 embed = discord.Embed(title=lang["core_module_unhide_visible"], color=self.module_embed_color)
@@ -132,31 +201,86 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_unhide_fail"], color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.command(name='commands', aliases=['cmds'], help=main.lang["empty_string"], description=main.lang["command_cmds_description"], usage="<module name>")
+    @commands.group(name='commands', invoke_without_command=True, help=main.lang["empty_string"], description=main.lang["command_cmds_description"], usage="<module name>", aliases=['cmds'])
     async def cmds_list(self, ctx, *, input_module: str = None):
-        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if input_module:
-            loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
-            input_module = input_module.capitalize()
-            if input_module in loaded_modules_names:
-                display_list = ''
-                isowner = await ctx.bot.is_owner(ctx.author)
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if input_module:
+                loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
+                input_module = input_module.capitalize()
+                if input_module in loaded_modules_names:
+                    display_list = ''
+                    isowner = await ctx.bot.is_owner(ctx.author)
 
-                for command in self.bot.get_cog(input_module).walk_commands():
-                    if not command.hidden or isowner:
-                        if command.parent:
-                            display_list += f'\u002d\u002d\u002d {" ".join(command.qualified_name.split()[1:])}\n'
-                        else:
-                            display_list += f'\u2022 {command.name}\n'
-                if not display_list:
-                    embed = discord.Embed(title=lang["core_cmds_list_empty"].format(input_module), color=self.module_embed_color)
+                    for command in self.bot.get_cog(input_module).walk_commands():
+                        if not command.hidden or isowner:
+                            if command.parent:
+                                display_list += f'\u002d\u002d\u002d {" ".join(command.qualified_name.split()[1:])}\n'
+                            else:
+                                display_list += f'\u2022 {command.name}\n'
+                    if not display_list:
+                        embed = discord.Embed(title=lang["core_cmds_list_empty"].format(input_module), color=self.module_embed_color)
+                    else:
+                        embed = discord.Embed(title=lang["core_cmds_list"].format(input_module),description=display_list, color=self.module_embed_color)
                 else:
-                    embed = discord.Embed(title=lang["core_cmds_list"].format(input_module),description=display_list, color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["core_cmds_list_not_found"].format(input_module), color=self.module_embed_color)
             else:
-                embed = discord.Embed(title=lang["core_cmds_list_not_found"].format(input_module), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["core_cmds_list_marg"], color=self.module_embed_color)
+            await ctx.author.send(embed=embed)
+
+    @commands.cooldown(10, 30, commands.BucketType.guild)
+    @cmds_list.command(name='enable', help=main.lang["command_command_help"], description=main.lang["command_command_enable_description"], usage='userid', aliases=['e'])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def commands_enable(self, ctx, *, command:str):
+        cmds_list = [x.name for x in self.bot.commands]
+        aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
+        aliases_list = [item for sublist in aliases_list for item in sublist]
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: 
+            cmds_list.remove(str(ctx.command.root_parent).strip())
+            if len(ctx.command.root_parent.aliases) > 0:
+                for alias in ctx.command.root_parent.aliases: aliases_list.remove(alias.strip())    
+
+        if command.lower() in cmds_list or command.lower() in aliases_list:
+            command_obj = self.bot.get_command(command)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if CommandController.is_disabled(command_obj.name, ctx.guild.id):
+                await CommandController.enable_command(command_obj.name, ctx.guild.id)
+                embed = discord.Embed(title=lang["core_command_enable"].format(command_obj.name), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["core_command_already_enabled"].format(command_obj.name), color=self.module_embed_color)
+            await ctx.send(embed=embed, delete_after=15)
         else:
-            embed = discord.Embed(title=lang["core_cmds_list_marg"], color=self.module_embed_color)
-        await ctx.author.send(embed=embed)
+            raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")
+
+    @commands.cooldown(10, 30, commands.BucketType.guild)
+    @cmds_list.command(name='disable', help=main.lang["command_command_help"], description=main.lang["command_command_disable_description"], usage='userid', aliases=['d'])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def commands_disable(self, ctx, *, command:str):
+        cmds_list = [x.name for x in self.bot.commands]
+        aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
+        aliases_list = [item for sublist in aliases_list for item in sublist]
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: # Removes command from list to prevent from it disabling its own command
+            cmds_list.remove(str(ctx.command.root_parent).strip())
+            if len(ctx.command.root_parent.aliases) > 0:
+                for alias in ctx.command.root_parent.aliases: aliases_list.remove(alias.strip())    
+
+        if command.lower() in cmds_list or command.lower() in aliases_list:
+            command_obj = self.bot.get_command(command)
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            modules_config = qulib.get_module_config()
+            if command_obj.cog_name not in modules_config["restricted_modules"]:
+                if not CommandController.is_disabled(command_obj.name, ctx.guild.id):
+                    await CommandController.disable_command(command_obj.name, ctx.guild.id)
+                    embed = discord.Embed(title=lang["core_command_disable"].format(command_obj.name), color=self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=lang["core_command_already_disabled"].format(command_obj.name), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["core_command_restricted_module"].format(command_obj.cog_name), color=self.module_embed_color)
+            await ctx.send(embed=embed, delete_after=15)
+        else:
+            raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")
 
     @commands.cooldown(1, 15, commands.BucketType.user)
     @commands.command(name='userid', help=main.lang["command_userid_help"], description=main.lang["command_userid_description"], aliases=['uid'], usage="@somebody", hidden=True)
@@ -293,13 +417,12 @@ class Core(commands.Cog):
     async def prefix(self, ctx, *, new_prefix: str = None):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            prefixhandler = PrefixHandler()
             if not new_prefix:
-                embed = discord.Embed(title=lang["core_prefix_info"].format(prefixhandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color)
             elif len(new_prefix) > main.max_prefix_length:
                 embed = discord.Embed(title=lang["core_prefix_length_limit"].format(main.max_prefix_length), color=self.module_embed_color)
             else:
-                prefixhandler.set_prefix(ctx.guild.id, new_prefix)
+                PrefixHandler.set_prefix(ctx.guild.id, new_prefix)
                 embed = discord.Embed(title=lang["core_prefix_success"].format(new_prefix), color=self.module_embed_color)
             await ctx.send(embed=embed)
 
@@ -308,22 +431,36 @@ class Core(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def prefix_reset(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        prefixhandler = PrefixHandler()
-        prefixhandler.set_prefix(ctx.guild.id, main.prefix)
+        PrefixHandler.set_prefix(ctx.guild.id, main.prefix)
         await ctx.send(embed=discord.Embed(title=lang["core_prefix_reset"].format(main.prefix), color=self.module_embed_color))
 
     @prefix.command(name='show', help=main.lang["empty_string"], description=main.lang["command_prefix_show_description"], ignore_extra=True)
     @commands.guild_only()
     async def prefix_show(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        prefixhandler = PrefixHandler()
-        await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(prefixhandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color))
+
+    @commands.Cog.listener()
+    @commands.guild_only()
+    async def on_guild_join(self, guild):
+        lang = main.get_lang(guild.id) if guild else main.lang
+        guild_prefix = PrefixHandler.get_prefix(guild.id, main.prefix) if guild else main.prefix
+        app_info = await self.bot.application_info()
+
+        channel = discord.utils.find(lambda c: c.name == "general", guild.text_channels)
+        if not channel:
+            channel = discord.utils.find(lambda c: guild.me.permissions_in(c).send_messages == True, guild.text_channels)
+        if channel:
+            embed = discord.Embed(title=lang["bot_guild_join_title"], description=lang["bot_guild_join_description"].format(app_info.name, guild_prefix), color = self.module_embed_color)
+            embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
+            await channel.send(embed=embed)
 
     @commands.Cog.listener()
     @commands.guild_only()
     async def on_guild_remove(self, guild):
-        prefixhandler = PrefixHandler()
-        prefixhandler.remove_guild(guild.id) # PrefixHandler takes care of language data removal as well since its tied to the same table
+        PrefixHandler.remove_guild(guild.id) # PrefixHandler takes care of language data removal as well since its tied to the same table
+        await CommandController.remove_disabled_commands(guild.id)
+        await CogController.remove_disabled_cogs(guild.id)
 
 def setup(bot):
     bot.add_cog(Core(bot))

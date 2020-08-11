@@ -2,6 +2,7 @@ from discord.ext import commands
 from main import bot_starttime
 from main import modules as loaded_modules
 from libs.qudict import quDict
+import libs.qulib as qulib
 import main
 import discord
 import random
@@ -12,6 +13,13 @@ class Dictionaries(commands.Cog):
         self.bot = bot
         self.module_embed_color =  0x80e093
         print(f'Module {self.__class__.__name__} loaded')
+
+        # Module configuration
+        self.module_name = str(self.__class__.__name__)
+        self.is_restricted_module = False
+        self.module_dependencies = []
+
+        qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
     @commands.command(name='dict', help=main.lang["dictionaries_english_only"], description=main.lang["command_meanings_description"], aliases=['whatis', 'meaning', 'meanings'])
     @commands.is_nsfw()

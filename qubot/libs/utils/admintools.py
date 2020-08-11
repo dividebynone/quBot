@@ -132,3 +132,30 @@ class MuteRole(object):
             cursor.execute("SELECT mute_role FROM mute_roles WHERE guild_id=?", (guild_id,))
             output = cursor.fetchone()
             return output[0] if output else None
+
+class BlacklistedUsers(object):
+    def __init__(self):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS blacklisted_users(user_id INTEGER NOT NULL, guild_id INTEGER NOT NULL, PRIMARY KEY (user_id, guild_id))")
+
+    @classmethod
+    async def blacklist(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("INSERT OR IGNORE INTO blacklisted_users (user_id, guild_id) VALUES(?, ?)", (user_id, guild_id))
+
+    @classmethod
+    def is_blacklisted(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT user_id FROM blacklisted_users WHERE user_id=? AND guild_id=?",(user_id, guild_id,))
+            output = cursor.fetchone()
+            return True if output else False
+
+    @classmethod
+    async def remove_blacklist(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("DELETE FROM blacklisted_users WHERE user_id=? AND guild_id=?",(user_id, guild_id,))
+
+    @classmethod
+    async def remove_blacklist_guild(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("DELETE FROM blacklisted_users WHERE guild_id=?",(guild_id,))
