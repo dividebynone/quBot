@@ -261,7 +261,7 @@ class Conquest(commands.Cog):
         await ctx.author.send(embed=embed)
 
     @commands.cooldown(1, 600, commands.BucketType.user)
-    @commands.command(name='attack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='@somebody', ignore_extra=True)
+    @commands.command(name='attack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='@somebody', ignore_extra=True, cooldown_after_parsing = True)
     @commands.guild_only()
     async def conquest_attack(self, ctx, *, defence_user: discord.User = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -323,7 +323,7 @@ class Conquest(commands.Cog):
         if not completed_attack:
             self.bot.get_command(ctx.command.name).reset_cooldown(ctx)
 
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(10, 60, commands.BucketType.user)
     @commands.command(name="leaderboard", help=main.lang["command_leaderboard_help"], description=main.lang["command_leaderboard_description"], aliases=['lb'])
     @commands.guild_only()
     async def conquest_leaderboard(self, ctx, page: int = 1):
@@ -500,7 +500,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=lang["conquest_not_part_of"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(5, 30, commands.BucketType.user)
     @conquest_buildings.command(name='upgrade', help=main.lang["command_sleader"], description=main.lang["command_bupgrade_description"], usage='1', ignore_extra=True)
     async def buildings_upgrade(self, ctx, building_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -554,7 +554,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=lang["conquest_requirements_range"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.command(name='requirements', help=main.lang["empty_string"], description=main.lang["command_reqs_description"], usage="1", aliases=['reqs'])
     async def conquest_requirements(self, ctx, *, building_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -581,7 +581,7 @@ class Conquest(commands.Cog):
             embed = discord.Embed(title=lang["conquest_requirements_range"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.group(name='market', help=main.lang["command_market_help"], description=main.lang["command_market_description"])
     async def conquest_market(self, ctx):
         if not ctx.invoked_subcommand:

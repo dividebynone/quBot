@@ -1,6 +1,22 @@
 Changelog
 =========
 
+quBot 1.2.5-rc1 (03-08-2020)
+-----------------------------
+
+.. topic:: Description
+
+    A quick update to fix an issue related to the settlement attack command for the Conquest module. Cooldown changes to some of the commands in the Conquest to
+    allow for a few sequential uses without triggering a cooldown.
+
+Bug fixes
+^^^^^^^^^
+- Conquest
+
+  - Fixed an issue preventing users from attacking other people's settlements due to user input error triggering cooldown.
+
+------------
+
 quBot 1.2.5-beta (12-08-2020)
 -----------------------------
 
