@@ -1,12 +1,15 @@
 from libs.utils.admintools import Reports, Warnings, MuteRole, AutoWarningActions, BlacklistedUsers
+from libs.utils.admintools import ModerationAction, TemporaryActions
 from libs.utils.servertoggles import ServerToggles
-from discord.ext import commands
+from discord.ext import tasks, commands
 from main import bot_starttime
 from main import modules as loaded_modules
-from datetime import datetime
+from datetime import datetime, timedelta
 import libs.qulib as qulib
 import discord
 import main
+import time
+import re
 
 class BannedUser(commands.UserConverter):
     async def convert(self, ctx, argument):
@@ -19,6 +22,18 @@ class BannedUser(commands.UserConverter):
         if ban_entry is None:
             raise commands.BadArgument("Failed to convert user input to User Object. User was not found in banned user list.")
         return ban_entry.user
+
+class TimePeriod(commands.Converter):
+    
+    def __init__(self):
+        self.time_units = {'m':'minutes', 'h':'hours', 'd':'days', 'w':'weeks'}
+
+    async def convert(self, ctx, argument):
+        time_in_seconds = int(timedelta(**{self.time_units.get(m.group('unit').lower(), 'minutes'): int(m.group('val')) for m in re.finditer(r'(?P<val>\d+)(\s?)(?P<unit>[mhdw]?)', argument, flags=re.I)}).total_seconds())
+
+        if time_in_seconds == 0:
+            raise commands.BadArgument("Failed to convert user input to a valid time frame.")
+        return time_in_seconds
 
 class Administration(commands.Cog):
 
@@ -44,6 +59,36 @@ class Administration(commands.Cog):
         self.AutoActions = AutoWarningActions()
         self.Toggles = ServerToggles()
         self.BlacklistedUsers = BlacklistedUsers()
+        self.TemporaryActions = TemporaryActions()
+
+        self.temporary_actions.start() # pylint: disable=no-member
+
+    def cog_unload(self):
+        self.temporary_actions.cancel() # pylint: disable=no-member
+
+    @tasks.loop(minutes=1, reconnect=True)
+    async def temporary_actions(self):
+        time_on_iter = int(time.time())
+        guild_dict = await TemporaryActions.get_expired_actions(time_on_iter)
+
+        for guild_id in guild_dict:
+            guild = self.bot.get_guild(guild_id)
+            if guild:
+                for user_id, action in guild_dict[guild_id]:
+                    if action == int(ModerationAction.Ban):
+                        banned_users = await guild.bans()
+                        ban_entry = discord.utils.find(lambda m: m.user.id == user_id, banned_users)
+                        if ban_entry is not None:
+                            await guild.unban(ban_entry.user, reason="Temporary ban has expired for the following individual.")
+                    elif action == int(ModerationAction.TextMute):
+                        member = guild.get_member(user_id)
+                        if member:
+                            role = await Administration.get_mute_role(guild)
+                            user_rlist = [x.id for x in member.roles]
+                            if role.id in user_rlist:
+                                await member.remove_roles(role)
+
+        await TemporaryActions.clear_expired_actions(time_on_iter)
 
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
@@ -90,10 +135,30 @@ class Administration(commands.Cog):
         embed = discord.Embed(title=lang["administration_ban_msg"].format(str(user), reason), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
+    @commands.command(name='tempban', help=main.lang["command_tempban_help"], description=main.lang["command_tempban_description"], usage='@somebody "2 weeks 5 days" Harassment', aliases=['tban'])
+    @commands.has_permissions(ban_members=True)
+    @commands.guild_only()
+    async def temp_ban(self, ctx, user: discord.Member, time_period: TimePeriod, *, reason: str = None):
+        unix_timestamp = int(time.time() + time_period)
+        timestamp = datetime.fromtimestamp(unix_timestamp) + timedelta(seconds=60)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if not TemporaryActions.is_banned(user.id, ctx.guild.id):
+            if await TemporaryActions.set_action(user.id, ctx.guild.id, ModerationAction.Ban, unix_timestamp):
+                await user.send(lang["administration_tempban_dm"].format(ctx.guild.name, timestamp.strftime('%d/%m/%Y at %H:%M')))
+                await ctx.guild.ban(user, reason=reason)
+                await ctx.message.delete()
+                embed = discord.Embed(title=lang["administration_tempban_ban"].format(str(user), timestamp.strftime('%d/%m/%Y at %H:%M'), reason), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["administration_tempban_error"].format(str(user)), color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=lang["administration_tempban_already_banned"].format(str(user)), color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=5)
+
     @commands.command(name='unban', help=main.lang["command_unban_help"], description=main.lang["command_unban_description"], usage="User#1234 OR 116267141744820233")
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
     async def unban(self, ctx, user: BannedUser):
+        await TemporaryActions.clear_action(user.id, ctx.guild.id, ModerationAction.Ban)
         await ctx.guild.unban(user)
         await ctx.message.delete()
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -127,6 +192,26 @@ class Administration(commands.Cog):
             embed = discord.Embed(title=lang["administration_mute_muted"].format(str(user)), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
+    @commands.command(name='tempmute', help=main.lang["command_tempmute_help"], description=main.lang["command_tempmute_description"], usage='@somebody 2 weeks 5 days', aliases=['tmute'])
+    @commands.has_permissions(manage_messages=True)
+    @commands.guild_only()
+    async def temp_mute(self, ctx, user: discord.Member, *, time_period: TimePeriod):
+        async with ctx.channel.typing():
+            role = await Administration.get_mute_role(ctx.guild)
+        user_rlist = [x.id for x in user.roles]
+        await ctx.message.delete()
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if role.id not in user_rlist and not TemporaryActions.is_textmuted(user.id, ctx.guild.id):
+            await user.add_roles(role)
+            unix_timestamp = int(time.time() + time_period)
+            timestamp = datetime.fromtimestamp(unix_timestamp) + timedelta(seconds=60)
+            await TemporaryActions.set_action(user.id, ctx.guild.id,ModerationAction.TextMute, unix_timestamp)
+            await user.send(lang["administration_tempmute_dm"].format(ctx.guild.name, timestamp.strftime('%d/%m/%Y at %H:%M')))
+            embed = discord.Embed(title=lang["administration_tempmute_mute"].format(str(user), timestamp.strftime('%d/%m/%Y at %H:%M')), color=self.module_embed_color)
+        else:
+            embed = discord.Embed(title=lang["administration_mute_muted"].format(str(user)), color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=5)
+
     @commands.command(name='unmute', help=main.lang["empty_string"], description=main.lang["command_unmute_description"], usage='@somebody')
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
@@ -138,6 +223,7 @@ class Administration(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if role.id in user_rlist:
             await user.remove_roles(role)
+            await TemporaryActions.clear_action(user.id, ctx.guild.id, ModerationAction.TextMute)
             embed = discord.Embed(title=lang["administration_unmute_success"].format(str(user)), color=self.module_embed_color)
         else:
             embed = discord.Embed(title=lang["administration_unmute_unmuted"].format(str(user)), color=self.module_embed_color)
@@ -542,6 +628,7 @@ class Administration(commands.Cog):
     @commands.guild_only()
     async def on_guild_remove(self, guild):
         await BlacklistedUsers.remove_blacklist_guild(guild.id)
+        await TemporaryActions.wipe_guild_data(guild.id)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
