@@ -314,11 +314,11 @@ class Core(commands.Cog):
         embed = discord.Embed(title=lang["core_roleid_msg"].format(ctx.guild.name, role.name, role.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.command(name='leave', help=main.lang["empty_string"], description=main.lang["command_leave_description"], hidden=True, ignore_extra=True)
+    @commands.command(name='remove', help=main.lang["empty_string"], description=main.lang["command_remove_description"], hidden=True, ignore_extra=True)
     @commands.has_permissions(kick_members=True)
-    async def leave(self, ctx):
+    async def remove(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=lang["core_leave_msg"], color=self.module_embed_color)
+        embed = discord.Embed(title=lang["core_remove_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
         await ctx.guild.leave()
 

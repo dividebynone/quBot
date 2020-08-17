@@ -1,4 +1,5 @@
 from libs.qulib import user_get, user_set
+from libs.giveaways import GiveawayHandler
 from main import bot_path
 from discord.ext import commands
 from datetime import datetime
@@ -26,6 +27,8 @@ class Economy(commands.Cog):
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
         qulib.user_database_init()
+
+        self.GiveawayHandler = GiveawayHandler()
 
         if 'Economy' not in config.sections():
             config.add_section('Economy')
@@ -158,14 +161,14 @@ class Economy(commands.Cog):
             message = await channel.fetch_message(payload.message_id)
             if not [x for x in (user, channel, message) if x is None]:
                 if message.author.id == self.bot.user.id and not user.bot:
-                    giveaways = await qulib.get_giveaway_list()
+                    giveaways = await GiveawayHandler.get_giveaway_list()
                     if giveaways:
-                        if (message.id in giveaways):
+                        if message.id in giveaways:
                             if payload.emoji.name == self.currency_symbol:
-                                if await qulib.has_entered_giveaway(user.id, message.id) == False:
-                                    value = await qulib.get_giveaway_value(message.id)
+                                if await GiveawayHandler.has_entered_giveaway(user.id, message.id) == False:
+                                    value = await GiveawayHandler.get_giveaway_value(message.id)
                                     if value:
-                                        await qulib.enter_giveaway(user.id, message.id)
+                                        await GiveawayHandler.enter_giveaway(user.id, message.id)
                                         user_info = await user_get(user)
                                         user_info['currency'] += value
                                         await user_set(user, user_info)
@@ -186,12 +189,12 @@ class Economy(commands.Cog):
         embed = discord.Embed(title=lang["economy_cgiveaway_title"], description=lang["economy_cgiveaway_msg"].format(self.currency_symbol, value, self.currency_symbol), color=self.module_embed_color)
         message = await ctx.send(embed=embed)
         await message.add_reaction(self.currency_symbol)
-        await qulib.start_giveaway(message.id, value)
+        await GiveawayHandler.start_giveaway(message.id, value)
 
     @giveaway_group.command(name="end", help=main.lang["command_owner_only"], description=main.lang["command_giveaway_end_description"])
     async def giveaway_end(self, ctx, *, message_id: int):
         await ctx.message.delete()
-        result = await qulib.end_giveaway(message_id)
+        result = await GiveawayHandler.end_giveaway(message_id)
         if result:
             message = await ctx.channel.fetch_message(message_id)
             await ctx.channel.delete_messages([message])

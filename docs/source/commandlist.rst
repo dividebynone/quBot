@@ -204,8 +204,8 @@ Core
    "``serverid`` ``sid``", "| Returns the server's ID for the server the command was typed in.", "``q!sid``"
    "``channelid`` ``cid``", "| Returns the channel's ID for the channel the command was typed in.", "``q!cid``"
    "``roleid`` ``rid``", "| Returns the target role's ID for the server the command was typed in.", "``q!roleid Moderator``, ``q!rid Moderator``"
-   "``leave``", "| Politely kicks the bot off your server.\
-   | **Needed User Permissions: Kick Members**", "``q!leave``"
+   "``remove``", "| Politely kicks the bot off your server.\
+   | **Needed User Permissions: Kick Members**", "``q!remove``"
    "``latencies``", "| Returns the latencies (in miliseconds) for every active shard.\
    | Note: This command can only be used by the **BOT OWNER**.", "``q!latencies``"
    "``setname``", "| Changes the name of the bot.\
