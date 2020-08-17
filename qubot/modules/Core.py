@@ -65,7 +65,7 @@ class Core(commands.Cog):
             else:
                 embed = discord.Embed(title=lang["core_module_load_success"].format(input_module), color=self.module_embed_color)
                 loaded_modules.append(input_module_path)
-                with open(os.path.join(bot_path, 'data/modules.mdls'), 'a') as modules_file:
+                with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'a') as modules_file:
                         modules_file.write(f'{input_module}\n')             
         await ctx.send(embed=embed, delete_after=20)
 
@@ -85,7 +85,7 @@ class Core(commands.Cog):
             else:
                 embed = discord.Embed(title=lang["core_module_unload_success"].format(input_module), color=self.module_embed_color)
                 loaded_modules.remove(input_module_path)
-                with open(os.path.join(bot_path, 'data/modules.mdls'), 'r+') as modules_file:
+                with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'r+') as modules_file:
                     modules_output = modules_file.read()
                     modules_file.seek(0)
                     for i in modules_output.split():
@@ -396,7 +396,7 @@ class Core(commands.Cog):
         await self.bot.http.close()
         await self.bot.close()
 
-    @commands.command(name="langs", help=main.lang["empty_string"], description=main.lang["command_langs_description"], aliases=['languages'], hidden=True, ignore_extra=True)
+    @commands.command(name="langs", help=main.lang["empty_string"], description=main.lang["command_langs_description"], aliases=['languages'], ignore_extra=True)
     async def lang_list(self, ctx):
         lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data/localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
         lang_list = [x.replace('language_', '') for x in lang_directory_list]
@@ -410,7 +410,7 @@ class Core(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.command(name="langset", help=main.lang["command_langset_help"], description=main.lang["command_langset_description"], usage="en-US", hidden=True)
+    @commands.command(name="langset", help=main.lang["command_langset_help"], description=main.lang["command_langset_description"], usage="en-US")
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def lang_set(self, ctx, lang_code: str = None):
@@ -427,6 +427,15 @@ class Core(commands.Cog):
         else:
             embed = discord.Embed(title=lang["core_langset_notfound"], color=self.module_embed_color)
         await ctx.send(embed=embed)
+
+    @commands.cooldown(5, 60, commands.BucketType.user)
+    @commands.command(name="translate", help=main.lang["empty_string"], description=main.lang["command_translate_description"], ignore_extra=True)
+    async def translate(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        embed = discord.Embed(title=lang["core_translate_title"], description=lang["core_translate_description"], color=self.module_embed_color)
+        embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
+        await ctx.send(embed=embed)
+
 
     @commands.group(name='prefix', invoke_without_command=True, help=main.lang["command_prefix_help"], description=main.lang["command_prefix_description"], usage="q!")
     @commands.has_permissions(administrator=True)
