@@ -238,7 +238,18 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!ban</span> <span class="pre">&#64;somebody</span></code>, <code class="docutils literal notranslate"><span class="pre">q!ban</span> <span class="pre">&#64;somebody</span> <span class="pre">Harassment</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">unban</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tempban</span></code> <code class="docutils literal notranslate"><span class="pre">tban</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Temporarily bans the mentioned invidivual for a specified amount of time for a certain reason (if any).</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>The ban reason is an optional argument.</em></div>
+<div class="line">- <em>This command accepts the following time units: m(inutes), h(ours), d(ays), w(eeks)</em></div>
+<div class="line"><strong>Needed User Permissions: Ban Members</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!tempban</span> <span class="pre">&#64;somebody</span> <span class="pre">30</span> <span class="pre">Harassment</span></code>, <code class="docutils literal notranslate"><span class="pre">q!tempban</span> <span class="pre">&#64;somebody</span> <span class="pre">2d</span></code>, <code class="docutils literal notranslate"><span class="pre">q!tempban</span> <span class="pre">&#64;somebody</span> <span class="pre">'2</span> <span class="pre">weeks</span> <span class="pre">7</span> <span class="pre">days'</span> <span class="pre">Harassment</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unban</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Unbans the target individual from the server.</div>
 <div class="line"><strong>Note(s):</strong></div>
@@ -248,7 +259,7 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!unban</span> <span class="pre">user#1234</span></code>, <code class="docutils literal notranslate"><span class="pre">q!unban</span> <span class="pre">116267141744820233</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">softban</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">softban</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Soft bans the mentioned individual for a specified reason (if any)</div>
 <div class="line"><strong>Note(s):</strong></div>
@@ -259,13 +270,23 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!softban</span> <span class="pre">&#64;somebody</span></code>, <code class="docutils literal notranslate"><span class="pre">q!softban</span> <span class="pre">&#64;somebody</span> <span class="pre">Spamming</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mute</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Mutes the target individual from chatting on the server.</div>
 <div class="line"><strong>Needed User Permissions: Manage Messages</strong></div>
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!mute</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tempmute</span></code> <code class="docutils literal notranslate"><span class="pre">tmute</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Temporarily mutes the target individual from chatting on the server.</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>This command accepts the following time units: m(inutes), h(ours), d(ays), w(eeks)</em></div>
+<div class="line"><strong>Needed User Permissions: Manage Messages</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!tempmute</span> <span class="pre">&#64;somebody</span> <span class="pre">30</span></code>, <code class="docutils literal notranslate"><span class="pre">q!tempmute</span> <span class="pre">&#64;somebody</span> <span class="pre">2d</span></code>, <code class="docutils literal notranslate"><span class="pre">q!tempmute</span> <span class="pre">&#64;somebody</span> <span class="pre">2d6h</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unmute</span></code></p></td>
 <td><div class="line-block">
@@ -274,6 +295,22 @@
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!unmute</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">slowmode</span></code> <code class="docutils literal notranslate"><span class="pre">sm</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Sets a chatting cooldown for the channel where the command was used.</div>
+<div class="line"><strong>Needed User Permissions: Manage Messages, Manage Channels</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!slowmode</span> <span class="pre">30</span></code>, <code class="docutils literal notranslate"><span class="pre">q!sm</span> <span class="pre">5m30s</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">slowmode</span> <span class="pre">disable</span></code> <code class="docutils literal notranslate"><span class="pre">slowmode</span> <span class="pre">off</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Disables slowmode for the channel where the command was used.</div>
+<div class="line"><strong>Needed User Permissions: Manage Messages, Manage Channels</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!slowmode</span> <span class="pre">disable</span></code>, <code class="docutils literal notranslate"><span class="pre">q!slowmode</span> <span class="pre">off</span></code>, <code class="docutils literal notranslate"><span class="pre">q!slowmode</span> <span class="pre">0</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">report</span></code></p></td>
 <td><div class="line-block">
@@ -798,13 +835,13 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!roleid</span> <span class="pre">Moderator</span></code>, <code class="docutils literal notranslate"><span class="pre">q!rid</span> <span class="pre">Moderator</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">leave</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">remove</span></code></p></td>
 <td><div class="line-block">
 <div class="line">Politely kicks the bot off your server.</div>
 <div class="line"><strong>Needed User Permissions: Kick Members</strong></div>
 </div>
 </td>
-<td><p><code class="docutils literal notranslate"><span class="pre">q!leave</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!remove</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">latencies</span></code></p></td>
 <td><div class="line-block">
@@ -1073,6 +1110,13 @@
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!langset</span> <span class="pre">en-US</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">translate</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Shows general information about the translation of the bot.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!translate</span></code></p></td>
 </tr>
 </tbody>
 </table>

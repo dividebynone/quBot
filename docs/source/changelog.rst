@@ -1,6 +1,56 @@
 Changelog
 =========
 
+quBot 1.3.0-beta (18-08-2020)
+-----------------------------
+
+.. topic:: Description
+
+    An update that introduces more commands to the Administration module that further expands the bot's moderation toolkit, general quality of life changes and bug fixes.
+    My plans going forward with the next bot version (1.4.0) are the following: a revamp(relaunch) of the Conquest game mode, introduction of profiles, profile customization
+    and potentially exp leveling. I wish to integrate Conquest achievements into a profile page of some kind. That is why I believe that this is the best approach.
+
+New features
+^^^^^^^^^^^^
+
+Administration
+~~~~~~~~~~~~~~
+
+  - **New feature:** Slowmode - A set of commands that intend to bring more freedom in terms of cooldown times.
+
+    - **New command:** ``slowmode`` - Sets a chatting cooldown for the channel where the command was used.
+      This command requires the following permissions: **manage messages** and **manage channels**
+    
+    - **New command:** ``slowmode disable`` - Disables slowmode for the channel where the command was used.
+      Note: Using `q!slowmode 0` also disables chat slowmode.
+
+  - **New command:** ``tempban`` - Temporarily bans the mentioned invidivual for a specified amount of time for a certain reason (if any).
+      This command requires the following permissions: **ban members**
+
+  - **New command:** ``tempmute`` - Temporarily mutes the target individual from chatting on the server.
+    This command requires the following permissions: **ban members**
+
+General Changes
+^^^^^^^^^^^^^^^
+
+- Core
+
+  - `leave` command has been renamed to `remove`. Reason: `sleave` (Conquest) command was too similar to it and users with required permissions
+    could accidentally kick the bot out of their server.
+
+Bug fixes
+^^^^^^^^^
+
+- Core
+
+  - `modules enable/disable` did not take into consideration module dependencies. This has now been fixed.
+
+- Economy
+
+  - A bug was identified and fixed that prevented users from entering giveaways other than the first active giveaway.
+
+------------
+
 quBot 1.2.5-rc1 (13-08-2020)
 -----------------------------
 

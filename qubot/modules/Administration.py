@@ -241,7 +241,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
-    @commands.group(name='slowmode', invoke_without_command=True, help=main.lang["command_slowmode_help"], description=main.lang["command_slowmode_description"], usage='15')
+    @commands.group(name='slowmode', invoke_without_command=True, help=main.lang["command_slowmode_help"], description=main.lang["command_slowmode_description"], usage='15', aliases=['sm'])
     @commands.has_permissions(manage_messages=True, manage_channels=True)
     @commands.guild_only()
     async def slowmode(self, ctx, *, time_period: SmallTimePeriod):
@@ -259,7 +259,7 @@ class Administration(commands.Cog):
                     seconds = int(time_period%60)
                     seconds_string = lang["seconds_string"] if seconds != 1 else lang["second_string"]
 
-                    formatted_time_string = f"{f'{hours} {hour_string} ' if hours != 0 else ''}{f'{minutes} {minutes_string} ' if minutes != 0 else ''}{f'{seconds} {seconds_string} ' if seconds != 0 else ''}"
+                    formatted_time_string = f"{f'{hours} {hour_string} ' if hours != 0 else ''}{f'{minutes} {minutes_string} ' if minutes != 0 else ''}{f'{seconds} {seconds_string}' if seconds != 0 else ''}"
                     
                     embed = discord.Embed(title=lang["administration_slowmode_enabled"].format(formatted_time_string), color=self.module_embed_color)
             else:
