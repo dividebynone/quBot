@@ -47,6 +47,13 @@ class CogController(object):
             return True if output else False
 
     @classmethod
+    def disabled_cogs(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT cog_name FROM disabled_cogs WHERE guild_id=?",(guild_id,))
+            output = cursor.fetchall()
+            return [x[0] for x in output] if output else None
+
+    @classmethod
     async def enable_cog(self, cog_name: str, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("DELETE FROM disabled_cogs WHERE cog_name=? AND guild_id=?",(cog_name, guild_id,))

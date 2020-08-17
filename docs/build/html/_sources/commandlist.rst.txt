@@ -33,6 +33,11 @@ Administration
    | **Note(s):**\
    | - *The ban reason is an optional argument.*\
    | **Needed User Permissions: Ban Members**", "``q!ban @somebody``, ``q!ban @somebody Harassment``"
+   "``tempban`` ``tban``", "| Temporarily bans the mentioned invidivual for a specified amount of time for a certain reason (if any).\
+   | **Note(s):**\
+   | - *The ban reason is an optional argument.*\
+   | - *This command accepts the following time units: m(inutes), h(ours), d(ays), w(eeks)*\
+   | **Needed User Permissions: Ban Members**", "``q!tempban @somebody 30 Harassment``, ``q!tempban @somebody 2d``, ``q!tempban @somebody '2 weeks 7 days' Harassment``"
    "``unban``", "| Unbans the target individual from the server.\
    | **Note(s):**\
    | - *Since the target individual can not be mentioned directly within the server, a <username>#<discriminator>(see example) or user ID must be provided.*\
@@ -44,8 +49,16 @@ Administration
    | **Needed User Permissions: Kick Members, Manage Messages**", "``q!softban @somebody``, ``q!softban @somebody Spamming``"
    "``mute``", "| Mutes the target individual from chatting on the server.\
    | **Needed User Permissions: Manage Messages**", "``q!mute @somebody``"
+   "``tempmute`` ``tmute``", "| Temporarily mutes the target individual from chatting on the server.\
+   | **Note(s):**\
+   | - *This command accepts the following time units: m(inutes), h(ours), d(ays), w(eeks)*\
+   | **Needed User Permissions: Manage Messages**", "``q!tempmute @somebody 30``, ``q!tempmute @somebody 2d``, ``q!tempmute @somebody 2d6h``"
    "``unmute``", "| Unmutes the target individual if they were previously muted using the bot.\
    | **Needed User Permissions: Manage Messages**", "``q!unmute @somebody``"
+   "``slowmode`` ``sm``", "| Sets a chatting cooldown for the channel where the command was used.\
+   | **Needed User Permissions: Manage Messages, Manage Channels**", "``q!slowmode 30``, ``q!sm 5m30s``"
+   "``slowmode disable`` ``slowmode off``", "| Disables slowmode for the channel where the command was used.\
+   | **Needed User Permissions: Manage Messages, Manage Channels**", "``q!slowmode disable``, ``q!slowmode off``, ``q!slowmode 0``"
    "``report``", "| Reports the target user for a particular reason.\
    | **Note(s):**\
    | - *A report reason must be provided in order to use this command.*\
@@ -204,8 +217,8 @@ Core
    "``serverid`` ``sid``", "| Returns the server's ID for the server the command was typed in.", "``q!sid``"
    "``channelid`` ``cid``", "| Returns the channel's ID for the channel the command was typed in.", "``q!cid``"
    "``roleid`` ``rid``", "| Returns the target role's ID for the server the command was typed in.", "``q!roleid Moderator``, ``q!rid Moderator``"
-   "``leave``", "| Politely kicks the bot off your server.\
-   | **Needed User Permissions: Kick Members**", "``q!leave``"
+   "``remove``", "| Politely kicks the bot off your server.\
+   | **Needed User Permissions: Kick Members**", "``q!remove``"
    "``latencies``", "| Returns the latencies (in miliseconds) for every active shard.\
    | Note: This command can only be used by the **BOT OWNER**.", "``q!latencies``"
    "``setname``", "| Changes the name of the bot.\
@@ -293,6 +306,7 @@ Localization
    "``languages`` ``langs``", "| Returns a list of locally detected language (localization) packages.", "``q!langs``"
    "``langset``", "| Changes the language of the bot.\
    | **Needed User Permissions: Administrator**", "``q!langset en-US``"
+   "``translate``", "| Shows general information about the translation of the bot.", "``q!translate``"
 
 Utility
 ^^^^^^^

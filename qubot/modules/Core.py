@@ -65,7 +65,7 @@ class Core(commands.Cog):
             else:
                 embed = discord.Embed(title=lang["core_module_load_success"].format(input_module), color=self.module_embed_color)
                 loaded_modules.append(input_module_path)
-                with open(os.path.join(bot_path, 'data/modules.mdls'), 'a') as modules_file:
+                with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'a') as modules_file:
                         modules_file.write(f'{input_module}\n')             
         await ctx.send(embed=embed, delete_after=20)
 
@@ -85,7 +85,7 @@ class Core(commands.Cog):
             else:
                 embed = discord.Embed(title=lang["core_module_unload_success"].format(input_module), color=self.module_embed_color)
                 loaded_modules.remove(input_module_path)
-                with open(os.path.join(bot_path, 'data/modules.mdls'), 'r+') as modules_file:
+                with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'r+') as modules_file:
                     modules_output = modules_file.read()
                     modules_file.seek(0)
                     for i in modules_output.split():
@@ -131,11 +131,20 @@ class Core(commands.Cog):
     @commands.guild_only()
     async def modules_enable(self, ctx, *, input_module: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        modules_config = qulib.get_module_config()
         loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
         loaded_modules_lowercase = [i.lower() for i in loaded_modules_names]
         if input_module.lower() in loaded_modules_lowercase:
             cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
             if CogController.is_disabled(cog_name, ctx.guild.id):
+                if cog_name in modules_config.setdefault("dependencies", {}):
+                    disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
+                    unloaded_dependencies = set(modules_config.setdefault("dependencies", {})[cog_name]).intersection(disabled_cogs)
+                    if len(unloaded_dependencies) > 0:
+                        embed = discord.Embed(title=lang["core_module_enable_dependencies"].format(', '.join(str(e) for e in unloaded_dependencies)), color=self.module_embed_color)
+                        await ctx.send(embed=embed, delete_after=30)
+                        return
+
                 await CogController.enable_cog(cog_name, ctx.guild.id)
                 embed = discord.Embed(title=lang["core_module_enable_msg"].format(cog_name), color=self.module_embed_color)
             else:
@@ -155,14 +164,22 @@ class Core(commands.Cog):
         loaded_modules_lowercase = [i.lower() for i in loaded_modules_names]
         if input_module.lower() in loaded_modules_lowercase:
             cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
-            if cog_name not in modules_config["restricted_modules"]:
-                if not CogController.is_disabled(cog_name, ctx.guild.id):
+            if not CogController.is_disabled(cog_name, ctx.guild.id):
+                if cog_name in modules_config.setdefault("dependencies", {}):
+                    disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
+                    loaded_dependencies = set(loaded_modules_names).intersection(modules_config.setdefault("dependencies", {})[cog_name]) - (set(disabled_cogs) if disabled_cogs else set())
+                    if len(loaded_dependencies) > 0:
+                        embed = discord.Embed(title=lang["core_module_disable_dependencies"].format(', '.join(str(e) for e in loaded_dependencies)), color=self.module_embed_color)
+                        await ctx.send(embed=embed, delete_after=30)
+                        return
+
+                if cog_name not in modules_config["restricted_modules"]:
                     await CogController.disable_cog(cog_name, ctx.guild.id)
                     embed = discord.Embed(title=lang["core_module_disable_msg"].format(cog_name), color=self.module_embed_color)
                 else:
-                    embed = discord.Embed(title=lang["core_module_disable_already_disabled"].format(cog_name), color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["core_module_disable_restricted"].format(cog_name), color=self.module_embed_color)
             else:
-                embed = discord.Embed(title=lang["core_module_disable_restricted"].format(cog_name), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["core_module_disable_already_disabled"].format(cog_name), color=self.module_embed_color)
         else:
             embed = discord.Embed(title=lang["core_module_disable_not_found"], color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=30)
@@ -314,11 +331,11 @@ class Core(commands.Cog):
         embed = discord.Embed(title=lang["core_roleid_msg"].format(ctx.guild.name, role.name, role.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.command(name='leave', help=main.lang["empty_string"], description=main.lang["command_leave_description"], hidden=True, ignore_extra=True)
+    @commands.command(name='remove', help=main.lang["empty_string"], description=main.lang["command_remove_description"], hidden=True, ignore_extra=True)
     @commands.has_permissions(kick_members=True)
-    async def leave(self, ctx):
+    async def remove(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=lang["core_leave_msg"], color=self.module_embed_color)
+        embed = discord.Embed(title=lang["core_remove_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
         await ctx.guild.leave()
 
@@ -379,7 +396,7 @@ class Core(commands.Cog):
         await self.bot.http.close()
         await self.bot.close()
 
-    @commands.command(name="langs", help=main.lang["empty_string"], description=main.lang["command_langs_description"], aliases=['languages'], hidden=True, ignore_extra=True)
+    @commands.command(name="langs", help=main.lang["empty_string"], description=main.lang["command_langs_description"], aliases=['languages'], ignore_extra=True)
     async def lang_list(self, ctx):
         lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data/localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
         lang_list = [x.replace('language_', '') for x in lang_directory_list]
@@ -393,7 +410,7 @@ class Core(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.command(name="langset", help=main.lang["command_langset_help"], description=main.lang["command_langset_description"], usage="en-US", hidden=True)
+    @commands.command(name="langset", help=main.lang["command_langset_help"], description=main.lang["command_langset_description"], usage="en-US")
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def lang_set(self, ctx, lang_code: str = None):
@@ -410,6 +427,15 @@ class Core(commands.Cog):
         else:
             embed = discord.Embed(title=lang["core_langset_notfound"], color=self.module_embed_color)
         await ctx.send(embed=embed)
+
+    @commands.cooldown(5, 60, commands.BucketType.user)
+    @commands.command(name="translate", help=main.lang["empty_string"], description=main.lang["command_translate_description"], ignore_extra=True)
+    async def translate(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        embed = discord.Embed(title=lang["core_translate_title"], description=lang["core_translate_description"], color=self.module_embed_color)
+        embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
+        await ctx.send(embed=embed)
+
 
     @commands.group(name='prefix', invoke_without_command=True, help=main.lang["command_prefix_help"], description=main.lang["command_prefix_description"], usage="q!")
     @commands.has_permissions(administrator=True)

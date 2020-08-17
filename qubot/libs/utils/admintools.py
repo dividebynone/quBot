@@ -1,5 +1,6 @@
 from libs.sqlhandler import sqlconnect
 from main import bot_path
+import enum
 import os
 
 class Reports(object):
@@ -159,3 +160,68 @@ class BlacklistedUsers(object):
     async def remove_blacklist_guild(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
             cursor.execute("DELETE FROM blacklisted_users WHERE guild_id=?",(guild_id,))
+
+class ModerationAction(enum.IntEnum):
+    TextMute = 1
+    VoiceMute = 2
+    Ban = 3
+
+class TemporaryActions(object):
+    def __init__(self):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS temporary_actions(user_id INTEGER NOT NULL, guild_id INTEGER NOT NULL, expires INTEGER NOT NULL, action INTEGER NOT NULL, PRIMARY KEY (user_id, guild_id, action))")
+
+    @classmethod
+    async def set_action(self, user_id: int, guild_id: int, action: ModerationAction, expires: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("INSERT OR IGNORE INTO temporary_actions (user_id, guild_id, expires, action) VALUES(?, ?, ?, ?)", (user_id, guild_id, expires, int(action)))
+            return True if cursor.rowcount > 0 else False
+
+    @classmethod
+    async def clear_action(self, user_id: int, guild_id: int, action: ModerationAction):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(action)))
+
+    @classmethod
+    def is_textmuted(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(ModerationAction.TextMute)))
+            output = cursor.fetchone()
+            return True if output else False
+
+    @classmethod
+    def is_voicemuted(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(ModerationAction.VoiceMute)))
+            output = cursor.fetchone()
+            return True if output else False
+    
+    @classmethod
+    def is_banned(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(ModerationAction.Ban)))
+            output = cursor.fetchone()
+            return True if output else False
+
+    @classmethod
+    async def get_expired_actions(self, unix_time):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT user_id, guild_id, action FROM temporary_actions WHERE expires <= ?",(unix_time,))
+            output = cursor.fetchall()
+
+            output_dict = {}
+
+            for user_id, guild_id, action in output: 
+                output_dict.setdefault(guild_id, []).append((user_id, action))
+
+            return output_dict
+
+    @classmethod
+    async def clear_expired_actions(self, unix_time):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM temporary_actions WHERE expires <= ?",(unix_time,))
+
+    @classmethod
+    async def wipe_guild_data(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM temporary_actions WHERE guild_id=?",(guild_id,))
