@@ -35,6 +35,15 @@ class TimePeriod(commands.Converter):
             raise commands.BadArgument("Failed to convert user input to a valid time frame.")
         return time_in_seconds
 
+class SmallTimePeriod(commands.Converter):
+    
+    def __init__(self):
+        self.time_units = {'s': 'seconds', 'm':'minutes', 'h':'hours'}
+
+    async def convert(self, ctx, argument):
+        time_in_seconds = int(timedelta(**{self.time_units.get(m.group('unit').lower(), 'seconds'): int(m.group('val')) for m in re.finditer(r'(?P<val>\d+)(\s?)(?P<unit>[mhdw]?)', argument, flags=re.I)}).total_seconds())
+        return time_in_seconds
+        
 class Administration(commands.Cog):
 
     def __init__(self, bot):
@@ -45,6 +54,8 @@ class Administration(commands.Cog):
         self.max_warnings = 20
         self.max_characters = 1500
         self.purge_limit = 100
+
+        self.max_slowmode_value = 21600
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -229,6 +240,41 @@ class Administration(commands.Cog):
             embed = discord.Embed(title=lang["administration_unmute_unmuted"].format(str(user)), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
+    @commands.cooldown(5, 30, commands.BucketType.user)
+    @commands.group(name='slowmode', invoke_without_command=True, help=main.lang["command_slowmode_help"], description=main.lang["command_slowmode_description"], usage='15')
+    @commands.has_permissions(manage_messages=True, manage_channels=True)
+    @commands.guild_only()
+    async def slowmode(self, ctx, *, time_period: SmallTimePeriod):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if time_period <= self.max_slowmode_value:
+                await ctx.channel.edit(slowmode_delay=time_period)
+                if time_period == 0:
+                    embed = discord.Embed(title=lang["administration_slowmode_disabled"], color=self.module_embed_color)
+                else:
+                    hours = int(time_period/3600)
+                    hour_string = lang["hours_string"] if hours != 1 else lang["hour_string"]
+                    minutes = int((time_period/60)%60)
+                    minutes_string = lang["minutes_string"] if minutes != 1 else lang["minute_string"]
+                    seconds = int(time_period%60)
+                    seconds_string = lang["seconds_string"] if seconds != 1 else lang["second_string"]
+
+                    formatted_time_string = f"{f'{hours} {hour_string} ' if hours != 0 else ''}{f'{minutes} {minutes_string} ' if minutes != 0 else ''}{f'{seconds} {seconds_string} ' if seconds != 0 else ''}"
+                    
+                    embed = discord.Embed(title=lang["administration_slowmode_enabled"].format(formatted_time_string), color=self.module_embed_color)
+            else:
+                embed = discord.Embed(title=lang["administration_slowmode_max"].format(int(self.max_slowmode_value/3600)), color=self.module_embed_color)    
+            await ctx.send(embed=embed, delete_after=15)
+
+    @commands.cooldown(5, 30, commands.BucketType.user)
+    @slowmode.command(name='disable', help=main.lang["empty_string"], description=main.lang["command_slowmode_disable_description"], aliases=['off'])
+    @commands.has_permissions(manage_messages=True, manage_channels=True)
+    @commands.guild_only()
+    async def slowmode_disable(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await ctx.channel.edit(slowmode_delay=0)
+        embed = discord.Embed(title=lang["administration_slowmode_disabled"], color=self.module_embed_color)
+        await ctx.send(embed=embed, delete_after=15)
 
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.has_permissions(send_messages=True)
