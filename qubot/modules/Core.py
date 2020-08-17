@@ -131,11 +131,20 @@ class Core(commands.Cog):
     @commands.guild_only()
     async def modules_enable(self, ctx, *, input_module: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        modules_config = qulib.get_module_config()
         loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
         loaded_modules_lowercase = [i.lower() for i in loaded_modules_names]
         if input_module.lower() in loaded_modules_lowercase:
             cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
             if CogController.is_disabled(cog_name, ctx.guild.id):
+                if cog_name in modules_config.setdefault("dependencies", {}):
+                    disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
+                    unloaded_dependencies = set(modules_config.setdefault("dependencies", {})[cog_name]).intersection(disabled_cogs)
+                    if len(unloaded_dependencies) > 0:
+                        embed = discord.Embed(title=lang["core_module_enable_dependencies"].format(', '.join(str(e) for e in unloaded_dependencies)), color=self.module_embed_color)
+                        await ctx.send(embed=embed, delete_after=30)
+                        return
+
                 await CogController.enable_cog(cog_name, ctx.guild.id)
                 embed = discord.Embed(title=lang["core_module_enable_msg"].format(cog_name), color=self.module_embed_color)
             else:
@@ -155,14 +164,22 @@ class Core(commands.Cog):
         loaded_modules_lowercase = [i.lower() for i in loaded_modules_names]
         if input_module.lower() in loaded_modules_lowercase:
             cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
-            if cog_name not in modules_config["restricted_modules"]:
-                if not CogController.is_disabled(cog_name, ctx.guild.id):
+            if not CogController.is_disabled(cog_name, ctx.guild.id):
+                if cog_name in modules_config.setdefault("dependencies", {}):
+                    disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
+                    loaded_dependencies = set(loaded_modules_names).intersection(modules_config.setdefault("dependencies", {})[cog_name]) - (set(disabled_cogs) if disabled_cogs else set())
+                    if len(loaded_dependencies) > 0:
+                        embed = discord.Embed(title=lang["core_module_disable_dependencies"].format(', '.join(str(e) for e in loaded_dependencies)), color=self.module_embed_color)
+                        await ctx.send(embed=embed, delete_after=30)
+                        return
+
+                if cog_name not in modules_config["restricted_modules"]:
                     await CogController.disable_cog(cog_name, ctx.guild.id)
                     embed = discord.Embed(title=lang["core_module_disable_msg"].format(cog_name), color=self.module_embed_color)
                 else:
-                    embed = discord.Embed(title=lang["core_module_disable_already_disabled"].format(cog_name), color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["core_module_disable_restricted"].format(cog_name), color=self.module_embed_color)
             else:
-                embed = discord.Embed(title=lang["core_module_disable_restricted"].format(cog_name), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["core_module_disable_already_disabled"].format(cog_name), color=self.module_embed_color)
         else:
             embed = discord.Embed(title=lang["core_module_disable_not_found"], color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=30)
