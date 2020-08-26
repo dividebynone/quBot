@@ -38,9 +38,27 @@ class ProfilesHandler(object):
     @classmethod
     async def get_rank(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
-            cursor.execute("SELECT RANK() OVER (ORDER BY experience DESC) FROM profiles WHERE user_id=? AND guild_id=?", (user_id, guild_id,))
+            cursor.execute("SELECT rank FROM (SELECT user_id, RANK() OVER (ORDER BY level DESC, experience DESC) as rank FROM profiles WHERE guild_id=?) as p WHERE p.user_id=?", (guild_id, user_id,))
             output = cursor.fetchone()
             return output[0] if output else None
+
+    @classmethod
+    async def leaderboard(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT user_id, RANK() OVER (ORDER BY level DESC, experience DESC) as rank, IFNULL(level, 0), IFNULL(experience, 0) FROM profiles WHERE guild_id=?", (guild_id,))
+            output = cursor.fetchall()
+            return output
+
+    @classmethod
+    async def reset_leveling(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("UPDATE profiles SET level=?, experience=? WHERE guild_id=?", (None, None, guild_id,))
+
+    @classmethod
+    async def equip_background(self, user_id:int, guild_id: int, new_background):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("INSERT OR IGNORE INTO profiles (user_id, guild_id) VALUES(?, ?)", (user_id, guild_id,))
+            cursor.execute("UPDATE profiles SET background=? WHERE user_id=? AND guild_id=?", (new_background, user_id, guild_id,))
 
     @classmethod
     async def get_experience(self, user_id: int, guild_id: int):
@@ -54,3 +72,141 @@ class ProfilesHandler(object):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO profiles (user_id, guild_id) VALUES(?, ?)", (user_id, guild_id,))
             cursor.execute("UPDATE profiles SET experience=?, level=? WHERE user_id=? AND guild_id=?", (user_data['experience'], user_data['level'], user_id, guild_id,))
+
+class ProfileBackgrounds(object):
+
+    def __init__(self):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS profile_backgrounds (bg_id INTEGER PRIMARY KEY, description TEXT, price INTEGER, category BLOB, thumbnail_url BLOB)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS unlocked_backgrounds (user_id INTEGER, background INTEGER, PRIMARY KEY (user_id, background))")
+
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (1, "A black and white background featuring Dio Brando from the popular anime **JoJo no Kimyou na Bouken (JoJo's Bizarre Adventure)**", 5000, "Anime", "https://i.imgur.com/32fo4T5.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (2, "An anime themed background featuring Shinobu Kochou from the popular anime **Kimetsu no Yaiba (Demon Slayer)**", 5000, "Anime", "https://i.imgur.com/i455i2C.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (3, "An anime themed background featuring the main characters from the popular anime **Made in Abyss**", 5000, "Anime", "https://i.imgur.com/nuw9Bli.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (4, "An anime themed background featuring Artoria Pendragon(Saber)  from the popular anime franchise **Fate**", 5000, "Anime", "https://i.imgur.com/BPKoNFp.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (5, "Frames (White) - Abstract grid background", 1000, "General", "https://i.imgur.com/Si7FfJf.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (6, "Frames (Red) - Abstract grid background", 1000, "General", "https://i.imgur.com/zgPWZ60.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (7, "Frames (Lime Green) - Abstract grid background", 1000, "General", "https://i.imgur.com/EkbvzQh.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (8, "Frames (Pink) - Abstract grid background", 1000, "General", "https://i.imgur.com/7iDpoRv.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (9, "Frames (Cyan) - Abstract grid background", 1000, "General", "https://i.imgur.com/SJLEMwM.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (10, "Frames (Orange) - Abstract grid background", 1000, "General", "https://i.imgur.com/VdkDpMw.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (11, "Frames (Black) - Abstract grid background", 1000, "General", "https://i.imgur.com/2jULgOI.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (12, "Canvas #1 (Red/Blue/White) - Abstract canvas paint background", 1000, "General", "https://i.imgur.com/sbiiDo4.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (13, "Canvas #2 (Purple/Light Blue/White) - Abstract canvas paint background", 1000, "General", "https://i.imgur.com/rQ6mRPe.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (14, "Mountain Peaks (Red/Black) - Simplistic sketch-style background", 2500, "General", "https://i.imgur.com/6MTwXQY.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (15, "Mountain Peaks (Purple/Black) - Simplistic sketch-style background", 2500, "General", "https://i.imgur.com/auMuqIj.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (16, "Mountain Peaks (Green/Black) - Simplistic sketch-style background", 2500, "General", "https://i.imgur.com/YRkvokM.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (17, "A blue and dark gray abstract background featuring dots that form sun rays.", 2500, "General", "https://i.imgur.com/8DZvwfn.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (18, "A black and white nature background featuring a group of leaves leaning on an empty canvas", 2500, "General", "https://i.imgur.com/lnoj58Q.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (19, "A background drawing of a colourful green field.", 1000, "General", "https://i.imgur.com/LOmp1RC.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (20, "Koi Fish (Gold/Dark Gray) - Background featuring a koi fish pattern.", 100000, "General", "https://i.imgur.com/LOmp1RC.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (21, "Koi Fish (Red/Dark Gray) - Background featuring a koi fish pattern.", 25000, "General", "https://i.imgur.com/g4R6H6W.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (22, "Koi Fish (Cyan/Dark Gray) - Background featuring a koi fish pattern.", 25000, "General", "https://i.imgur.com/mhXwflE.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (23, "Koi Fish (Purple/Dark Gray) - Background featuring a koi fish pattern.", 25000, "General", "https://i.imgur.com/H3oF9rz.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (24, "Summer Days - Background featuring two anime style characters looking at the cloudy sky.", 5000, "Anime", "https://i.imgur.com/xfMSi7E.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (25, "City Ruins #1 - Background featuring a flooded and abandoned city street.", 1000, "Anime", "https://i.imgur.com/xoK5qeR.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (26, "Summer Vibes - An abstract background with colourful silhouettes.", 2500, "General", "https://i.imgur.com/xoK5qeR.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (27, "Dusk - A colourful and simplistic background of a hill during the late hours of the day.", 1000, "General", "https://i.imgur.com/4FPwimt.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (28, "An anime themed background featuring a cheerful girl.", 1000, "Anime", "https://i.imgur.com/ZbhgjyR.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (29, "Melancholy - A simplistic background with colourful silhouettes.", 2500, "General", "https://i.imgur.com/Ni7eKmS.png"))
+            cursor.execute("INSERT OR IGNORE INTO profile_backgrounds (bg_id, description, price, category, thumbnail_url) VALUES (?, ?, ?, ?, ?)", 
+                          (30, "An anime themed background featuring two girls with playing cards.", 1000, "Anime", "https://i.imgur.com/1RRHBG4.png"))
+
+            print("[Profiles] Successfully loaded all available profile background.")
+    
+    @classmethod
+    async def get_background_info(self, bg_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT description, price, category, thumbnail_url FROM profile_backgrounds WHERE bg_id=?",(bg_id,))
+            output = cursor.fetchone()
+            if not output:
+                return None
+            else:
+                output = list(output)
+                return_dict = dict(description=output[0], price=output[1], category=output[2], url=output[3])
+                return return_dict
+
+    @classmethod
+    async def get_category(self, category: str):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT bg_id, description, price FROM profile_backgrounds WHERE category=?",(category,))
+            output = cursor.fetchall()
+            return output
+
+    @classmethod
+    async def get_categories(self):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT DISTINCT category FROM profile_backgrounds")
+            output = cursor.fetchall()
+            return [x[0] for x in output] if output else None
+
+    @classmethod
+    async def unlocked_backgrounds(self, user_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT background FROM unlocked_backgrounds WHERE user_id=?", (user_id,))
+            output = cursor.fetchall()
+            return [x[0] for x in output] if output else None
+
+    @classmethod
+    async def user_backgrounds(self, user_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT ub.background, pb.description FROM unlocked_backgrounds as ub INNER JOIN profile_backgrounds as pb ON ub.background = pb.bg_id WHERE ub.user_id=?", (user_id,))
+            output = cursor.fetchall()
+            return output
+
+    @classmethod
+    async def unlock_background(self, user_id: int, bg_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("INSERT OR IGNORE INTO unlocked_backgrounds (user_id, background) VALUES(?, ?)", (user_id, bg_id,))
+
+class LevelingToggle(object):
+
+    def __init__(self):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS disabled_leveling (guild_id INTEGER PRIMARY KEY)")
+
+    @classmethod
+    async def disable_leveling(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("INSERT OR IGNORE INTO disabled_leveling (guild_id) VALUES(?)", (guild_id,))
+
+    @classmethod
+    def is_disabled(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT guild_id FROM disabled_leveling WHERE guild_id=?", (guild_id,))
+            output = cursor.fetchone()
+            return True if output else False
+
+    @classmethod
+    async def enable_leveling(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM disabled_leveling WHERE guild_id=?", (guild_id,))

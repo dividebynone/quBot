@@ -307,7 +307,7 @@ class Conquest(commands.Cog):
                     embed.add_field(name=lang["conquest_roll"], value=result, inline=True)
                     embed.add_field(name=lang["conquest_attack_wd"], value=f'  {cdata_offence["wins"]}       /      {cdata_offence["losses"]}', inline=True)
                     embed.add_field(name=lang["conquest_summary"], value=result_string, inline=True)
-                    embed.add_field(name=lang["conquest_experience"], value=f'{experience} {lang["conquest_exp"]}', inline=True)
+                    embed.add_field(name=lang["conquest_experience"], value=f'{experience} {lang["exp_string"]}', inline=True)
                     embed.add_field(name=lang["conquest_pillaged_gold"], value=f'{result_loot} G', inline=True)
 
                     await quConquest.update_settlement('invite', cdata_offence["invite_string"], cdata_offence)
@@ -324,7 +324,7 @@ class Conquest(commands.Cog):
             self.bot.get_command(ctx.command.name).reset_cooldown(ctx)
 
     @commands.cooldown(10, 60, commands.BucketType.user)
-    @commands.command(name="leaderboard", help=main.lang["command_leaderboard_help"], description=main.lang["command_leaderboard_description"], aliases=['lb'])
+    @commands.command(name="sleaderboard", help=main.lang["command_sleaderboard_help"], description=main.lang["command_sleaderboard_description"], aliases=['slb'])
     @commands.guild_only()
     async def conquest_leaderboard(self, ctx, page: int = 1):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -336,7 +336,7 @@ class Conquest(commands.Cog):
                 embed = discord.Embed(title=lang["conquest_leaderboard_title"], color = self.module_embed_color)
                 embed.set_footer(text=f'{lang["page_string"]} {page}')
                 for item in leaderboard_data[(page_index*10):(page_index*10 + 9)]:
-                    embed.add_field(name=f'#{counter} {item[1]} (ID:{item[0]})', value=f'{item[2]} {lang["conquest_exp"]}',
+                    embed.add_field(name=f'#{counter} {item[1]} (ID:{item[0]})', value=f'{item[2]} {lang["exp_string"]}',
                                     inline=True)
                     counter += 1
             else:
@@ -369,9 +369,9 @@ class Conquest(commands.Cog):
                                 embed = discord.Embed(title=lang["conquest_leave_success_alone"], color = self.module_embed_color)
                             await quConquest.remove_member(user.id)  
                         else:
-                            embed = discord.Embed(title=lang["wait_for_cancelled"].format(user), color = self.module_embed_color)
+                            embed = discord.Embed(title=lang["wait_for_cancelled"], color = self.module_embed_color)
                     except asyncio.TimeoutError:
-                        embed = discord.Embed(title=lang["wait_for_timeout"].format(user), color = self.module_embed_color)
+                        embed = discord.Embed(title=lang["wait_for_timeout"], color = self.module_embed_color)
             else:
                 embed = discord.Embed(title=lang["conquest_leave_not_found"], color = self.module_embed_color)
         else:
@@ -397,9 +397,9 @@ class Conquest(commands.Cog):
                                     await quConquest.update_settlement('id', settlementid, cdata)
                                     embed = discord.Embed(title=lang["conquest_promote_success"].format(user), color = self.module_embed_color)
                                 else:
-                                    embed = discord.Embed(title=lang["wait_for_cancelled"].format(user), color = self.module_embed_color)
+                                    embed = discord.Embed(title=lang["wait_for_cancelled"], color = self.module_embed_color)
                             except asyncio.TimeoutError:
-                                embed = discord.Embed(title=lang["wait_for_timeout"].format(user), color = self.module_embed_color)
+                                embed = discord.Embed(title=lang["wait_for_timeout"], color = self.module_embed_color)
                         else:
                             embed = discord.Embed(title=lang["conquest_not_leader"], color = self.module_embed_color)
                     else:
@@ -481,7 +481,7 @@ class Conquest(commands.Cog):
             for i in range(len(buildings)):
                 level = await quConquest.level_converter(cdata["tech_tree"][i])
                 if level == 10 or (level == 1 and (i+1) in (3, 9)):
-                    embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {lang['conquest_level']} {level}** *MAX*", value=lang["conquest_max_reached"],inline=False)
+                    embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {lang['level_string']} {level}** *MAX*", value=lang["conquest_max_reached"],inline=False)
                 else:
                     gold = f"{pow(2, level+1)*buildings[i]['mltplr_gold']} {json_data['Conquest']['gold_icon']}" if buildings[i]['mltplr_gold'] != 0 else ""
                     wood = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_wood']} {json_data['Conquest']['resources_wood']}" if (buildings[i]['mltplr_wood'] != 0) else ""
@@ -491,10 +491,10 @@ class Conquest(commands.Cog):
                     if int(level) == 0 and i in (0,4,5,6,7):
                         wood = stone = food = cloth = ""
                     if i > 0 and ((level+1) > int(th_level)):
-                        embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {lang['conquest_level']} {level}** -> *{lang['conquest_level']} {int(level)+1}*",
+                        embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {lang['level_string']} {level}** -> *{lang['level_string']} {int(level)+1}*",
                                         value=f'*{lang["conquest_upgrade_th"]}*',inline=False)
                     else:
-                        embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {lang['conquest_level']} {level}** -> *{lang['conquest_level']} {int(level)+1}*",
+                        embed.add_field(name=f"**{i+1} | {buildings[i]['name']} - {lang['level_string']} {level}** -> *{lang['level_string']} {int(level)+1}*",
                                         value=f"**{lang['conquest_resources_needed']}:** {gold} {wood} {stone} {food} {cloth}",inline=False)
         else:
             embed = discord.Embed(title=lang["conquest_not_part_of"], color = self.module_embed_color)
@@ -571,7 +571,7 @@ class Conquest(commands.Cog):
                     cloth = f"{pow(int(level)+1, 2)*(level+1)*building['cloth']} {json_data['Conquest']['resources_cloth']}" if (building['cloth'] != 0) else ""
                     if level == 0 and building_id in (1,5,6,7,8):
                         wood = stone = food = cloth = ""
-                    embed.add_field(name=f"**{lang['conquest_level']} {level}** -> *{lang['conquest_level']} {int(level)+1}*",
+                    embed.add_field(name=f"**{lang['level_string']} {level}** -> *{lang['level_string']} {int(level)+1}*",
                                     value=f"**{lang['conquest_resources_needed']}:** {gold} {wood} {stone} {food} {cloth}",inline=False)
                     if building_id in (3, 9):
                         break
