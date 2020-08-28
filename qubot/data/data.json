@@ -1,0 +1,18 @@
+{
+    "Conquest": {
+        "defeat_string_1": "Your settlement's army failed in the attempt to attack **{}**. A valley of arrows struck your army's shields. Once your soldiers reached the enemy walls, they swiftly scaled up using ladders. A fierce battle erupted on the top. Despite your army's efforts, enemy priests and mages tipped the scales in their favour. Their magic managed to pierce your units' armour, fully weakening them. Most of your solders were killed in the process. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
+        "fight": "https://i.postimg.cc/YSNNcHZK/swords-traced-colored-purp.png",
+        "gold_icon": "<:coin:675507296788283407>",
+        "market_image": "https://i.postimg.cc/nrF0SzhP/market-icon.png",
+        "resources_cloth": "<:cloth:673322173410181159>",
+        "resources_food": ":meat_on_bone:",
+        "resources_stone": "<:stone:673316020684849162>",
+        "resources_time": "2020-08-28 20:30:19",
+        "resources_wood": "<:wood:673315979651973121>",
+        "settlement_image_1": "https://i.postimg.cc/kXDy2L6K/settlement-2-v2-png.png",
+        "warehouse_image": "https://i.postimg.cc/fWqcQ52L/warehouse-icon.png",
+        "win_string_1": "Your settlement's army successfully pillaged **{}**. Your soldiers reached the enemy walls without much difficulty. A fierce battle erupted. A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat."
+    },
+    "appVersion": "1.3.5-beta",
+    "temp_image": "https://i.imgur.com/toqibh4.png"
+}
