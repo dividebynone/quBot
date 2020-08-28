@@ -44,7 +44,7 @@ class Conquest(commands.Cog):
         if 'MinEntryFee' not in config['Conquest']:
             config.set('Conquest', 'MinEntryFee', '100')
         if 'TaxRate' not in config['Conquest']:
-            config.set('Conquest', 'TaxRate', '5')
+            config.set('Conquest', 'TaxRate', '10')
 
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
             config.write(config_file)
@@ -88,10 +88,10 @@ class Conquest(commands.Cog):
             data["Conquest"]["resources_time"] = time_on_loop.strftime('%Y-%m-%d %H:%M:%S')
             await qulib.data_set(data)
             await quConquest.send_resource_dailies()
-            self.daily_cloth_price = rand_generator.randint(5,40)
-            self.daily_wood_price = rand_generator.randint(5,40)
-            self.daily_stone_price = rand_generator.randint(5,40)
-            self.daily_food_price = rand_generator.randint(5,40)
+            self.daily_cloth_price = rand_generator.randint(15,20)
+            self.daily_wood_price = rand_generator.randint(15,20)
+            self.daily_stone_price = rand_generator.randint(15,20)
+            self.daily_food_price = rand_generator.randint(15,20)
             main.logger.info(f"[{time_on_loop}][Conquest] Sent settlement resources dailies.")
 
     @commands.command(name='screate', help=main.lang["command_ccreate_help"], description=main.lang["command_ccreate_description"], usage='"My Settlement Name" <public/private> 100', aliases=['sc'])
@@ -224,7 +224,6 @@ class Conquest(commands.Cog):
                     await ctx.send(file=discord.File(buffer_output, f'settlement-{cdata["settlement_id"]}.png'))
 
     @commands.group(name='join', help=main.lang["command_cjoin_help"], description=main.lang["command_cjoin_description"], usage='private/public ...')
-    @commands.guild_only()
     async def conquest_join(self, ctx):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -238,56 +237,65 @@ class Conquest(commands.Cog):
         if None in {invite_code, join_fee}:
             embed = discord.Embed(title=lang["conquest_join_args"], color = self.module_embed_color)
         else:
-            user_info = await qulib.user_get(user)
-            cdata = await quConquest.get_settlement('code', invite_code)
-            if cdata:
-                if await quConquest.find_member(user.id):
-                    embed = discord.Embed(title=lang["conquest_join_part_of"], color = self.module_embed_color)
-                elif user_info["currency"] < join_fee:
-                    embed = discord.Embed(title=lang["conquest_insufficient_funds"], color = self.module_embed_color)
-                elif join_fee < cdata["entry_fee"]:
-                    embed = discord.Embed(title=lang["conquest_join_min_entry"].format(cdata["entry_fee"]), color = self.module_embed_color)
-                else:
-                    await quConquest.add_member(user.id, cdata["settlement_id"])
-                    cdata["size"] += 1
-                    cdata["treasury"] += join_fee
-                    user_info["currency"] -= join_fee
-                    await qulib.user_set(user, user_info)
-                    await quConquest.update_settlement('invite', invite_code, cdata)
-                    embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.module_embed_color)
+            age_restriction = ctx.author.created_at + dt.timedelta(weeks=1)
+            if datetime.now() < age_restriction:
+                embed = discord.Embed(title=lang["conquest_join_age_restriction"], color = self.module_embed_color)
             else:
-                embed = discord.Embed(title=lang["conquest_join_not_found"], color = self.module_embed_color)
+                user_info = await qulib.user_get(user)
+                cdata = await quConquest.get_settlement('code', invite_code)
+                if cdata:
+                    if await quConquest.find_member(user.id):
+                        embed = discord.Embed(title=lang["conquest_join_part_of"], color = self.module_embed_color)
+                    elif user_info["currency"] < join_fee:
+                        embed = discord.Embed(title=lang["conquest_insufficient_funds"], color = self.module_embed_color)
+                    elif join_fee < cdata["entry_fee"]:
+                        embed = discord.Embed(title=lang["conquest_join_min_entry"].format(cdata["entry_fee"]), color = self.module_embed_color)
+                    else:
+                        await quConquest.add_member(user.id, cdata["settlement_id"])
+                        cdata["size"] += 1
+                        cdata["treasury"] += join_fee
+                        user_info["currency"] -= join_fee
+                        await qulib.user_set(user, user_info)
+                        await quConquest.update_settlement('invite', invite_code, cdata)
+                        embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=lang["conquest_join_not_found"], color = self.module_embed_color)
         await ctx.send(embed=embed)
 
     @conquest_join.command(help=main.lang["empty_string"], description=main.lang["command_jpublic_description"], usage="@somebody 100")
+    @commands.guild_only()
     async def public(self, ctx, target_user: discord.User = None, join_fee: int = None):
         user = ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if None in {target_user, join_fee}:
             embed = discord.Embed(title=lang["conquest_join_args"], color = self.module_embed_color)
         elif await quConquest.find_member(target_user.id):
-            user_info = await qulib.user_get(user)
-            settlementid = await quConquest.get_settlement_id(target_user.id)
-            cdata = await quConquest.get_settlement('id', settlementid)
-            if cdata:
-                if await quConquest.find_member(user.id):
-                    embed = discord.Embed(title=lang["conquest_join_part_of"], color = self.module_embed_color)
-                elif cdata["type"] == "private":
-                    embed = discord.Embed(title=lang["conquest_join_private_msg"], color = self.module_embed_color)   
-                elif user_info["currency"] < join_fee:
-                    embed = discord.Embed(title=lang["conquest_insufficient_funds"], color = self.module_embed_color)
-                elif join_fee < cdata["entry_fee"]:
-                    embed = discord.Embed(title=lang["conquest_join_min_entry"].format(cdata["entry_fee"]), color = self.module_embed_color)
-                else:
-                    await quConquest.add_member(user.id, cdata["settlement_id"])
-                    cdata["size"] += 1
-                    cdata["treasury"] += join_fee
-                    user_info["currency"] -= join_fee
-                    await qulib.user_set(user, user_info)
-                    await quConquest.update_settlement('id', settlementid, cdata)
-                    embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.module_embed_color)
+            age_restriction = ctx.author.created_at + dt.timedelta(weeks=1)
+            if datetime.now() < age_restriction:
+                embed = discord.Embed(title=lang["conquest_join_age_restriction"], color = self.module_embed_color)
             else:
-                embed = discord.Embed(title=lang["conquest_join_not_found"], color = self.module_embed_color)
+                user_info = await qulib.user_get(user)
+                settlementid = await quConquest.get_settlement_id(target_user.id)
+                cdata = await quConquest.get_settlement('id', settlementid)
+                if cdata:
+                    if await quConquest.find_member(user.id):
+                        embed = discord.Embed(title=lang["conquest_join_part_of"], color = self.module_embed_color)
+                    elif cdata["type"] == "private":
+                        embed = discord.Embed(title=lang["conquest_join_private_msg"], color = self.module_embed_color)   
+                    elif user_info["currency"] < join_fee:
+                        embed = discord.Embed(title=lang["conquest_insufficient_funds"], color = self.module_embed_color)
+                    elif join_fee < cdata["entry_fee"]:
+                        embed = discord.Embed(title=lang["conquest_join_min_entry"].format(cdata["entry_fee"]), color = self.module_embed_color)
+                    else:
+                        await quConquest.add_member(user.id, cdata["settlement_id"])
+                        cdata["size"] += 1
+                        cdata["treasury"] += join_fee
+                        user_info["currency"] -= join_fee
+                        await qulib.user_set(user, user_info)
+                        await quConquest.update_settlement('id', settlementid, cdata)
+                        embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.module_embed_color)
+                else:
+                    embed = discord.Embed(title=lang["conquest_join_not_found"], color = self.module_embed_color)
         else:
             embed = discord.Embed(title=lang["conquest_join_target_fail"], color = self.module_embed_color)
         await ctx.send(embed=embed)

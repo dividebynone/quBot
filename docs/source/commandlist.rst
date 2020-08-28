@@ -10,6 +10,7 @@ Table of contents
 * `Economy`_
 * `Help`_
 * `Localization`_
+* `Profiles`_
 * `Utility`_
 
 
@@ -186,6 +187,10 @@ Conquest
    | - *You must be the leader of this settlement to be able to use this command.*\
    | - *In order to rename your settlement, you need to pay a fee of 500 gold.*\
    | - *Settlement names have a character limit of 50 characters.*", "``q!rename My new settlement name``"
+   "``withdraw``", "| Withdraws gold from the settlement's treasury.\
+   | **Note(s):**\
+   | - *A specified tax rate is applied on the withdrawal process.*\
+   | - *This command can only be used by settlement leaders.*", "``q!withdraw 500``"
 
 Core
 ^^^^
@@ -308,6 +313,38 @@ Localization
    | **Needed User Permissions: Administrator**", "``q!langset en-US``"
    "``translate``", "| Shows general information about the translation of the bot.", "``q!translate``"
 
+Profiles
+^^^^^^^^
+
+.. csv-table::
+   :header: "Commands & Aliases", "Description", "Usage"
+   :widths: 20, 60, 30
+
+   "``profile`` ``p`` ``me`` ``level``", "| Displays the profile of the target user. \
+   | Note: If you do not specify a user, the bot will display your profile.*", "``q!profile``, ``q!profile @somebody``"
+   "``bio``", "| Sets (or resets) your profile's biography paragraph to the provided text. \
+   | Note: *If you wish to reset your biography paragraph, provide no text to the command.*", "``q!bio``, ``q!bio Some text about me``"
+   "``background`` ``bg`` ``backgrounds`` ``bgs``", "| Provides further information about all available profile backgrounds.\
+   | **Note(s):**\
+   | - *Providing a number will display a preview of the profile background.* \
+   | - *Providing a category will display all available backgrounds within that category.*", "``q!bg 1``, ``q!bg All``, ``q!bg General``"
+   "``background buy`` ``background purchase``", "| Purchases a profile background from the shop for its' corresponding price. \
+   | Note: *All bought backgrounds are stored in your inventory and can be used cross-server. You only need to buy it once.*", "``q!bgs buy 1``, ``q!bgs purchase 1``"
+   "``background inventory`` ``background inv``", "| Shows all profile backgrounds you currently own. \
+   | Note: *Profile background purchases are global and can be used cross-server.*", "``q!bgs inventory``, ``q!bgs inv``"
+   "``background equip``", "| Equips a profile background for the server where the command was executed. \
+   | Note: *If you are not sure which profile backgrounds you own, you can view them by using one of the bot's commands to display your profile background inventory.*", "``q!bgs equip`` ``q!bgs equip 4``"
+   "``background unequip`` ``background default``", "| Changes your profile background back to default.", "``q!bgs unequip``, ``q!bgs default``"
+   "``leaderboard`` ``lb`` ``xplb`` ``top``", "| Shows your server's experience leaderboard.", "``q!leaderboard``, ``q!lb``, ``q!xplb``, ``q!top``"
+   "``leveling``", "| Toggles (enables/disables) experience gain and leveling on your server. \
+   | **Needed User Permissions: Administrator**", "``q!leveling``"
+   "``leveling enable`` ``leveling e``", "| Enables experience gain and leveling on your server. \
+   | **Needed User Permissions: Administrator**", "``q!leveling enable``, ``q!leveling e``"
+   "``leveling disable`` ``leveling d``", "| Disables experience gain and leveling on your server. \
+   | **Needed User Permissions: Administrator**", "``q!leveling disable``, ``q!leveling d``"
+   "``leveling reset``", "| Resets experience and level progression for all users on your server back to 0. \
+   | **Needed User Permissions: Server Owner**", "``q!leveling reset``"
+   
 Utility
 ^^^^^^^
 

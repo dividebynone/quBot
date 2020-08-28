@@ -302,6 +302,7 @@
     "conquest_info_type": "Settlement Type",
     "conquest_insufficient_funds": "Funds not sufficient to deposit for the settlement's starting fee.",
     "conquest_invalid_settlement_name": "Invalid settlement name provided. Please use standard characters.",
+    "conquest_join_age_restriction": "Your discord account needs to be at least one week old to be able to join a settlement!",
     "conquest_join_fail_user": "The target user does not seem to be part of a settlement.",
     "conquest_join_min_entry": "The written value is lower than the minimal entry fee of **{}** for this settlement.",
     "conquest_join_no_subcommands": "Conquest 'join' command group.\nIf you do not know how to join a settlement, please refer to the help command.",

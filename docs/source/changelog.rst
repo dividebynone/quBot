@@ -1,6 +1,86 @@
 Changelog
 =========
 
+quBot 1.3.5-beta (28-08-2020)
+-----------------------------
+
+.. topic:: Description
+
+    This update introduces a new module: Profiles. The module includes leveling as well, which can be disabled locally for each server. Several changes have been made to
+    some of the other modules, namely: Core & Conquest. The Conquest game mode rework is delayed to release with bot version 1.4.0. Nevertheless, update 1.3.5 features
+    some of the work that has been done so far to enhance the game. Some small changes might not be documented.
+    
+New features
+^^^^^^^^^^^^
+
+Conquest
+~~~~~~~~
+
+  - **Reworked command:** ``settlement`` - The settlement information command now shows a visual representation of your settlement that changes with your settlement's level.
+
+Profiles(New module)
+~~~~~~~~~~~~~~~~~~~~~
+
+  Profiles is a new modules that introduces user profiles, profile background customization, leveling (with the ability to disable it in your server) and an experience leaderboard.
+
+  - **New command:** ``profile`` ``me`` - Displays the profile of the target user.
+
+  - **New command:** ``bio`` - Sets (or resets) your profile's biography paragraph to the provided text.
+
+  - **New command:** ``background`` - This command was designed to act as the main hub for profile background navigation around the shop. A web dashboard is planned to eventually replace
+    the need for such a command.
+
+  - **New command:** ``background buy`` - Purchases a profile background from the shop for its' corresponding price. Profile background purchases are global. Users are free to customize their
+    profiles on a per-server basis. 
+
+  - **New command:** ``background inventory`` - Shows all profile backgrounds you currently own.
+
+  - **New command:** ``background equip`` - Equips a profile background for the server where the command was executed.
+
+  - **New command:** ``background unequip`` - Changes your profile background back to default.
+
+  - **New command:** ``leaderboard`` - Shows your server's experience leaderboard.
+
+  - **New command:** ``leveling`` - Toggles (enables/disables) experience gain and leveling on your server.
+    This command can only be used by **server administrators**;
+
+  - **New command:** ``leveling enable`` - Enables experience gain and leveling on your server.
+    This command can only be used by **server administrators**;
+
+  - **New command:** ``leveling reset`` - Resets experience and level progression for all users on your server back to 0.
+    This command can only be used by **server owners**;
+
+General Changes
+^^^^^^^^^^^^^^^
+
+- Conquest
+
+  - The `leaderboard` command has been renamed to `sleaderboard`. Reason: The leaderboard from the Profiles module takes a higher priority over the Conquest one.
+
+  - Market resource price range has been reduced from 5-40 gold per piece to 15-20. While it is still intended for users to make use of this price gap to gain
+    extra gold, the old range was too wide and goldmaking was too easy.
+
+  - Your discord account needs to be at least a week old for you to be able to join a settlement.
+
+  - Some of the commands were reworked to look visually more appealing.
+
+- Core
+
+  - The module disable command was reworked. Previously, it required for dependency modules to be disabled first before disabling the target module. Now, the command
+    prevents you from disabling any of the depedency modules before you disable the target module. In a sense, the logic behind the command was reverted.
+
+Bug fixes
+^^^^^^^^^
+
+- Conquest
+
+  - The win percentage for the attack command is now rounded to two digits after the decimal point. Previously, the command was missing number rounding to limit the bot
+    from spewing large numbers.
+
+  - During work on the Conquest module revamp, a bug was found for the deposit command which threw an exception when given a negative number for input.
+
+------------
+
 quBot 1.3.0-beta (18-08-2020)
 -----------------------------
 

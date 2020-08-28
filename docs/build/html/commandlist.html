@@ -100,6 +100,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#economy">Economy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#help">Help</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#localization">Localization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#profiles">Profiles</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utility">Utility</a></li>
 </ul>
 </li>
@@ -190,6 +191,7 @@
 <li><p><a class="reference internal" href="#economy">Economy</a></p></li>
 <li><p><a class="reference internal" href="#help">Help</a></p></li>
 <li><p><a class="reference internal" href="#localization">Localization</a></p></li>
+<li><p><a class="reference internal" href="#profiles">Profiles</a></p></li>
 <li><p><a class="reference internal" href="#utility">Utility</a></p></li>
 </ul>
 <div class="section" id="administration">
@@ -716,6 +718,16 @@
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!rename</span> <span class="pre">My</span> <span class="pre">new</span> <span class="pre">settlement</span> <span class="pre">name</span></code></p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">withdraw</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Withdraws gold from the settlement’s treasury.</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>A specified tax rate is applied on the withdrawal process.</em></div>
+<div class="line">- <em>This command can only be used by settlement leaders.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!withdraw</span> <span class="pre">500</span></code></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1117,6 +1129,120 @@
 </div>
 </td>
 <td><p><code class="docutils literal notranslate"><span class="pre">q!translate</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="profiles">
+<h3>Profiles<a class="headerlink" href="#profiles" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Commands &amp; Aliases</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">profile</span></code> <code class="docutils literal notranslate"><span class="pre">p</span></code> <code class="docutils literal notranslate"><span class="pre">me</span></code> <code class="docutils literal notranslate"><span class="pre">level</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Displays the profile of the target user. </div>
+<div class="line">Note: If you do not specify a user, the bot will display your profile.*</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!profile</span></code>, <code class="docutils literal notranslate"><span class="pre">q!profile</span> <span class="pre">&#64;somebody</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bio</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Sets (or resets) your profile’s biography paragraph to the provided text. </div>
+<div class="line">Note: <em>If you wish to reset your biography paragraph, provide no text to the command.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bio</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bio</span> <span class="pre">Some</span> <span class="pre">text</span> <span class="pre">about</span> <span class="pre">me</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">background</span></code> <code class="docutils literal notranslate"><span class="pre">bg</span></code> <code class="docutils literal notranslate"><span class="pre">backgrounds</span></code> <code class="docutils literal notranslate"><span class="pre">bgs</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Provides further information about all available profile backgrounds.</div>
+<div class="line"><strong>Note(s):</strong></div>
+<div class="line">- <em>Providing a number will display a preview of the profile background.</em> </div>
+<div class="line">- <em>Providing a category will display all available backgrounds within that category.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bg</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bg</span> <span class="pre">All</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bg</span> <span class="pre">General</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">background</span> <span class="pre">buy</span></code> <code class="docutils literal notranslate"><span class="pre">background</span> <span class="pre">purchase</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Purchases a profile background from the shop for its’ corresponding price. </div>
+<div class="line">Note: <em>All bought backgrounds are stored in your inventory and can be used cross-server. You only need to buy it once.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">buy</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">purchase</span> <span class="pre">1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">background</span> <span class="pre">inventory</span></code> <code class="docutils literal notranslate"><span class="pre">background</span> <span class="pre">inv</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Shows all profile backgrounds you currently own. </div>
+<div class="line">Note: <em>Profile background purchases are global and can be used cross-server.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">inventory</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">inv</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">background</span> <span class="pre">equip</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Equips a profile background for the server where the command was executed. </div>
+<div class="line">Note: <em>If you are not sure which profile backgrounds you own, you can view them by using one of the bot’s commands to display your profile background inventory.</em></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">equip</span></code> <code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">equip</span> <span class="pre">4</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">background</span> <span class="pre">unequip</span></code> <code class="docutils literal notranslate"><span class="pre">background</span> <span class="pre">default</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Changes your profile background back to default.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">unequip</span></code>, <code class="docutils literal notranslate"><span class="pre">q!bgs</span> <span class="pre">default</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">leaderboard</span></code> <code class="docutils literal notranslate"><span class="pre">lb</span></code> <code class="docutils literal notranslate"><span class="pre">xplb</span></code> <code class="docutils literal notranslate"><span class="pre">top</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Shows your server’s experience leaderboard.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!leaderboard</span></code>, <code class="docutils literal notranslate"><span class="pre">q!lb</span></code>, <code class="docutils literal notranslate"><span class="pre">q!xplb</span></code>, <code class="docutils literal notranslate"><span class="pre">q!top</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">leveling</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Toggles (enables/disables) experience gain and leveling on your server. </div>
+<div class="line"><strong>Needed User Permissions: Administrator</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!leveling</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">leveling</span> <span class="pre">enable</span></code> <code class="docutils literal notranslate"><span class="pre">leveling</span> <span class="pre">e</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Enables experience gain and leveling on your server. </div>
+<div class="line"><strong>Needed User Permissions: Administrator</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!leveling</span> <span class="pre">enable</span></code>, <code class="docutils literal notranslate"><span class="pre">q!leveling</span> <span class="pre">e</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">leveling</span> <span class="pre">disable</span></code> <code class="docutils literal notranslate"><span class="pre">leveling</span> <span class="pre">d</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Disables experience gain and leveling on your server. </div>
+<div class="line"><strong>Needed User Permissions: Administrator</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!leveling</span> <span class="pre">disable</span></code>, <code class="docutils literal notranslate"><span class="pre">q!leveling</span> <span class="pre">d</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">leveling</span> <span class="pre">reset</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Resets experience and level progression for all users on your server back to 0. </div>
+<div class="line"><strong>Needed User Permissions: Server Owner</strong></div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q!leveling</span> <span class="pre">reset</span></code></p></td>
 </tr>
 </tbody>
 </table>
