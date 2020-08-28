@@ -165,13 +165,18 @@ class Core(commands.Cog):
         if input_module.lower() in loaded_modules_lowercase:
             cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
             if not CogController.is_disabled(cog_name, ctx.guild.id):
-                if cog_name in modules_config.setdefault("dependencies", {}):
-                    disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
-                    loaded_dependencies = set(loaded_modules_names).intersection(modules_config.setdefault("dependencies", {})[cog_name]) - (set(disabled_cogs) if disabled_cogs else set())
-                    if len(loaded_dependencies) > 0:
-                        embed = discord.Embed(title=lang["core_module_disable_dependencies"].format(', '.join(str(e) for e in loaded_dependencies)), color=self.module_embed_color)
-                        await ctx.send(embed=embed, delete_after=30)
-                        return
+                disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
+                loaded_dependencies = []
+                for cog in modules_config.setdefault("dependencies", {}):
+                    if cog_name in modules_config.setdefault("dependencies", {})[cog]:
+                        if not disabled_cogs or cog not in disabled_cogs:
+                            loaded_dependencies.append(cog)
+
+                if len(loaded_dependencies) > 0:
+                    embed = discord.Embed(title=lang["core_module_disable_dependencies"].format(', '.join(str(e) for e in loaded_dependencies)), color=self.module_embed_color)
+                    embed.set_footer(text=lang["core_module_disable_dependencies_hint"])
+                    await ctx.send(embed=embed, delete_after=30)
+                    return
 
                 if cog_name not in modules_config["restricted_modules"]:
                     await CogController.disable_cog(cog_name, ctx.guild.id)

@@ -15,7 +15,7 @@ class quConquest(object):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("CREATE TABLE IF NOT EXISTS conquest(settlement_id INTEGER PRIMARY KEY ,invite_string BLOB,\
                     date_created BLOB,founderid BLOB,leaderid BLOB,name BLOB,treasury INTEGER,tech_attack INTEGER,\
-                    tech_defence INTEGER, size INTEGER, level INTEGER,tech_tree BLOB,\
+                    tech_defence INTEGER, size INTEGER, tech_tree BLOB,\
                     type TEXT,entry_fee INTEGER, wins INTEGER, losses INTEGER, experience INTEGER)")
             cursor.execute("CREATE TABLE IF NOT EXISTS members(userid INTEGER PRIMARY KEY, settlement_id INTEGER)")
             cursor.execute("CREATE TABLE IF NOT EXISTS resources(settlement_id INTEGER PRIMARY KEY, cloth INTEGER, wood INTEGER, stone INTEGER, food INTEGER)")
@@ -67,36 +67,35 @@ class quConquest(object):
                 db_output = list(db_output)
                 return_dict = dict(settlement_id=db_output[0], invite_string=db_output[1], date_created=db_output[2], founderid=db_output[3],
                                 leaderid=db_output[4], name=db_output[5], treasury=db_output[6], tech_attack=db_output[7],
-                                tech_defence=db_output[8], size=db_output[9], level=db_output[10],
-                                tech_tree=db_output[11], type=db_output[12], entry_fee=db_output[13], wins=db_output[14],
-                                losses=db_output[15], experience=db_output[16])
+                                tech_defence=db_output[8], size=db_output[9], tech_tree=db_output[10], type=db_output[11], 
+                                entry_fee=db_output[12], wins=db_output[13], losses=db_output[14], experience=db_output[15])
                 return return_dict
 
     @staticmethod
     async def create_settlement(input_data, dict_input):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
-            cursor.execute("INSERT OR IGNORE INTO conquest(founderid, leaderid, treasury, entry_fee, invite_string, date_created, tech_attack, tech_defence, name, level, tech_tree, type, size, wins, losses, experience) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            cursor.execute("INSERT OR IGNORE INTO conquest(founderid, leaderid, treasury, entry_fee, invite_string, date_created, tech_attack, tech_defence, name, tech_tree, type, size, wins, losses, experience) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                 [input_data, input_data, dict_input["entry_fee"], dict_input["entry_fee"], dict_input["invite_string"],
-                                dict_input["date_created"], '0', '0', dict_input["name"],'1', '0000000000', dict_input["type"], '1', 0, 0, 0])
+                                dict_input["date_created"], '0', '0', dict_input["name"], '0000000000', dict_input["type"], '1', 0, 0, 0])
             return cursor.lastrowid
 
     @staticmethod
     async def update_settlement(get_string:str, input_data, dict_input):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             if get_string == 'user':
-                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE founderid=? OR leaderid=?",
+                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE founderid=? OR leaderid=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
-                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], dict_input["tech_tree"], dict_input["type"],
+                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["tech_tree"], dict_input["type"],
                                 dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data, input_data])
             elif get_string == 'invite':
-                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE invite_string=?",
+                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE invite_string=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
-                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], dict_input["tech_tree"], dict_input["type"],
+                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["tech_tree"], dict_input["type"],
                                 dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data])
             elif get_string == 'id':
-                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, level=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE settlement_id=?",
+                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE settlement_id=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
-                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["level"], dict_input["tech_tree"], dict_input["type"],
+                                dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["tech_tree"], dict_input["type"],
                                 dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data])
         return None
 

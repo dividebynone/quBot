@@ -410,7 +410,7 @@ class Profiles(commands.Cog):
                     while True:
                         description = ""
                         for person in leaderboard[(index*10):(index*10 + 10)]:
-                            user = self.bot.get_user(person[0])
+                            user = self.bot.get_user(person[0]) or person[0]
                             description += f"**#{person[1]} {str(user)}** ({lang['level_string']} {person[2]} : {person[3]} {lang['exp_string']})\n"
                         embed = discord.Embed(title=lang["profiles_leaderboard_title"], description=description, color=self.module_embed_color)
                         if start_index == last_index:
