@@ -187,10 +187,6 @@ Conquest
    | - *You must be the leader of this settlement to be able to use this command.*\
    | - *In order to rename your settlement, you need to pay a fee of 500 gold.*\
    | - *Settlement names have a character limit of 50 characters.*", "``q!rename My new settlement name``"
-   "``withdraw``", "| Withdraws gold from the settlement's treasury.\
-   | **Note(s):**\
-   | - *A specified tax rate is applied on the withdrawal process.*\
-   | - *This command can only be used by settlement leaders.*", "``q!withdraw 500``"
 
 Core
 ^^^^
@@ -344,7 +340,7 @@ Profiles
    | **Needed User Permissions: Administrator**", "``q!leveling disable``, ``q!leveling d``"
    "``leveling reset``", "| Resets experience and level progression for all users on your server back to 0. \
    | **Needed User Permissions: Server Owner**", "``q!leveling reset``"
-   
+
 Utility
 ^^^^^^^
 
