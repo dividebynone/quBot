@@ -471,6 +471,29 @@ class Core(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color))
 
+    @commands.is_owner()
+    @commands.group(name='export', hidden=True)
+    async def export_group(self, ctx):
+        if not ctx.invoked_subcommand:
+            pass
+
+    @export_group.command(name='commands', aliases=['cmds', 'cmd'])
+    async def export_commands(self, ctx):
+        json_export = {}
+        for cog_name in self.bot.cogs:
+            cog = self.bot.cogs[cog_name]
+            for command in cog.walk_commands():
+                command_dict = {}
+                command_dict['name'] = command.qualified_name
+                command_dict['aliases'] = command.aliases
+                command_dict['description'] = command.description
+                command_dict['help'] = command.help
+                command_dict['usage'] = command.help
+                json_export.setdefault(cog.qualified_name, []).append(command_dict)
+
+        qulib.export_commands(json_export)
+        await ctx.send("Successfully exported all bot commands to local JSON file.", delete_after=15)
+
     @commands.Cog.listener()
     @commands.guild_only()
     async def on_guild_join(self, guild):

@@ -50,7 +50,7 @@ async def data_set(json_dump: dict):
 #Modules configuration
 
 def get_module_config():
-    if not os.path.isfile(os.path.join(bot_path, 'data','modules.json')):
+    if not os.path.isfile(os.path.join(bot_path, 'data', 'modules.json')):
         print("Creating missing modules.json file...")
         with open(os.path.join(bot_path, 'data','modules.json'), 'w+') as json_file:
             json.dump({}, json_file, indent=4, sort_keys=True, separators=(',', ': '))
@@ -62,7 +62,7 @@ def get_module_config():
     return json_data
 
 def update_module_config(json_dump: dict):
-    with open(os.path.join(bot_path, 'data','modules.json'), 'w') as json_file: 
+    with open(os.path.join(bot_path, 'data', 'modules.json'), 'w') as json_file: 
         json.dump(json_dump, json_file, indent=4, sort_keys=True, separators=(',', ': '))
     json_file.close()
 
@@ -79,6 +79,14 @@ def module_configuration(module_name: str, is_restricted: bool, module_dependenc
     else:
         module_config.setdefault("dependencies", {}).pop(module_name, None)
     update_module_config(module_config)
+
+#Exports configuration
+
+def export_commands(json_dump: dict):
+    makefolders(bot_path, ['exports'])
+    with open(os.path.join(bot_path, 'exports', 'commands.json'), 'w') as json_file: 
+        json.dump(json_dump, json_file, indent=4, sort_keys=True, separators=(',', ': '))
+    json_file.close()
 
 #Database folder creation(if missing) #TODO: Delete in the future (duplicate code <-> main.py)
 if not os.path.exists(os.path.join(bot_path, 'databases')):

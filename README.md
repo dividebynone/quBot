@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-	<img src="https://img.shields.io/badge/version-1.3.5b-blue.svg">
+	<img src="https://img.shields.io/badge/version-1.3.0b-blue.svg">
 	<img src="https://img.shields.io/badge/dev-DivideByNone%239640-brightgreen.svg">
 	<a href="https://top.gg/bot/593082021325045760" >
   	<img src="https://top.gg/api/widget/status/593082021325045760.svg" alt="quBot" />
@@ -29,7 +29,7 @@
 <p align="center">A modern and simple to use discord bot application written in Python using the <b>discord.py</b> API wrapper.</p>
 
 <p align="center">
-QuBot is a python bot framework. It was built with ease of use and modularity in mind - localization, module manipulation, bot customization, etc. QuBot is open source to allow for people to self-host and maintain their own instance of the bot. It was designed to act as a base for other bot applications.
+QuBot is a multi-purpose bot. It was built with ease of use and modularity in mind - localization, module manipulation, bot customization, etc. QuBot is open source to allow for people to self-host and maintain their own instance of the bot. It was designed to act as a base for other bot applications.
 </p>
 
 ## Setup & Installation
