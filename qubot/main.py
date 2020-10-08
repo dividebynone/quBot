@@ -2,12 +2,13 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 import libs.prefixhandler as prefixhandler
 import libs.localizations as localizations
-import logging
-import os
-import sys
-import sqlite3
 import configparser
+import discord
+import logging
+import sqlite3
 import json
+import sys
+import os
 
 #-----------------------------------#
 # Utility functions
@@ -93,13 +94,99 @@ logger.addHandler(log_handler)
 #JSON files initialization/writing/loading
 
 json_lang_en = {
-    "administration_autoaction_ban": "Your last warning triggered an automatic ban action from this server.",
-    "administration_autoaction_disable_msg": "Automatic {} disabled. To enable it again, set it to a new value.",
-    "administration_autoaction_kick": "Your last warning triggered an automatic kick action from this server.",
-    "administration_autoaction_max": "Automatic actions can only be set to a maximum number of {}",
-    "administration_autoaction_msg": "An automatic {} will be triggered when a user reaches {} warnings.",
-    "administration_ban_msg": "{} has been banned from this server. Reason: {}",
-    "administration_ban_out_of_range": "The number is out of range.",
+    "moderation_purge_usernotfound": "Failed to delete message(s): Target user not found",
+    "moderation_purge_invalid_filter": "Failed to delete message(s): Invalid message filter was provided",
+    "moderation_purge_success": "Deleted {} message(s)",
+    "moderation_kick_embed_title": "The following users were kicked out of the server",
+    "moderation_kick_embed_users": "Kicked Users",
+    "moderation_kick_embed_footer": "Kicked by: {}",
+    "moderation_kick_empty": "{}, I could not kick the provided users. They might no longer be in this server or have higher role privileges than me.",
+    "moderation_kick_not_found": "The user(s) you are trying to kick could not be found.",
+    "moderation_ban_embed_title": "The following users were banned out of the server",
+    "moderation_ban_embed_users": "Banned Users",
+    "moderation_ban_embed_footer": "Banned by: {}",
+    "moderation_embed_expiration": "Expires",
+    "moderation_ban_empty": "{}, I could not ban the provided users. They might already be banned or have higher role privileges than me.",
+    "moderation_ban_not_found": "The user(s) you are trying to ban could not be found.",
+    "moderation_ban_dm": "You have been banned from **{}** for the following reason: {}.",
+    "moderation_ban_temp_dm": "You have been temporarily banned from **{}** for the following reason: {}. Your ban will expire on {}.",
+    "moderation_unban_embed_title": "The following users were unbanned from the server",
+    "moderation_unban_embed_users": "Unbanned Users",
+    "moderation_unban_embed_footer": "Unbanned by: {}",
+    "moderation_unban_empty": "{}, I could not unban the provided users. They might already be unbanned.",
+    "moderation_unban_not_found": "The user(s) you are trying to unban could not be found.",
+    "moderation_softban_embed_title": "The following users were softbanned out of the server",
+    "moderation_softban_embed_users": "Softbanned Users",
+    "moderation_softban_embed_footer": "Softbanned by: {}",
+    "moderation_softban_empty": "{}, I could not softban the provided users. They might no longer be in this server or have higher role privileges than me.",
+    "moderation_softban_not_found": "The user(s) you are trying to softban could not be found.",
+    "moderation_mute_embed_title": "The following users were muted from the server",
+    "moderation_mute_embed_users": "Muted Users",
+    "moderation_mute_embed_footer": "Muted by: {}",
+    "moderation_mute_not_found": "The user(s) you are trying to mute could not be found.",
+    "moderation_mute_empty": "{}, I could not mute the provided users. They are most likely already muted.",
+    "moderation_mute_dm": "You have been muted from **{}**. You can no longer send messages in that server.",
+    "moderation_mute_temp_dm": "You have been muted in **{}**. Your mute will expire on {}.",
+    "moderation_unmute_embed_title": "The following users were unmuted from the server",
+    "moderation_unmute_embed_users": "Unmuted Users",
+    "moderation_unmute_embed_footer": "Unmuted by: {}",
+    "moderation_unmute_empty": "{}, I could not unmute the provided users. They are most likely already unmuted.",
+    "moderation_unmute_dm": "You have been unmuted from **{}**. You can now chat in that server again.",
+    "moderation_slowmode_disabled": "Disabled slowmode",
+    "moderation_slowmode_enabled": "Enabled slowmode and cooldown was set to `{}`",
+    "moderation_slowmode_max": "The maximum slowmode period is `{} hour(s)`",
+    "moderation_report_not_enabled": "Reports are not enabled on this server.",
+    "moderation_report_embed_footer": "Reported by: {}",
+    "moderation_report_embed_title": "Report",
+    "moderation_report_setchannel": "Report channel has been set to **#{}**",
+    "moderation_report_disable_disabled": "Reporting is already disabled on this server. To enable it again, set a report channel.",
+    "moderation_report_disable_success": "Reporting has been disabled. To enable it again, set a new report channel.",
+    "moderation_warn_dm_footer": "Server: {}",
+    "moderation_warn_dm_title": "Your actions have resulted in a warning",
+    "moderation_warn_dm_warnedby": "You have been warned by: **{}**",
+    "moderation_warn_embed_title": "Issued warnings",
+    "moderation_warn_embed_users": "Warned Users",
+    "moderation_warn_embed_reached_limit": "Reached Warning Limit",
+    "moderation_warn_embed_footer": "Warned by: {}",
+    "moderation_warn_embed_description": "The following users have been warned successfully. If any of them reach the maximum warnings limit, they must be reset in order to issue new ones.",
+    "moderation_warn_not_found": "The user(s) you are trying to issue a warning to could not be found.",
+    "moderation_warn_empty": "{}, I could not issue a warning to the provided users. It is likely that they have reached their maximum warnings limit. Reset their warnings before issuing new ones.",
+    "moderation_autoaction_ban": "Your last warning triggered an automatic ban action from this server.",
+    "moderation_autoaction_kick": "Your last warning triggered an automatic kick action from this server.",
+    "moderation_warnings_embed_title": "List of warnings for {}",
+    "moderation_warnings_embed_issuedby": "*Issued by: {}*",
+    "moderation_warnings_empty": "{}, {} does not have any warnings.",
+    "moderation_warnings_reset_embed_title": "Warnings Reset",
+    "moderation_warnings_reset_embed_description": "All server-wide warnings have been reset for the following users:",
+    "moderation_warnings_reset_embed_footer": "Cleared by: {}",
+    "moderation_warnings_reset_empty": "{}, I could not reset warnings for the provided users. They might no longer be in this server.",
+    "moderation_warnings_delete": "Successfully deleted warning with corresponding number '{}' for {}.",
+    "moderation_warnings_outofrange": "The warning you are trying to delete does not exist. Are you sure you have entered the correct value?",
+    "moderation_autoaction_max": "Automatic actions cannot exceed the maximum warnings limit, which is {}",
+    "moderation_autoaction_success": "Gotcha, an automatic {} will be triggered when a user reaches {} warnings!",
+    "moderation_autoaction_disable": "Automatic {} disabled. To enable it again, set it to a new value.",
+    "moderation_blacklist_embed_title": "Blacklisted Users",
+    "moderation_blacklist_embed_description": "The following users were blacklisted. If any of the target users is not on this list, they are probably already blacklisted.",
+    "moderation_blacklist_embed_footer": "Blacklisted by: {}",
+    "moderation_blacklist_empty": "{}, I could not blacklist the provided users. They are probably already blacklisted or are no longer in this server.",
+    "moderation_blacklist_self": "{}, you can't blacklist yourself.",
+    "moderation_blacklist_remove_embed_title": "Discharged Blacklisted Users",
+    "moderation_blacklist_remove_embed_description": "The following users' blacklisted status was discharged. If any of the target users is not on this list, they are probably not blacklisted.",
+    "moderation_blacklist_remove_embed_footer": "Approved by: {}",
+    "moderation_blacklist_remove_empty": "{}, I could not discharge the provided users' blacklist status. They are probably not blacklisted or are no longer in this server.",
+    "moderation_blacklist_remove_self": "{}, you can't remove yourself from the blacklist.",
+    "users_string": "Users",
+    "other_string": "other",
+    "others_string": "others",
+
+
+    "administration_autoaction_ban": "Your last warning triggered an automatic ban action from this server.", #TO-BE-DELETED
+    "administration_autoaction_disable_msg": "Automatic {} disabled. To enable it again, set it to a new value.", #TO-BE-DELETED
+    "administration_autoaction_kick": "Your last warning triggered an automatic kick action from this server.", #TO-BE-DELETED
+    "administration_autoaction_max": "Automatic actions can only be set to a maximum number of {}", #TO-BE-DELETED
+    "administration_autoaction_msg": "An automatic {} will be triggered when a user reaches {} warnings.", #TO-BE-DELETED
+    "administration_ban_msg": "{} has been banned from this server. Reason: {}", #TO-BE-DELETED
+    "administration_ban_out_of_range": "The number is out of range.", #TO-BE-DELETED
     "administration_blacklist_add": "Added user ({}) to bot blacklist.",
     "administration_blacklist_in_list": "User ({}) is already blacklisted.",
     "administration_blacklist_not_in_list": "User ({}) is not blacklisted.",
@@ -130,17 +217,17 @@ json_lang_en = {
     "administration_greet_default": "Hey {}, welcome to **{}**!",
     "administration_gscdefault_msg": "Greeting/goodbye messages text channel has been set back to default.",
     "administration_gsetchannel": "Greeting/Goodbye messages channel successfully changed to **#{}**",
-    "administration_kick_msg": "{} has been kicked from this server. Reason: {}",
-    "administration_mute_muted": "{} is already muted.",
-    "administration_mute_success": "{} has been muted.",
-    "administration_purge_delmsg": "Deleted {} message(s)",
-    "administration_purge_invalid_filter": "An invalid filter has been given to the purge command.",
-    "administration_purge_prmsg": "Failed to purge set messages. You can't delete a negative number of messages.",
-    "administration_report_disable_fail": "Reporting is already disabled on this server. To enable it again, set a report channel.",
-    "administration_report_disable_success": "Reporting has been disabled. To enable it again, set a new report channel.",
-    "administration_report_reportedby": "Reported by: {}",
-    "administration_report_title": "Report",
-    "administration_setchannel_msg": "Report channel has been set to **#{}**",
+    "administration_kick_msg": "{} has been kicked from this server. Reason: {}", #TO-BE-DELETED
+    "administration_mute_muted": "{} is already muted.", #TO-BE-DELETED
+    "administration_mute_success": "{} has been muted.", #TO-BE-DELETED
+    "administration_purge_delmsg": "Deleted {} message(s)", #TO-BE-DELETED
+    "administration_purge_invalid_filter": "An invalid filter has been given to the purge command.", #TO-BE-DELETED
+    "administration_purge_prmsg": "Failed to purge set messages. You can't delete a negative number of messages.", #TO-BE-DELETED
+    "administration_report_disable_fail": "Reporting is already disabled on this server. To enable it again, set a report channel.", #TO-BE-DELETED
+    "administration_report_disable_success": "Reporting has been disabled. To enable it again, set a new report channel.", #TO-BE-DELETED
+    "administration_report_reportedby": "Reported by: {}", #TO-BE-DELETED
+    "administration_report_title": "Report", #TO-BE-DELETED
+    "administration_setchannel_msg": "Report channel has been set to **#{}**", #TO-BE-DELETED
     "administration_slowmode_disabled": "Disabled slowmode",
     "administration_slowmode_enabled": "Enabled slowmode and cooldown set to `{}`",
     "administration_slowmode_max": "The maximum slowmode period is `{} hour(s)`",
@@ -149,21 +236,22 @@ json_lang_en = {
     "administration_tempban_ban": "{} has been banned from this server. This ban will expire on {}. Reason: {}",
     "administration_tempban_dm": "You have been temporarily banned from **{}**. Your ban will expire on {}.",
     "administration_tempban_error": "I ran into some issues when trying to ban {} from this server. Please try again.",
+    "administration_tempban_expiration": "Temporary ban has expired for the following individual.",
     "administration_tempmute_dm": "You have been muted in **{}**. Your mute will expire on {}.",
     "administration_tempmute_mute": "{} has been temporarily muted. Their mute will expire on {}",
     "administration_unban_msg": "{} has been unbanned from this server.",
     "administration_unmute_success": "{} has been unmuted.",
     "administration_unmute_unmuted": "{} is not muted.",
-    "administration_warn_dm_footer": "Server: {}",
-    "administration_warn_dm_title": "Your actions have resulted in a warning",
-    "administration_warn_dm_warnedby": "Warned by",
-    "administration_warn_max": "Maximum user warnings reached ({}). Their warnings must be reset in order to issue new ones.",
-    "administration_warn_success": "{} has been warned successfully.",
-    "administration_warnings_delete": "Warning number {} has been deleted for {}.",
-    "administration_warnings_issuedby": "*Issued by: {}*",
-    "administration_warnings_outofrange": "The warning you're trying to delete does not exist",
-    "administration_warnings_reset": "All server-wide warnings have been reset for {}",
-    "administration_warnings_title": "List of warnings for {}",
+    "administration_warn_dm_footer": "Server: {}", #TO-BE-DELETED
+    "administration_warn_dm_title": "Your actions have resulted in a warning", #TO-BE-DELETED
+    "administration_warn_dm_warnedby": "Warned by", #TO-BE-DELETED
+    "administration_warn_max": "Maximum user warnings reached ({}). Their warnings must be reset in order to issue new ones.", #TO-BE-DELETED
+    "administration_warn_success": "{} has been warned successfully.", #TO-BE-DELETED
+    "administration_warnings_delete": "Warning number {} has been deleted for {}.", #TO-BE-DELETED
+    "administration_warnings_issuedby": "*Issued by: {}*", #TO-BE-DELETED
+    "administration_warnings_outofrange": "The warning you're trying to delete does not exist", #TO-BE-DELETED
+    "administration_warnings_reset": "All server-wide warnings have been reset for {}", 
+    "administration_warnings_title": "List of warnings for {}", #TO-BE-DELETED
     "bot_guild_join_description": "My name is {} and I am a multi-purpose bot that can offer a great variety of features from an extensive moderation toolkit to a global economy, dictionaries, fun, utility commands and a unique strategy game called Conquest.\n\nCreate the experience you want. My capabilities include but are not limited to the following available configurations: disabling select commands and modules, setting a custom bot prefix and language for your discord server.\n\nFeel free to explore around by using any of the following bits of information below:\n**Help Command:** `{}help`\n**Commands:** https://qubot.xyz/commands\n**Support Server:** https://discord.gg/TGnfsH2",
     "bot_guild_join_title": "*Beep boop*...Hello world!",
     "category_string": "Category",
@@ -373,6 +461,18 @@ json_lang_en = {
     "conquest_attack_self": "You can't attack your own settlement.",
     "conquest_attack_wd": "Your Wins/Defeats",
     "conquest_attack_you_no": "You can not attack without a settlement.",
+    "conquest_building_description_1": "The Town Hall is the main structure in your settlement. Upgrading this building increases the level limit of all other buildings.",
+    "conquest_building_description_10": "The Academy is a mixed offensive and defensive building. With technological advancements, your settlement learns how to attack and defend more efficiently. Upgrading your academy slightly increases your settlement's overall attack and defense.",
+    "conquest_building_description_2": "The Training Grounds are the core offensive structure in your settlement. Upgrading this building increases your settlement's overall offense. Therefore, upgrades will increase your chances in battle.",
+    "conquest_building_description_3": "The Market Square offers resource trading for your settlement. This structure unlocks the possibility to buy and sell resources.",
+    "conquest_building_description_4": "The Walls are the core defensive structure of your settlement. Upgrading this construction increases your settlement's overall defense. Therefore, upgrades will increase your chances of withstanding enemy attacks.",
+    "conquest_building_description_5": "The Quarry produces the resource: Stone. Upgrading this structure will increase the daily production rate of stone for your settlement.",
+    "conquest_building_description_6": "The Farms produce the resource: Food. Upgrading this structure will increase the daily production rate of food for your settlement.",
+    "conquest_building_description_7": "The Weavery produces the resource: Cloth. Upgrading this structure will increase the daily production rate of cloth for your settlement.",
+    "conquest_building_description_8": "The Lumberjack's Camp produces the resource: Wood. Upgrading this structure will increase the daily production rate of wood for your settlement.",
+    "conquest_building_description_9": "The Warehouse, also known as your settlement's treasury, is a key part of your settlement. The default settlement treasury has a limited capacity. Unlocking this building removes that resource amount limit.",
+    "conquest_building_next_upgrade": "Next Upgrade",
+    "conquest_building_string": "Building",
     "conquest_buildings_footer": "Settlement: {}",
     "conquest_buildings_title": "Settlement Status",
     "conquest_buy_no_market": "Failed to buy resources: Your settlement does not have a **Market Square**.",
@@ -386,6 +486,11 @@ json_lang_en = {
     "conquest_create_part_of": "Failed to create a settlement: You can only be part of one settlement at a time.",
     "conquest_create_public_private": "The settlement's type can either be **public** or **private**.",
     "conquest_create_success": "Settlement has been successfully created.",
+    "conquest_defeat_string_1": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and swiftly scaled up using ladders. A fierce battle erupted at the top. Despite your army's efforts, enemy swordsmen and spearmen tipped the scales in their favour. Some of your soldiers were killed in the process. Forced to pull back, the rest of your army successfully retreats from the battlefield, escorting you back to your kingdom.",
+    "conquest_defeat_string_2": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly but steadily scaled up using ladders. A fierce battle erupted at the top. Despite your army's efforts, enemy swordsmen and spearmen tipped the scales in their favour. Most of your soldiers were killed in the process. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
+    "conquest_defeat_string_3": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly but steadily scaled up using ladders. A fierce battle erupted at the top. Despite your army's efforts, most of your soldiers were killed in the battle. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
+    "conquest_defeat_string_4": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly and painfully scaled up using ladders. A heated battle erupted at the top. Despite your army's efforts, most of your soldiers were killed in the battle. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
+    "conquest_defeat_string_5": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly and painfully scaled up using ladders. A heated battle erupted at the top. Despite your army's efforts, they fail miserably. Most of your troops were massacred on the spot. A very small group successfully retreated from the battlefield, escorting you back to your kingdom.",
     "conquest_deposit_success": "You successfully deposited {} {} into the settlement's treasury.",
     "conquest_entry_requirement": "The entry fee doesn't meet the minimal entry fee requirement!",
     "conquest_experience": "Experience Points",
@@ -454,6 +559,11 @@ json_lang_en = {
     "conquest_upgrade_th": "Upgrade the Town hall to unlock next building level.",
     "conquest_warehouse_title": "*{}* 's Warehouse",
     "conquest_win_percentage": "*Win Percentage*",
+    "conquest_win_string_1": "Your settlement's army successfully pillaged **{}**. Your soldiers reached the enemy walls without much difficulty. A fierce battle erupted at the top. A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat.",
+    "conquest_win_string_2": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. A fierce battle erupted at the top. A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat.",
+    "conquest_win_string_3": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. Your army's battering ram was used to breach into the enemy's fortress. A fierce battle erupted on the streets. After a long while, a successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal some damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat.",
+    "conquest_win_string_4": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. Your army's battering ram was used to breach into the enemy's fortress. A fierce battle erupted on the streets. After a long while, your troops decided to instead pillage the nearby houses as breaching into the treasury deemed too difficult. You deal some damage to your enemy's settlement. Enemy forces regroup and your army is forced to retreat.",
+    "conquest_win_string_5": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. Your army's battering ram was used to breach into the enemy's fortress. A fierce battle erupted on the streets. After a long while, your troops decided to instead pillage the nearby houses as breaching into the treasury deemed too difficult. Almost no damage was dealt to your enemy's settlement. Enemy forces regroup and your army is forced to retreat.",
     "conquest_wins": "Wins",
     "conquest_withdraw_confirmation": "Do you really want to withdraw money from your settlement? Please type **'yes' (y)** or **'no' (n)** to confirm your choice.",
     "conquest_withdraw_confirmation_note": "*Please note that there is a {}% tax rate on the withdrawal process.*",
@@ -511,6 +621,7 @@ json_lang_en = {
     "core_userid_msg": "{}'s Discord ID is: **{}**",
     "day_string": "day",
     "days_string": "days",
+    "description_string": "Description",
     "dictionaries_antonyms": "**Antonyms**",
     "dictionaries_english_only": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels",
     "dictionaries_synonyms": "**Synonym(s)**",
@@ -592,6 +703,7 @@ json_lang_en = {
     "seconds_string": "seconds",
     "usage_string": "Usage",
     "user_string": "User",
+    "id_string": "ID",
     "utility_8ball_1": "It is certain.",
     "utility_8ball_10": "Signs point to yes.",
     "utility_8ball_11": "Reply hazy, try again.",
@@ -634,30 +746,7 @@ json_lang_en = {
     "utility_uptime_msg": "The bot has been running for **{}** days, **{}** hours, **{}** minutes and **{}** seconds.",
     "wait_for_cancelled": "The confirmation was cancelled by the user.",
     "wait_for_timeout": "Failed to respond to the command within the given time limit.",
-    "warning_string": "Warning",
-    "conquest_win_string_1": "Your settlement's army successfully pillaged **{}**. Your soldiers reached the enemy walls without much difficulty. A fierce battle erupted at the top. A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat.",
-    "conquest_win_string_2": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. A fierce battle erupted at the top. A successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal a significant amount of damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat.",
-    "conquest_win_string_3": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. Your army's battering ram was used to breach into the enemy's fortress. A fierce battle erupted on the streets. After a long while, a successful breach has been made into the enemy settlement's treasury. Your troops grabbed what they can with their hands. You deal some damage to your enemy's settlement. However, as enemy forces regroup, your army is forced to retreat.",
-    "conquest_win_string_4": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. Your army's battering ram was used to breach into the enemy's fortress. A fierce battle erupted on the streets. After a long while, your troops decided to instead pillage the nearby houses as breaching into the treasury deemed too difficult. You deal some damage to your enemy's settlement. Enemy forces regroup and your army is forced to retreat.",
-    "conquest_win_string_5": "Your settlement's army successfully pillaged **{}**. Your soldiers slowly reached the enemy walls as enemy archers fired volleys of arrows. Your army's battering ram was used to breach into the enemy's fortress. A fierce battle erupted on the streets. After a long while, your troops decided to instead pillage the nearby houses as breaching into the treasury deemed too difficult. Almost no damage was dealt to your enemy's settlement. Enemy forces regroup and your army is forced to retreat.",
-    "conquest_defeat_string_1": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and swiftly scaled up using ladders. A fierce battle erupted at the top. Despite your army's efforts, enemy swordsmen and spearmen tipped the scales in their favour. Some of your soldiers were killed in the process. Forced to pull back, the rest of your army successfully retreats from the battlefield, escorting you back to your kingdom.",
-    "conquest_defeat_string_2": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly but steadily scaled up using ladders. A fierce battle erupted at the top. Despite your army's efforts, enemy swordsmen and spearmen tipped the scales in their favour. Most of your soldiers were killed in the process. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
-    "conquest_defeat_string_3": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly but steadily scaled up using ladders. A fierce battle erupted at the top. Despite your army's efforts, most of your soldiers were killed in the battle. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
-    "conquest_defeat_string_4": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly and painfully scaled up using ladders. A heated battle erupted at the top. Despite your army's efforts, most of your soldiers were killed in the battle. Fortunately, a small group successfully retreated from the battlefield, escorting you back to your kingdom.",
-    "conquest_defeat_string_5": "Unsuccessful attempt to pillage **{}**: As you approached the enemy settlement, a volley of arrows struck your army's shields. Your soldiers managed to reach the enemy walls and slowly and painfully scaled up using ladders. A heated battle erupted at the top. Despite your army's efforts, they fail miserably. Most of your troops were massacred on the spot. A very small group successfully retreated from the battlefield, escorting you back to your kingdom.",
-    "conquest_building_description_1": "The Town Hall is the main structure in your settlement. Upgrading this building increases the level limit of all other buildings.",
-    "conquest_building_description_2": "The Training Grounds are the core offensive structure in your settlement. Upgrading this building increases your settlement's overall offense. Therefore, upgrades will increase your chances in battle.",
-    "conquest_building_description_3": "The Market Square offers resource trading for your settlement. This structure unlocks the possibility to buy and sell resources.",
-    "conquest_building_description_4": "The Walls are the core defensive structure of your settlement. Upgrading this construction increases your settlement's overall defense. Therefore, upgrades will increase your chances of withstanding enemy attacks.",
-    "conquest_building_description_5": "The Quarry produces the resource: Stone. Upgrading this structure will increase the daily production rate of stone for your settlement.",
-    "conquest_building_description_6": "The Farms produce the resource: Food. Upgrading this structure will increase the daily production rate of food for your settlement.",
-    "conquest_building_description_7": "The Weavery produces the resource: Cloth. Upgrading this structure will increase the daily production rate of cloth for your settlement.",
-    "conquest_building_description_8": "The Lumberjack's Camp produces the resource: Wood. Upgrading this structure will increase the daily production rate of wood for your settlement.",
-    "conquest_building_description_9": "The Warehouse, also known as your settlement's treasury, is a key part of your settlement. The default settlement treasury has a limited capacity. Unlocking this building removes that resource amount limit.",
-    "conquest_building_description_10": "The Academy is a mixed offensive and defensive building. With technological advancements, your settlement learns how to attack and defend more efficiently. Upgrading your academy slightly increases your settlement's overall attack and defense.",
-    "description_string": "Description",
-    "conquest_building_next_upgrade": "Next Upgrade",
-    "conquest_building_string": "Building",
+    "warning_string": "Warning"
 }
 
 
@@ -729,7 +818,10 @@ def get_prefix(bot, message):
 #-----------------------------------#
 #Bot initialization
 
-bot = commands.AutoShardedBot(command_prefix = get_prefix)
+intents = discord.Intents.default()
+intents.guilds = True
+intents.members = True
+bot = commands.AutoShardedBot(command_prefix = get_prefix, intents=intents)
 bot_starttime = datetime.today().replace(microsecond=0)
 
 #-----------------------------------#

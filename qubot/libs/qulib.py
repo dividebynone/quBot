@@ -1,4 +1,5 @@
 from libs.sqlhandler import sqlconnect
+from datetime import datetime
 from main import bot_path
 import sqlite3
 import discord
@@ -110,7 +111,9 @@ async def user_set(user: discord.User, dict_input):
         cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user.id, '0'))
         cursor.execute("UPDATE users SET currency=?, daily_time=? WHERE userid=?",
                         (dict_input['currency'], dict_input['daily_time'], user.id))
-   
+
+# Auxiliary functions
+ 
 def string_generator(size):
     chars = string.ascii_lowercase + string.digits
     return ''.join(random.choice(chars) for _ in range(size))

@@ -44,7 +44,7 @@ class SmallTimePeriod(commands.Converter):
         time_in_seconds = int(timedelta(**{self.time_units.get(m.group('unit').lower(), 'seconds'): int(m.group('val')) for m in re.finditer(r'(?P<val>\d+)(\s?)(?P<unit>[mhdw]?)', argument, flags=re.I)}).total_seconds())
         return time_in_seconds
         
-class Administration(commands.Cog):
+class ModerationOld(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -77,7 +77,7 @@ class Administration(commands.Cog):
     def cog_unload(self):
         self.temporary_actions.cancel() # pylint: disable=no-member
 
-    @tasks.loop(minutes=1, reconnect=True)
+    @tasks.loop(minutes=1, reconnect=True) #Added
     async def temporary_actions(self):
         time_on_iter = int(time.time())
         guild_dict = await TemporaryActions.get_expired_actions(time_on_iter)
@@ -94,14 +94,14 @@ class Administration(commands.Cog):
                     elif action == int(ModerationAction.TextMute):
                         member = guild.get_member(user_id)
                         if member:
-                            role = await Administration.get_mute_role(guild)
+                            role = await ModerationOld.get_mute_role(guild)
                             user_rlist = [x.id for x in member.roles]
                             if role.id in user_rlist:
                                 await member.remove_roles(role)
 
         await TemporaryActions.clear_expired_actions(time_on_iter)
 
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user) #Added
     @commands.has_permissions(manage_messages=True)
     @commands.command(name='purge', help=main.lang["command_purge_help"], description=main.lang["command_purge_description"], usage="10", ignore_extra=True)
     @commands.guild_only()
@@ -126,7 +126,7 @@ class Administration(commands.Cog):
             embed = discord.Embed(title=lang["administration_purge_prmsg"], color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=10)
     
-    @commands.command(name='kick', help=main.lang["command_kick_help"], description=main.lang["command_kick_description"], usage="@somebody Spamming")
+    @commands.command(name='kick', help=main.lang["command_kick_help"], description=main.lang["command_kick_description"], usage="@somebody Spamming") #Added
     @commands.has_permissions(kick_members=True)
     @commands.guild_only()
     async def kick(self, ctx, user: discord.Member, *, kick_reason: str = None):   
@@ -136,7 +136,7 @@ class Administration(commands.Cog):
         embed = discord.Embed(title=lang["administration_kick_msg"].format(user,kick_reason), color=self.module_embed_color)
         await ctx.send(embed=embed, delete_after=5)
 
-    @commands.command(name='ban', help=main.lang["command_ban_help"], description=main.lang["command_ban_description"], usage="@somebody Harassment")
+    @commands.command(name='ban', help=main.lang["command_ban_help"], description=main.lang["command_ban_description"], usage="@somebody Harassment") #Added
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
     async def ban(self, ctx, user: discord.Member, *, reason: str = None):
@@ -147,7 +147,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.command(name='tempban', help=main.lang["command_tempban_help"], description=main.lang["command_tempban_description"], usage='@somebody "2 weeks 5 days" Harassment', aliases=['tban'])
-    @commands.has_permissions(ban_members=True)
+    @commands.has_permissions(ban_members=True) #Added
     @commands.guild_only()
     async def temp_ban(self, ctx, user: discord.Member, time_period: TimePeriod, *, reason: str = None):
         unix_timestamp = int(time.time() + time_period)
@@ -166,7 +166,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.command(name='unban', help=main.lang["command_unban_help"], description=main.lang["command_unban_description"], usage="User#1234 OR 116267141744820233")
-    @commands.has_permissions(ban_members=True)
+    @commands.has_permissions(ban_members=True) #Added
     @commands.guild_only()
     async def unban(self, ctx, user: BannedUser):
         await TemporaryActions.clear_action(user.id, ctx.guild.id, ModerationAction.Ban)
@@ -177,7 +177,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.command(name='softban', help=main.lang["command_softban_help"], description=main.lang["command_softban_description"], usage="@somebody Harassment")
-    @commands.has_permissions(kick_members=True, manage_messages=True)
+    @commands.has_permissions(kick_members=True, manage_messages=True) #Added
     @commands.guild_only()
     async def softban(self, ctx, user: discord.Member, *, reason: str = None):
         await ctx.guild.ban(user, reason=reason)
@@ -188,11 +188,11 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.command(name='mute', help=main.lang["empty_string"], description=main.lang["command_mute_description"], usage='@somebody')
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_messages=True) #Added
     @commands.guild_only()
     async def mute(self, ctx, user: discord.Member):
         async with ctx.channel.typing():
-            role = await Administration.get_mute_role(ctx.guild)
+            role = await ModerationOld.get_mute_role(ctx.guild)
         user_rlist = [x.id for x in user.roles]
         await ctx.message.delete()
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -204,11 +204,11 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.command(name='tempmute', help=main.lang["command_tempmute_help"], description=main.lang["command_tempmute_description"], usage='@somebody 2 weeks 5 days', aliases=['tmute'])
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_messages=True) #Added
     @commands.guild_only()
     async def temp_mute(self, ctx, user: discord.Member, *, time_period: TimePeriod):
         async with ctx.channel.typing():
-            role = await Administration.get_mute_role(ctx.guild)
+            role = await ModerationOld.get_mute_role(ctx.guild)
         user_rlist = [x.id for x in user.roles]
         await ctx.message.delete()
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -224,11 +224,11 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
 
     @commands.command(name='unmute', help=main.lang["empty_string"], description=main.lang["command_unmute_description"], usage='@somebody')
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_messages=True) #Added
     @commands.guild_only()
     async def unmute(self, ctx, user: discord.Member):
         async with ctx.channel.typing():
-            role = await Administration.get_mute_role(ctx.guild)
+            role = await ModerationOld.get_mute_role(ctx.guild)
         user_rlist = [x.id for x in user.roles]
         await ctx.message.delete()
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -242,7 +242,7 @@ class Administration(commands.Cog):
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.group(name='slowmode', invoke_without_command=True, help=main.lang["command_slowmode_help"], description=main.lang["command_slowmode_description"], usage='15', aliases=['sm'])
-    @commands.has_permissions(manage_messages=True, manage_channels=True)
+    @commands.has_permissions(manage_messages=True, manage_channels=True)  #Added
     @commands.guild_only()
     async def slowmode(self, ctx, *, time_period: SmallTimePeriod):
         if not ctx.invoked_subcommand:
@@ -268,7 +268,7 @@ class Administration(commands.Cog):
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @slowmode.command(name='disable', help=main.lang["empty_string"], description=main.lang["command_slowmode_disable_description"], aliases=['off'])
-    @commands.has_permissions(manage_messages=True, manage_channels=True)
+    @commands.has_permissions(manage_messages=True, manage_channels=True) #Added
     @commands.guild_only()
     async def slowmode_disable(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -277,7 +277,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=15)
 
     @commands.cooldown(1, 10, commands.BucketType.user)
-    @commands.has_permissions(send_messages=True)
+    @commands.has_permissions(send_messages=True) #Added
     @commands.guild_only()
     @commands.group(name='report', invoke_without_command=True, help=main.lang["command_report_help"], description=main.lang["command_report_description"], usage='@somebody Spamming')
     async def report_group(self, ctx, user: discord.User, *, reason: str):
@@ -297,7 +297,7 @@ class Administration(commands.Cog):
                 raise commands.BadArgument("Failed to report user. Message author matches target user.")
 
     @commands.cooldown(1, 10, commands.BucketType.user)
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(administrator=True) #Added
     @report_group.command(name='setchannel', help=main.lang["command_setchannel_help"], description=main.lang["command_setchannel_description"], usage='#general')
     async def report_setchannel(self, ctx, channel: discord.TextChannel):
         await self.Reports.set_channel(ctx.guild.id, channel.id)
@@ -306,7 +306,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.cooldown(1, 10, commands.BucketType.user)
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(administrator=True) #Added
     @report_group.command(name='disable', help=main.lang["command_report_disable_help"], description=main.lang["command_report_disable_description"])
     async def report_disable(self, ctx):
         channel_id = await self.Reports.get_channel(ctx.guild.id)
@@ -319,7 +319,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.has_permissions(kick_members=True, ban_members=True)
-    @commands.guild_only()
+    @commands.guild_only() #Added
     @commands.command(name='warn', help=main.lang["command_warn_help"], description=main.lang["command_warn_description"], usage='@someone Spamming')
     async def warn_user(self, ctx, user: discord.Member, *, warning: str):
         if user.id != ctx.author.id:
@@ -352,7 +352,7 @@ class Administration(commands.Cog):
                     #Automatic Mute
                     if actions[0] != None and user_warnings >= actions[0]:
                         async with ctx.channel.typing():
-                            role = await Administration.get_mute_role(ctx.guild)
+                            role = await ModerationOld.get_mute_role(ctx.guild)
                         role_find = discord.utils.get(user.roles, id=role.id)
                         if not role_find:
                            await user.add_roles(role)
@@ -363,7 +363,7 @@ class Administration(commands.Cog):
             raise commands.BadArgument("Failed to warn user. Message author matches target user.")
 
     @commands.has_permissions(kick_members=True, ban_members=True)
-    @commands.guild_only()
+    @commands.guild_only() #Added
     @commands.group(name='warnings', invoke_without_command=True, help=main.lang["command_warnings_help"], description=main.lang["command_warnings_description"], usage='@someone 2')
     async def warnings_group(self, ctx, user: discord.User, page: int = 1):
         if not ctx.invoked_subcommand:
@@ -386,7 +386,7 @@ class Administration(commands.Cog):
                 raise commands.BadArgument("User warnings page index is out of range.")
 
     @warnings_group.command(name='reset', help=main.lang["command_warnings_reset_help"], description=main.lang["command_warnings_reset_description"], usage='@someone', aliases=['clear'])
-    async def warnings_reset(self, ctx, *, user: discord.User):
+    async def warnings_reset(self, ctx, *, user: discord.User): #Added
         await ctx.message.delete()
         await self.Warnings.reset_warnings(ctx.guild.id, user.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -394,7 +394,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed)
 
     @warnings_group.command(name='delete', help=main.lang["command_warnings_delete_help"], description=main.lang["command_warnings_delete_description"], usage='@someone 3', aliases=['remove'])
-    async def warnings_delete(self, ctx, user: discord.User, number: int):
+    async def warnings_delete(self, ctx, user: discord.User, number: int): #Added
         if number >= 1:
             index = number - 1
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -407,7 +407,7 @@ class Administration(commands.Cog):
             await ctx.send(embed=embed)
 
     @warnings_group.group(name='auto', invoke_without_command=True, help=main.lang["command_autoaction_help"], description=main.lang["command_autoaction_description"], usage='mute/kick/ban 5')
-    async def warnings_autoaction(self, ctx, action: str, number: int):
+    async def warnings_autoaction(self, ctx, action: str, number: int): #Added
         if not ctx.invoked_subcommand:
             if number > 0:
                 lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -420,7 +420,7 @@ class Administration(commands.Cog):
                 await ctx.send(embed=embed)
 
     @warnings_autoaction.command(name='disable', help=main.lang["command_autoaction_disable_help"], description=main.lang["command_autoaction_disable_description"], usage='mute/kick/ban')
-    async def warnings_disable_autoaction(self, ctx, action: str):
+    async def warnings_disable_autoaction(self, ctx, action: str): #Added
         if action.lower() in ('mute', 'kick', 'ban'):
             await self.AutoActions.disable_autoaction(ctx.guild.id, action)
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -428,7 +428,7 @@ class Administration(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.has_permissions(administrator=True)
-    @commands.guild_only()
+    @commands.guild_only() #Added
     @commands.group(name='blacklist', invoke_without_command=True, help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_description"], usage='@someone')
     async def blacklist(self, ctx, member: discord.Member):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -445,7 +445,7 @@ class Administration(commands.Cog):
             await ctx.send(embed=embed, delete_after=15)
 
     @commands.has_permissions(administrator=True)
-    @commands.guild_only()
+    @commands.guild_only() #Added
     @blacklist.command(name='add', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_add_description"], usage='@someone', aliases=['a'])
     async def blacklist_add(self, ctx, member: discord.Member):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -460,7 +460,7 @@ class Administration(commands.Cog):
         await ctx.send(embed=embed, delete_after=15)
 
     @commands.has_permissions(administrator=True)
-    @commands.guild_only()
+    @commands.guild_only() #Added
     @blacklist.command(name='remove', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_remove_description"], usage='@someone', aliases=['r'])
     async def blacklist_remove(self, ctx, member: discord.Member):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -581,7 +581,7 @@ class Administration(commands.Cog):
             if channel:
                 if await self.Toggles.has_custom_greeting(member.guild.id):
                     message = await self.Toggles.get_custom_greeting(member.guild.id)
-                    message = await Administration.format_message(message, member)
+                    message = await ModerationOld.format_message(message, member)
                 else:
                     lang = main.get_lang(member.guild.id)
                     message = lang["administration_greet_default"].format(member.mention, member.guild.name)
@@ -690,25 +690,25 @@ class Administration(commands.Cog):
             if channel:
                 if await self.Toggles.has_custom_goodbye(member.guild.id):
                     message = await self.Toggles.get_custom_goodbye(member.guild.id)
-                    message = await Administration.format_message(message, member)
+                    message = await ModerationOld.format_message(message, member)
                 else:
                     lang = main.get_lang(member.guild.id)
                     message = lang["administration_bye_default"].format(str(member), member.guild.name)
                 await channel.send(message)
 
-    @staticmethod
+    @staticmethod #Added
     async def get_mute_role(guild: discord.Guild):
         mute_role = await MuteRole.get_mute_role(guild.id)
         role = discord.utils.get(guild.roles, name='Muted')
         if not role:
             role = await guild.create_role(name="Muted", permissions=discord.Permissions(send_messages = False), reason="Created mute role to support bot moderation functionality.")
         if mute_role == None or mute_role != role.id:
-            await Administration.update_mute_role(role, guild)
+            await ModerationOld.update_mute_role(role, guild)
             await MuteRole.set_mute_role(guild.id, role.id)
         
         return role
 
-    @staticmethod
+    @staticmethod #Added
     async def update_mute_role(role: discord.Role, guild: discord.Guild):
         for channel in guild.text_channels:
             perms = channel.permissions_for(guild.me)
@@ -728,4 +728,4 @@ class Administration(commands.Cog):
         return message
 
 def setup(bot):
-    bot.add_cog(Administration(bot))
+    bot.add_cog(ModerationOld(bot))
