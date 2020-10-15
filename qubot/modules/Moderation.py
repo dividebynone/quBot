@@ -2,6 +2,7 @@ from main import config, bot_starttime, bot_path
 from datetime import datetime, timedelta, timezone
 from discord.ext import tasks, commands
 import libs.utils.admintools as admintools
+from libs.qulib import ExtendedCommand, ExtendedGroup
 import libs.qulib as qulib
 import configparser
 import discord
@@ -182,7 +183,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
-    @commands.command(name='purge', help=main.lang["command_purge_help"], description=main.lang["command_purge_description"], aliases=['clear', 'clean', 'prune', 'delete'], usage="10")
+    @commands.command(cls=ExtendedCommand, name='purge', help=main.lang["command_purge_help"], description=main.lang["command_purge_description"], aliases=['clear', 'clean', 'prune', 'delete'], usage="10 {filter}", permissions=['Manage Messages'])
     async def purge(self, ctx, messages: int, *filters):
         if messages > 0:
             await ctx.message.delete()
@@ -247,7 +248,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
     @commands.guild_only()
-    @commands.command(name='kick', help=main.lang["command_kick_help"], description=main.lang["command_kick_description"], usage="@somebody Spamming")
+    @commands.command(cls=ExtendedCommand, name='kick', description=main.lang["command_kick_description"], usage="@somebody {Spamming}", permissions=['Kick Members'])
     async def kick(self, ctx, members: commands.Greedy[discord.Member], *, reason: str = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if members:
@@ -276,7 +277,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
-    @commands.command(name='ban', help=main.lang["command_ban_help"], description=main.lang["command_ban_description"], usage="@somebody Harassment")
+    @commands.command(cls=ExtendedCommand, name='ban', help=main.lang["command_ban_help"], description=main.lang["command_ban_description"], usage='@somebody {"2 weeks 5 days"} {Harassment}', permissions=['Ban Members'])
     async def ban(self, ctx, members: commands.Greedy[discord.Member], time_period: typing.Optional[TimePeriod] = None, *, reason: str = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if members:
@@ -316,7 +317,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
-    @commands.command(name='unban', help=main.lang["command_unban_help"], description=main.lang["command_unban_description"], usage="User#1234 OR 116267141744820233")
+    @commands.command(cls=ExtendedCommand, name='unban', help=main.lang["command_unban_help"], description=main.lang["command_unban_description"], usage="User#1234 OR 116267141744820233", permissions=['Ban Members'])
     async def unban(self, ctx, users: commands.Greedy[BannedUser], *, reason: str = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if users:
@@ -346,7 +347,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, manage_messages=True)
     @commands.guild_only()
-    @commands.command(name='softban', help=main.lang["command_softban_help"], description=main.lang["command_softban_description"], usage="@somebody Spamming")
+    @commands.command(cls=ExtendedCommand, name='softban', help=main.lang["command_softban_help"], description=main.lang["command_softban_description"], usage="@somebody {Spamming}", permissions=['Kick Members', 'Manage Messages'])
     async def softban(self, ctx, members: commands.Greedy[discord.Member], *, reason: str = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if members:
@@ -376,7 +377,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
-    @commands.command(name='mute', help=main.lang["empty_string"], description=main.lang["command_mute_description"], usage='@somebody')
+    @commands.command(cls=ExtendedCommand, name='mute', help=main.lang["command_mute_help"], description=main.lang["command_mute_description"], usage='@somebody {2 days}', permissions=['Manage Messages'])
     async def mute(self, ctx, members: commands.Greedy[discord.Member], *, time_period: typing.Optional[TimePeriod] = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if members:
@@ -413,7 +414,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
-    @commands.command(name='unmute', help=main.lang["empty_string"], description=main.lang["command_unmute_description"], usage='@somebody')
+    @commands.command(cls=ExtendedCommand, name='unmute', description=main.lang["command_unmute_description"], usage='@somebody', permissions=['Manage Messages'])
     async def unmute(self, ctx, members: commands.Greedy[discord.Member]):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if members:
@@ -443,7 +444,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True, manage_channels=True)
     @commands.guild_only()
-    @commands.group(name='slowmode', invoke_without_command=True, help=main.lang["command_slowmode_help"], description=main.lang["command_slowmode_description"], usage='15', aliases=['sm'])
+    @commands.group(cls=ExtendedGroup, name='slowmode', invoke_without_command=True, help=main.lang["command_slowmode_help"], description=main.lang["command_slowmode_description"], usage='15', aliases=['sm'], permissions=['Manage Messages', 'Manage Channels'])
     async def slowmode(self, ctx, *, time_period: SmallTimePeriod):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -468,7 +469,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True, manage_channels=True)
     @commands.guild_only()
-    @slowmode.command(name='disable', help=main.lang["empty_string"], description=main.lang["command_slowmode_disable_description"], aliases=['d', 'off'])
+    @slowmode.command(cls=ExtendedCommand, name='disable', description=main.lang["command_slowmode_disable_description"], aliases=['d', 'off'], permissions=['Manage Messages', 'Manage Channels'])
     async def slowmode_disable(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.channel.edit(slowmode_delay=0)
@@ -500,7 +501,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @report.command(name='setchannel', help=main.lang["command_setchannel_help"], description=main.lang["command_setchannel_description"], usage='#general')
+    @report.command(cls=ExtendedCommand, name='setchannel', help=main.lang["command_report_setchannel_help"], description=main.lang["command_report_setchannel_description"], usage='#general', permissions=['Administrator'])
     async def report_setchannel(self, ctx, channel: discord.TextChannel):
         await self.Reports.set_channel(ctx.guild.id, channel.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -510,7 +511,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @report.command(name='disable', help=main.lang["command_report_disable_help"], description=main.lang["command_report_disable_description"], aliases=['d', 'off'])
+    @report.command(cls=ExtendedCommand, name='disable', description=main.lang["command_report_disable_description"], aliases=['d', 'off'], permissions=['Administrator'])
     async def report_disable(self, ctx):
         channel_id = await self.Reports.get_channel(ctx.guild.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -524,7 +525,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
     @commands.guild_only()
-    @commands.command(name='warn', help=main.lang["command_warn_help"], description=main.lang["command_warn_description"], usage='@someone Spamming')
+    @commands.command(cls=ExtendedCommand, name='warn', description=main.lang["command_warn_description"], usage='@someone Spamming', permissions=['Kick Members', 'Ban Members'])
     async def warn(self, ctx, members: commands.Greedy[discord.Member], *, warning: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if members:
@@ -585,7 +586,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
     @commands.guild_only()
-    @commands.group(name='warnings', invoke_without_command=True, help=main.lang["command_warnings_help"], description=main.lang["command_warnings_description"], usage='@someone 2')
+    @commands.group(cls=ExtendedGroup, name='warnings', invoke_without_command=True, help=main.lang["command_warnings_help"], description=main.lang["command_warnings_description"], usage='@someone {2}', permissions=['Kick Members', 'Ban Members'])
     async def warnings(self, ctx, member: discord.Member, page: int = 1):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -641,7 +642,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
     @commands.guild_only()
-    @warnings.command(name='reset', help=main.lang["command_warnings_reset_help"], description=main.lang["command_warnings_reset_description"], usage='@someone', aliases=['clear'])
+    @warnings.command(cls=ExtendedCommand, name='reset', description=main.lang["command_warnings_reset_description"], usage='@someone', aliases=['clear'], permissions=['Kick Members', 'Ban Members'])
     async def warnings_reset(self, ctx, members: commands.Greedy[discord.Member]):
         if members:
             output = ""
@@ -663,7 +664,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
     @commands.guild_only()
-    @warnings.command(name='delete', help=main.lang["command_warnings_delete_help"], description=main.lang["command_warnings_delete_description"], usage='@someone 3', aliases=['remove', 'del'])
+    @warnings.command(cls=ExtendedCommand, name='delete', description=main.lang["command_warnings_delete_description"], usage='@someone 3', aliases=['remove', 'del'], permissions=['Kick Members', 'Ban Members'])
     async def warnings_delete(self, ctx, member: discord.Member, number: int):
         if number >= 1:
             index = number - 1
@@ -679,7 +680,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @warnings.group(name='auto', invoke_without_command=True, help=main.lang["command_autoaction_help"], description=main.lang["command_autoaction_description"], usage='mute/kick/ban 5')
+    @warnings.group(cls=ExtendedGroup, name='auto', invoke_without_command=True, help=main.lang["command_autoaction_help"], description=main.lang["command_autoaction_description"], usage='mute/kick/ban 5', permissions=['Administrator'])
     async def warnings_autoaction(self, ctx, action: str, number: int):
         if not ctx.invoked_subcommand:
             if number > 0:
@@ -696,7 +697,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(10, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @warnings_autoaction.command(name='disable', help=main.lang["command_autoaction_disable_help"], description=main.lang["command_autoaction_disable_description"], usage='mute/kick/ban', aliases=['d', 'off'])
+    @warnings_autoaction.command(cls=ExtendedCommand, name='disable', description=main.lang["command_autoaction_disable_description"], usage='mute/kick/ban', aliases=['d', 'off'], permissions=['Administrator'])
     async def warnings_autoaction_disable(self, ctx, action: str):
         if action.lower() in ('mute', 'kick', 'ban'):
             await self.AutoActions.disable_autoaction(ctx.guild.id, action)
@@ -707,7 +708,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @commands.group(name='blacklist', invoke_without_command=True, help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_description"], usage='@someone')
+    @commands.group(cls=ExtendedGroup, name='blacklist', invoke_without_command=True, description=main.lang["command_blacklist_description"], usage='@someone', permissions=['Administrator'])
     async def blacklist(self, ctx, members: commands.Greedy[discord.Member]):
         if not ctx.invoked_subcommand:
             await self.blacklist_add(ctx, members)
@@ -715,7 +716,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @blacklist.command(name='add', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_add_description"], usage='@someone', aliases=['a'])
+    @blacklist.command(cls=ExtendedCommand, name='add', description=main.lang["command_blacklist_add_description"], usage='@someone', aliases=['a'], permissions=['Administrator'])
     async def blacklist_add(self, ctx, members: commands.Greedy[discord.Member]):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         member_ids = [x.id for x in members]
@@ -742,7 +743,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @blacklist.command(name='remove', help=main.lang["command_blacklist_help"], description=main.lang["command_blacklist_remove_description"], usage='@someone', aliases=['r'])
+    @blacklist.command(cls=ExtendedCommand, name='remove', description=main.lang["command_blacklist_remove_description"], usage='@someone', aliases=['r'], permissions=['Administrator'])
     async def blacklist_remove(self, ctx, members: commands.Greedy[discord.Member]):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         member_ids = [x.id for x in members]

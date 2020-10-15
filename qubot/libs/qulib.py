@@ -1,4 +1,5 @@
 from libs.sqlhandler import sqlconnect
+from discord.ext import commands
 from datetime import datetime
 from main import bot_path
 import sqlite3
@@ -117,3 +118,15 @@ async def user_set(user: discord.User, dict_input):
 def string_generator(size):
     chars = string.ascii_lowercase + string.digits
     return ''.join(random.choice(chars) for _ in range(size))
+
+# Extended Command
+
+class ExtendedCommand(commands.Command):
+    def __init__(self, *args, **kwargs):
+        self.permissions = kwargs.pop('permissions')
+        super().__init__(*args, **kwargs)
+
+class ExtendedGroup(commands.Group):
+    def __init__(self, *args, **kwargs):
+        self.permissions = kwargs.pop('permissions')
+        super().__init__(*args, **kwargs)

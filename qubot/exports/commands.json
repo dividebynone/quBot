@@ -7,7 +7,7 @@
             "description": "Creates a settlement.",
             "help": "This command requires three arguments - settlement name (should be in quotes), settlement type (either *public* or *private) and entry fee (minimum 100)",
             "name": "screate",
-            "usage": "This command requires three arguments - settlement name (should be in quotes), settlement type (either *public* or *private) and entry fee (minimum 100)"
+            "usage": "m!screate \"My Settlement Name\" <public/private> 100"
         },
         {
             "aliases": [
@@ -17,56 +17,56 @@
             "description": "Displays a settlement's public information.",
             "help": "This command has one optional argument - the target individual. If no argument is parsed then the command will display the settlement you currectly reside in.",
             "name": "sinfo",
-            "usage": "This command has one optional argument - the target individual. If no argument is parsed then the command will display the settlement you currectly reside in."
+            "usage": "m!sinfo <Settlement Member> (Optional)"
         },
         {
             "aliases": [],
             "description": "Joins another individual's settlement",
             "help": "This command requires two arguments - the settlement's invite code and entry fee (minimum the settlement's entry fee).",
             "name": "join",
-            "usage": "This command requires two arguments - the settlement's invite code and entry fee (minimum the settlement's entry fee)."
+            "usage": "m!join private/public ..."
         },
         {
             "aliases": [],
             "description": "Command to join a private settlement.",
             "help": "*Empty*",
             "name": "join private",
-            "usage": "*Empty*"
+            "usage": "m!join private <code here> 100"
         },
         {
             "aliases": [],
             "description": "Command to join a public settlement.",
             "help": "*Empty*",
             "name": "join public",
-            "usage": "*Empty*"
+            "usage": "m!join public @somebody 100"
         },
         {
             "aliases": [],
             "description": "A command group. If no subcommands are invoked by the user, this command will display your settlement's invide code.",
             "help": "*Empty*",
             "name": "code",
-            "usage": "*Empty*"
-        },
-        {
-            "aliases": [],
-            "description": "Generates a new invite code for your settlement.",
-            "help": "This command can also be used directly in the bot's direct messages.",
-            "name": "code new",
-            "usage": "This command can also be used directly in the bot's direct messages."
+            "usage": "m!code show/new"
         },
         {
             "aliases": [],
             "description": "Displays your settlement's invite code. The code is sent privately to the author.",
             "help": "This command can also be used directly in the bot's direct messages.",
             "name": "code show",
-            "usage": "This command can also be used directly in the bot's direct messages."
+            "usage": "m!code show"
+        },
+        {
+            "aliases": [],
+            "description": "Generates a new invite code for your settlement.",
+            "help": "This command can also be used directly in the bot's direct messages.",
+            "name": "code new",
+            "usage": "m!code new"
         },
         {
             "aliases": [],
             "description": "Attacks the target individual's settlement.",
             "help": "Use it wisely!",
             "name": "attack",
-            "usage": "Use it wisely!"
+            "usage": "m!attack @somebody"
         },
         {
             "aliases": [
@@ -75,35 +75,35 @@
             "description": "Returns the settlements' leaderboard",
             "help": "This command takes one optional argument - the page number. If no argument is passed, then it defaults to 1.",
             "name": "sleaderboard",
-            "usage": "This command takes one optional argument - the page number. If no argument is passed, then it defaults to 1."
+            "usage": "m!sleaderboard"
         },
         {
             "aliases": [],
             "description": "Leave the settlement you are currently in. (if any)",
             "help": "- Leaders of settlements with multiple residents cannot leave settlement without transferring ownership.\n- Settlements with only one resident will get **DESTROYED** in the process!",
             "name": "sleave",
-            "usage": "- Leaders of settlements with multiple residents cannot leave settlement without transferring ownership.\n- Settlements with only one resident will get **DESTROYED** in the process!"
+            "usage": "m!sleave"
         },
         {
             "aliases": [],
             "description": "Promotes the target individual to settlement leader.",
             "help": "This command can **ONLY** be used by settlement leaders.",
             "name": "promote",
-            "usage": "This command can **ONLY** be used by settlement leaders."
+            "usage": "m!promote @somebody"
         },
         {
             "aliases": [],
             "description": "Kicks the target individual from the settlement.",
             "help": "This command can **ONLY** be used by settlement leaders.",
             "name": "skick",
-            "usage": "This command can **ONLY** be used by settlement leaders."
+            "usage": "m!skick @somebody"
         },
         {
             "aliases": [],
             "description": "Displays the amount of resources currently stored in your settlement.",
             "help": "*Empty*",
             "name": "resources",
-            "usage": "*Empty*"
+            "usage": "m!resources"
         },
         {
             "aliases": [
@@ -112,28 +112,28 @@
             "description": "A command group. If no subcommands are invoked by the user, this command will display the buildings' status of the settlement you are part of. (if any)",
             "help": "*Empty*",
             "name": "buildings",
-            "usage": "*Empty*"
-        },
-        {
-            "aliases": [],
-            "description": "Displays the buildings' status of the settlement you are part of. (if any)",
-            "help": "*Empty*",
-            "name": "buildings list",
-            "usage": "*Empty*"
-        },
-        {
-            "aliases": [],
-            "description": "Displays the buildings' status of the settlement you are part of. (if any)",
-            "help": "*Empty*",
-            "name": "buildings compact",
-            "usage": "*Empty*"
+            "usage": "m!buildings"
         },
         {
             "aliases": [],
             "description": "Upgrades the target settlement building to the next level.\nBuildings can be upgraded to Level 10.",
             "help": "This command can only be used by the leader of the settlement.",
             "name": "buildings upgrade",
-            "usage": "This command can only be used by the leader of the settlement."
+            "usage": "m!buildings upgrade 1"
+        },
+        {
+            "aliases": [],
+            "description": "Displays the buildings' status of the settlement you are part of. (if any)",
+            "help": "*Empty*",
+            "name": "buildings list",
+            "usage": "m!buildings list"
+        },
+        {
+            "aliases": [],
+            "description": "Displays the buildings' status of the settlement you are part of. (if any)",
+            "help": "*Empty*",
+            "name": "buildings compact",
+            "usage": "m!buildings compact"
         },
         {
             "aliases": [
@@ -142,42 +142,42 @@
             "description": "Displays target settlement building upgrade requirements for every level from 1 to 10.",
             "help": "*Empty*",
             "name": "requirements",
-            "usage": "*Empty*"
+            "usage": "m!requirements 1"
         },
         {
             "aliases": [],
             "description": "A command group. If no subcommands are invoked by the user, this command will display the resource market.",
             "help": "This command can also be used directly in the bot's direct messages.",
             "name": "market",
-            "usage": "This command can also be used directly in the bot's direct messages."
-        },
-        {
-            "aliases": [],
-            "description": "Buys a set amount of resources from the market.",
-            "help": "This command can only be used by the leader of the settlement.",
-            "name": "market buy",
-            "usage": "This command can only be used by the leader of the settlement."
+            "usage": "m!market"
         },
         {
             "aliases": [],
             "description": "Sells a set amount of resources on the market.",
             "help": "This command can only be used by the leader of the settlement.",
             "name": "market sell",
-            "usage": "This command can only be used by the leader of the settlement."
+            "usage": "m!market sell wood 150"
+        },
+        {
+            "aliases": [],
+            "description": "Buys a set amount of resources from the market.",
+            "help": "This command can only be used by the leader of the settlement.",
+            "name": "market buy",
+            "usage": "m!market buy cloth 50"
         },
         {
             "aliases": [],
             "description": "Deposits a sum of money into the treasury of the settlement you are currently part of.",
             "help": "You need to be part of a settlement to be able to use this command.",
             "name": "deposit",
-            "usage": "You need to be part of a settlement to be able to use this command."
+            "usage": "m!deposit 100"
         },
         {
             "aliases": [],
             "description": "Renames your settlement to the given name.",
             "help": "- You must be the leader of this settlement to be able to use this command.\n- In order to rename your settlement, you need to pay a fee of 500 gold.\n- Settlement names have a character limit of 50 characters.",
             "name": "rename",
-            "usage": "- You must be the leader of this settlement to be able to use this command.\n- In order to rename your settlement, you need to pay a fee of 500 gold.\n- Settlement names have a character limit of 50 characters."
+            "usage": "m!rename My new settlement name"
         }
     ],
     "Core": [
@@ -186,21 +186,24 @@
             "description": "Loads modules into the bot application.",
             "help": "- The module file needs to be present in the modules folder of the bot.\n- This command can only be used by the **BOT OWNER**.",
             "name": "load",
-            "usage": "- The module file needs to be present in the modules folder of the bot.\n- This command can only be used by the **BOT OWNER**."
+            "permissions": [
+                "Bot Owner"
+            ],
+            "usage": "m!load <module name>"
         },
         {
             "aliases": [],
             "description": "Unloads modules from the bot application.",
             "help": "- The module file needs to be present in the modules folder of the bot.\n- This command can only be used by the **BOT OWNER**.",
             "name": "unload",
-            "usage": "- The module file needs to be present in the modules folder of the bot.\n- This command can only be used by the **BOT OWNER**."
+            "usage": "m!unload <module name>"
         },
         {
             "aliases": [],
             "description": "Reloads modules loaded into the bot application.",
             "help": "- The module file needs to be present in the modules folder of the bot.\n- This command can only be used by the **BOT OWNER**.",
             "name": "reload",
-            "usage": "- The module file needs to be present in the modules folder of the bot.\n- This command can only be used by the **BOT OWNER**."
+            "usage": "m!reload <module name>"
         },
         {
             "aliases": [
@@ -209,23 +212,7 @@
             "description": "Displays all loaded modules.",
             "help": "*Empty*",
             "name": "modules",
-            "usage": "*Empty*"
-        },
-        {
-            "aliases": [
-                "e"
-            ],
-            "description": "Enables the target cog/module on the server where the command was executed.",
-            "help": "This command can only be used by server **administrators**.",
-            "name": "modules enable",
-            "usage": "This command can only be used by server **administrators**."
-        },
-        {
-            "aliases": [],
-            "description": "Reveals a hidden module from the list of loaded modules.",
-            "help": "This is a subcommand of the **modules** command.\nThis command can only be used by the **BOT OWNER**.",
-            "name": "modules unhide",
-            "usage": "This is a subcommand of the **modules** command.\nThis command can only be used by the **BOT OWNER**."
+            "usage": "m!modules"
         },
         {
             "aliases": [
@@ -234,14 +221,30 @@
             "description": "Disables the target cog/module on the server where the command was executed.",
             "help": "This command can only be used by server **administrators**.",
             "name": "modules disable",
-            "usage": "This command can only be used by server **administrators**."
+            "usage": "m!modules disable <module name>"
         },
         {
             "aliases": [],
             "description": "Hides a module from the list of loaded modules.",
             "help": "This is a subcommand of the **modules** command.\nThis command can only be used by the **BOT OWNER**.",
             "name": "modules hide",
-            "usage": "This is a subcommand of the **modules** command.\nThis command can only be used by the **BOT OWNER**."
+            "usage": "m!modules hide <module name>"
+        },
+        {
+            "aliases": [
+                "e"
+            ],
+            "description": "Enables the target cog/module on the server where the command was executed.",
+            "help": "This command can only be used by server **administrators**.",
+            "name": "modules enable",
+            "usage": "m!modules enable <module name>"
+        },
+        {
+            "aliases": [],
+            "description": "Reveals a hidden module from the list of loaded modules.",
+            "help": "This is a subcommand of the **modules** command.\nThis command can only be used by the **BOT OWNER**.",
+            "name": "modules unhide",
+            "usage": "m!modules unhide <module name>"
         },
         {
             "aliases": [
@@ -250,16 +253,7 @@
             "description": "Displays all commands in a given module",
             "help": "*Empty*",
             "name": "commands",
-            "usage": "*Empty*"
-        },
-        {
-            "aliases": [
-                "d"
-            ],
-            "description": "Disables a command for the server where the command was executed in.",
-            "help": "This command can only be used by server **administrators**.",
-            "name": "commands disable",
-            "usage": "This command can only be used by server **administrators**."
+            "usage": "m!commands <module name>"
         },
         {
             "aliases": [
@@ -268,7 +262,16 @@
             "description": "Enables a command for the server where the command was executed in.",
             "help": "This command can only be used by server **administrators**.",
             "name": "commands enable",
-            "usage": "This command can only be used by server **administrators**."
+            "usage": "m!commands enable userid"
+        },
+        {
+            "aliases": [
+                "d"
+            ],
+            "description": "Disables a command for the server where the command was executed in.",
+            "help": "This command can only be used by server **administrators**.",
+            "name": "commands disable",
+            "usage": "m!commands disable userid"
         },
         {
             "aliases": [
@@ -277,7 +280,7 @@
             "description": "Returns the target individual's Discord ID.",
             "help": "If no argument is given, the bot will use the author of the message.",
             "name": "userid",
-            "usage": "If no argument is given, the bot will use the author of the message."
+            "usage": "m!userid @somebody"
         },
         {
             "aliases": [
@@ -286,7 +289,7 @@
             "description": "Returns the server's ID for the server the command was typed in.",
             "help": "*Empty*",
             "name": "serverid",
-            "usage": "*Empty*"
+            "usage": "m!serverid"
         },
         {
             "aliases": [
@@ -295,7 +298,7 @@
             "description": "Returns the channel's ID for the channel the command was typed in.",
             "help": "*Empty*",
             "name": "channelid",
-            "usage": "*Empty*"
+            "usage": "m!channelid"
         },
         {
             "aliases": [
@@ -304,56 +307,56 @@
             "description": "Returns the target role's ID for the server the command was typed in.",
             "help": "*Empty*",
             "name": "roleid",
-            "usage": "*Empty*"
+            "usage": "m!roleid Moderator"
         },
         {
             "aliases": [],
             "description": "Politely kicks the bot off your server.",
             "help": "*Empty*",
             "name": "remove",
-            "usage": "*Empty*"
+            "usage": "m!remove"
         },
         {
             "aliases": [],
             "description": "Returns the latencies (in miliseconds) for every active shard.",
             "help": "This command can only be used by the **BOT OWNER**.",
             "name": "latencies",
-            "usage": "This command can only be used by the **BOT OWNER**."
+            "usage": "m!latencies"
         },
         {
             "aliases": [],
             "description": "Changes the name of the bot.",
             "help": "This command can only be used by the **BOT OWNER**.",
             "name": "setname",
-            "usage": "This command can only be used by the **BOT OWNER**."
+            "usage": "m!setname <new name>"
         },
         {
             "aliases": [],
             "description": "Changes the bot's status. (Online by default)",
             "help": "This command requires one argument and it needs to be one of the following: *online, offline, idle, dnd, invisible*.\nThis command can only be used by the **BOT OWNER**.",
             "name": "setstatus",
-            "usage": "This command requires one argument and it needs to be one of the following: *online, offline, idle, dnd, invisible*.\nThis command can only be used by the **BOT OWNER**."
+            "usage": "m!setstatus dnd"
         },
         {
             "aliases": [],
             "description": "Changes the bot's activity",
             "help": "This command requires two arguments: the type of activity(playing, streaming, listening, watching) and the message itself.\nThis command can only be used by the **BOT OWNER**.",
             "name": "setactivity",
-            "usage": "This command requires two arguments: the type of activity(playing, streaming, listening, watching) and the message itself.\nThis command can only be used by the **BOT OWNER**."
+            "usage": "m!setactivity playing with corgis"
         },
         {
             "aliases": [],
             "description": "Restarts the bot",
             "help": "This command can only be used by the **BOT OWNER**.",
             "name": "restart",
-            "usage": "This command can only be used by the **BOT OWNER**."
+            "usage": "m!restart"
         },
         {
             "aliases": [],
             "description": "Shutdowns the bot",
             "help": "This command can only be used by the **BOT OWNER**.",
             "name": "shutdown",
-            "usage": "This command can only be used by the **BOT OWNER**."
+            "usage": "m!shutdown"
         },
         {
             "aliases": [
@@ -362,49 +365,49 @@
             "description": "Returns a list of locally detected language(localization) packages",
             "help": "*Empty*",
             "name": "langs",
-            "usage": "*Empty*"
+            "usage": "m!langs"
         },
         {
             "aliases": [],
             "description": "Changes the language of the bot",
             "help": "This command can only be used by server **administrators**.",
             "name": "langset",
-            "usage": "This command can only be used by server **administrators**."
+            "usage": "m!langset en-US"
         },
         {
             "aliases": [],
             "description": "Shows general information about the translation of the bot.",
             "help": "*Empty*",
             "name": "translate",
-            "usage": "*Empty*"
+            "usage": "m!translate"
         },
         {
             "aliases": [],
             "description": "Shows or changes the bot's prefix on the server.",
             "help": "- If you do not include a new prefix, the command will instead display the bot's current prefix on the server.\n- This command can only be used by server **administrators**.",
             "name": "prefix",
-            "usage": "- If you do not include a new prefix, the command will instead display the bot's current prefix on the server.\n- This command can only be used by server **administrators**."
+            "usage": "m!prefix q!"
         },
         {
             "aliases": [],
             "description": "Resets the bot's prefix on the server back to default.",
             "help": "This command can only be used by server **administrators**.",
             "name": "prefix reset",
-            "usage": "This command can only be used by server **administrators**."
+            "usage": "m!prefix reset"
         },
         {
             "aliases": [],
             "description": "Shows the bot's prefix on the server.",
             "help": "*Empty*",
             "name": "prefix show",
-            "usage": "*Empty*"
+            "usage": "m!prefix show"
         },
         {
             "aliases": [],
             "description": "",
             "help": null,
             "name": "export",
-            "usage": null
+            "usage": "m!export"
         },
         {
             "aliases": [
@@ -414,7 +417,7 @@
             "description": "",
             "help": null,
             "name": "export commands",
-            "usage": null
+            "usage": "m!export commands"
         }
     ],
     "Dictionaries": [
@@ -427,7 +430,7 @@
             "description": "Returns a list of definitions based on the term you parse to the bot.",
             "help": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels",
             "name": "dict",
-            "usage": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels"
+            "usage": "m!dict"
         },
         {
             "aliases": [
@@ -436,7 +439,7 @@
             "description": "Returns a list of the top synonyms from Thesaurus based on the term you parse to the bot.",
             "help": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels",
             "name": "synonym",
-            "usage": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels"
+            "usage": "m!synonym hot"
         },
         {
             "aliases": [
@@ -445,7 +448,7 @@
             "description": "Returns a list of the top antonyms from Thesaurus based on the term you parse to the bot.",
             "help": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels",
             "name": "antonym",
-            "usage": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels"
+            "usage": "m!antonym hot"
         },
         {
             "aliases": [
@@ -454,7 +457,7 @@
             "description": "Returns the top urban dictionary definition based on the term you parse to the bot.",
             "help": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels",
             "name": "urbandict",
-            "usage": "- This command supports only **English words & phrases**\n- This command can only be used in NSFW text channels"
+            "usage": "m!urbandict hello"
         }
     ],
     "Economy": [
@@ -463,7 +466,7 @@
             "description": "Lets you claim a set sum of money on a daily basis.",
             "help": "If you wish to gift your daily reward instead of claiming it for yourself, you can mention the individual when using the command.",
             "name": "daily",
-            "usage": "If you wish to gift your daily reward instead of claiming it for yourself, you can mention the individual when using the command."
+            "usage": "m!daily @somebody (Optional Argument)"
         },
         {
             "aliases": [
@@ -475,21 +478,21 @@
             "description": "Displays the sum of money the target individual has on their profile.",
             "help": "If no argument is parsed, the bot will display the sum of money that you have on your profile.",
             "name": "currency",
-            "usage": "If no argument is parsed, the bot will display the sum of money that you have on your profile."
+            "usage": "m!currency @somebody"
         },
         {
             "aliases": [],
             "description": "Awards/Subtracts a set amount of money to/from the target individual.",
             "help": "This command requires two arguments - the target user and the amount of money.\nThis command can only be used by the **BOT OWNER**.",
             "name": "adjust",
-            "usage": "This command requires two arguments - the target user and the amount of money.\nThis command can only be used by the **BOT OWNER**."
+            "usage": "m!adjust @somebody 100"
         },
         {
             "aliases": [],
             "description": "Transfers a set amount of money to another user.",
             "help": "This command requires two arguments - the target user and the amount of money.",
             "name": "give",
-            "usage": "This command requires two arguments - the target user and the amount of money."
+            "usage": "m!give @somebody 50"
         },
         {
             "aliases": [
@@ -499,28 +502,28 @@
             "description": "Lets you bet a certain amount of money.",
             "help": "This command requires one argument - the amount you are willing to bet.",
             "name": "broll",
-            "usage": "This command requires one argument - the amount you are willing to bet."
+            "usage": "m!broll 50"
         },
         {
             "aliases": [],
             "description": "Giveaway command group. Please refer to `giveaway start` and `giveaway end` for more information.",
             "help": "*Empty*",
             "name": "giveaway",
-            "usage": "*Empty*"
+            "usage": "m!giveaway"
         },
         {
             "aliases": [],
             "description": "Starts a currency giveaway. Users can claim their reward by reacting to the bot message.",
             "help": "This command can only be used by the **BOT OWNER**.",
             "name": "giveaway start",
-            "usage": "This command can only be used by the **BOT OWNER**."
+            "usage": "m!giveaway start 100"
         },
         {
             "aliases": [],
             "description": "Ends a giveaway by a provided bot message ID",
             "help": "This command can only be used by the **BOT OWNER**.",
             "name": "giveaway end",
-            "usage": "This command can only be used by the **BOT OWNER**."
+            "usage": "m!giveaway end"
         }
     ],
     "HelpFormatter": [
@@ -531,76 +534,63 @@
             "description": "",
             "help": null,
             "name": "help",
-            "usage": null
+            "usage": "m!help"
         }
     ],
     "Moderation": [
         {
-            "aliases": [],
+            "aliases": [
+                "clear",
+                "clean",
+                "prune",
+                "delete"
+            ],
             "description": "Deletes a set number of messages.",
             "help": "- This command requires a single argument - The number of messages you wish the bot to delete.\n- Available filters: bot *(Filters are specified after the number of messages)*",
             "name": "purge",
-            "usage": "- This command requires a single argument - The number of messages you wish the bot to delete.\n- Available filters: bot *(Filters are specified after the number of messages)*"
+            "usage": "m!purge 10"
         },
         {
             "aliases": [],
             "description": "Kicks the mentioned individual for a certain reason (if any)",
             "help": "- The kick reason is an optional argument.\n- This command can only be used by users with the ability to **kick** members.",
             "name": "kick",
-            "usage": "- The kick reason is an optional argument.\n- This command can only be used by users with the ability to **kick** members."
+            "usage": "m!kick @somebody Spamming"
         },
         {
             "aliases": [],
             "description": "Bans the mentioned individual for a certain reason (if any)",
             "help": "- The ban reason is an optional argument.\n- This command can only be used by users with the ability to **ban** members.",
             "name": "ban",
-            "usage": "- The ban reason is an optional argument.\n- This command can only be used by users with the ability to **ban** members."
-        },
-        {
-            "aliases": [
-                "tban"
-            ],
-            "description": "Temporarily bans the mentioned invidivual for a specified amount of time for a certain reason (if any).",
-            "help": "- This command accepts the following time units: `m(inutes), h(ours), d(ays), w(eeks)`\n- This command can only be used by users with the ability to **ban** members.",
-            "name": "tempban",
-            "usage": "- This command accepts the following time units: `m(inutes), h(ours), d(ays), w(eeks)`\n- This command can only be used by users with the ability to **ban** members."
+            "usage": "m!ban @somebody Harassment"
         },
         {
             "aliases": [],
             "description": "Unbans the target individual from the server.",
             "help": "Since the target individual can not be mentioned directly within the server, a <username>#<discriminator>(see example) or user ID should be provided.",
             "name": "unban",
-            "usage": "Since the target individual can not be mentioned directly within the server, a <username>#<discriminator>(see example) or user ID should be provided."
+            "usage": "m!unban User#1234 OR 116267141744820233"
         },
         {
             "aliases": [],
             "description": "Soft bans the mentioned individual for a specified reason (if any)",
             "help": "- The soft ban reason is an optional argument.\n- Soft bans in essence kick the target individual from the server while deleting their messages. It's not the same as a normal ban.\n- This command can only be used by users with the ability to **kick** members and **manage** messages.",
             "name": "softban",
-            "usage": "- The soft ban reason is an optional argument.\n- Soft bans in essence kick the target individual from the server while deleting their messages. It's not the same as a normal ban.\n- This command can only be used by users with the ability to **kick** members and **manage** messages."
+            "usage": "m!softban @somebody Spamming"
         },
         {
             "aliases": [],
             "description": "Mutes the target individual from chatting on the server.",
             "help": "*Empty*",
             "name": "mute",
-            "usage": "*Empty*"
-        },
-        {
-            "aliases": [
-                "tmute"
-            ],
-            "description": "Temporarily mutes the target individual from chatting on the server.",
-            "help": "- This command accepts the following time units: `m(inutes), h(ours), d(ays), w(eeks)`\n- This command can only be used by users with the ability to **manage messages**.",
-            "name": "tempmute",
-            "usage": "- This command accepts the following time units: `m(inutes), h(ours), d(ays), w(eeks)`\n- This command can only be used by users with the ability to **manage messages**."
+            "usage": "m!mute @somebody"
         },
         {
             "aliases": [],
             "description": "Unmutes the target individual if they were previously muted using the bot.",
             "help": "*Empty*",
             "name": "unmute",
-            "usage": "*Empty*"
+            "usage": "m!unmute @somebody"
         },
         {
             "aliases": [
@@ -609,74 +599,55 @@
             "description": "Sets a chatting cooldown for the channel where the command was used.",
             "help": "- This command accepts the following time units: `s(econds), m(inutes), h(ours)`\n- This command can only be used by users with the ability to **manage messages** and **manage channels**.",
             "name": "slowmode",
-            "usage": "- This command accepts the following time units: `s(econds), m(inutes), h(ours)`\n- This command can only be used by users with the ability to **manage messages** and **manage channels**."
+            "usage": "m!slowmode 15"
         },
         {
             "aliases": [
+                "d",
                 "off"
             ],
             "description": "Disables slowmode for the channel where the command was used.",
             "help": "*Empty*",
             "name": "slowmode disable",
-            "usage": "*Empty*"
+            "usage": "m!slowmode disable"
         },
         {
             "aliases": [],
             "description": "Reports the target user for a particular reason.",
             "help": "- A report reason must be provided in order to use this command.\n- This command will only work when a report channel is set. (Disabled by default)",
             "name": "report",
-            "usage": "- A report reason must be provided in order to use this command.\n- This command will only work when a report channel is set. (Disabled by default)"
+            "usage": "m!report @somebody Spamming"
         },
         {
-            "aliases": [],
+            "aliases": [
+                "d",
+                "off"
+            ],
             "description": "Disables user reporting for the server where the command was used.",
             "help": "- To enable user reporting again, you need to set a new report text channel.\n- This command can only be used by server **administrators**.",
             "name": "report disable",
-            "usage": "- To enable user reporting again, you need to set a new report text channel.\n- This command can only be used by server **administrators**."
+            "usage": "m!report disable"
         },
         {
             "aliases": [],
             "description": "Selects a text channel where future user reports are going to be sent.",
             "help": "- Using this command will enable user reports if they were previously disabled. (Disabled by default)\n- This command can only be used by server **administrators**.",
             "name": "report setchannel",
-            "usage": "- Using this command will enable user reports if they were previously disabled. (Disabled by default)\n- This command can only be used by server **administrators**."
+            "usage": "m!report setchannel #general"
         },
         {
             "aliases": [],
             "description": "Warns the target user for a particular reason. This individual will receive a direct message from the bot.",
             "help": "- A reason for the warning must be provided in order to use this command.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
             "name": "warn",
-            "usage": "- A reason for the warning must be provided in order to use this command.\n- This command can only be used by users with the ability to **kick** and **ban** members."
+            "usage": "m!warn @someone Spamming"
         },
         {
             "aliases": [],
             "description": "Displays a list of warnings for the target individual.",
             "help": "- A total of five warnings are displayed per page. You can navigate through pages by providing a page number after the username.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
             "name": "warnings",
-            "usage": "- A total of five warnings are displayed per page. You can navigate through pages by providing a page number after the username.\n- This command can only be used by users with the ability to **kick** and **ban** members."
-        },
-        {
-            "aliases": [
-                "remove"
-            ],
-            "description": "Deletes a specific warning that was issued to the target individual.",
-            "help": "- While deleting warnings **WILL NOT** trigger any automatic actions, adding a new warning **WILL**.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
-            "name": "warnings delete",
-            "usage": "- While deleting warnings **WILL NOT** trigger any automatic actions, adding a new warning **WILL**.\n- This command can only be used by users with the ability to **kick** and **ban** members."
-        },
-        {
-            "aliases": [],
-            "description": "Changes the number of warnings needed for a user to trigger an automatic mute/kick/ban from the server. (Disabled by default)",
-            "help": "- Using this command will enable the above-mentioned automatic actions if previously disabled.\n- If any of the number of warnings match for mute, kick or ban, the following will take priority from highest to lowest: ban, kick, mute.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
-            "name": "warnings auto",
-            "usage": "- Using this command will enable the above-mentioned automatic actions if previously disabled.\n- If any of the number of warnings match for mute, kick or ban, the following will take priority from highest to lowest: ban, kick, mute.\n- This command can only be used by users with the ability to **kick** and **ban** members."
-        },
-        {
-            "aliases": [],
-            "description": "Disables the target automatic action from triggering for future user warnings.",
-            "help": "This command can only be used by users with the ability to **kick** and **ban** members.",
-            "name": "warnings auto disable",
-            "usage": "This command can only be used by users with the ability to **kick** and **ban** members."
+            "usage": "m!warnings @someone 2"
         },
         {
             "aliases": [
@@ -685,23 +656,41 @@
             "description": "Resets all warnings for the target individual.",
             "help": "This command can only be used by users with the ability to **kick** and **ban** members.",
             "name": "warnings reset",
-            "usage": "This command can only be used by users with the ability to **kick** and **ban** members."
+            "usage": "m!warnings reset @someone"
+        },
+        {
+            "aliases": [
+                "remove",
+                "del"
+            ],
+            "description": "Deletes a specific warning that was issued to the target individual.",
+            "help": "- While deleting warnings **WILL NOT** trigger any automatic actions, adding a new warning **WILL**.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
+            "name": "warnings delete",
+            "usage": "m!warnings delete @someone 3"
+        },
+        {
+            "aliases": [],
+            "description": "Changes the number of warnings needed for a user to trigger an automatic mute/kick/ban from the server. (Disabled by default)",
+            "help": "- Using this command will enable the above-mentioned automatic actions if previously disabled.\n- If any of the number of warnings match for mute, kick or ban, the following will take priority from highest to lowest: ban, kick, mute.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
+            "name": "warnings auto",
+            "usage": "m!warnings auto mute/kick/ban 5"
+        },
+        {
+            "aliases": [
+                "d",
+                "off"
+            ],
+            "description": "Disables the target automatic action from triggering for future user warnings.",
+            "help": "This command can only be used by users with the ability to **kick** and **ban** members.",
+            "name": "warnings auto disable",
+            "usage": "m!warnings auto disable mute/kick/ban"
         },
         {
             "aliases": [],
             "description": "Blacklists the target user. As a result, they will no longer be able to use the bot in that server. If the target user is already blacklisted, they will get removed from the blacklist and regain access to bot commands.",
             "help": "This command can only be used by server **administrators**.",
             "name": "blacklist",
-            "usage": "This command can only be used by server **administrators**."
-        },
-        {
-            "aliases": [
-                "a"
-            ],
-            "description": "Blacklists the target user. As a result, they will no longer be able to use the bot in that server.",
-            "help": "This command can only be used by server **administrators**.",
-            "name": "blacklist add",
-            "usage": "This command can only be used by server **administrators**."
+            "usage": "m!blacklist @someone"
         },
         {
             "aliases": [
@@ -710,138 +699,16 @@
             "description": "Removes the target user from the bot blacklist. As a result, they will regain access to the bot's commands in that server.",
             "help": "This command can only be used by server **administrators**.",
             "name": "blacklist remove",
-            "usage": "This command can only be used by server **administrators**."
+            "usage": "m!blacklist remove @someone"
         },
         {
             "aliases": [
-                "greetings"
+                "a"
             ],
-            "description": "Toggles server greeting messages on/off on the server.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Command to test your custom server greetings message.",
+            "description": "Blacklists the target user. As a result, they will no longer be able to use the bot in that server.",
             "help": "This command can only be used by server **administrators**.",
-            "name": "greet test",
-            "usage": "This command can only be used by server **administrators**."
-        },
-        {
-            "aliases": [
-                "off"
-            ],
-            "description": "Disables server greeting messages on the server.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet disable",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Enables server greetings on the server. Instead of the server's text channel, future messages will instead be sent to users' direct messages.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet dm",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Changes the greeting message to a custom one. Feel free to check the notes to be able to fully utilize this command.",
-            "help": "- This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)\n- You can include the following in your message:\n**{mention}** - Mentions the User;\n**{user}** - Shows Username;\n**{server}** - Shows server name;\n**{membercount}** - Shows number of people in server;\n- This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet message",
-            "usage": "- This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)\n- You can include the following in your message:\n**{mention}** - Mentions the User;\n**{user}** - Shows Username;\n**{server}** - Shows server name;\n**{membercount}** - Shows number of people in server;\n- This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Resets the server greeting message back to default.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet message default",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [
-                "on"
-            ],
-            "description": "Enables server greeting messages on the server.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet enable",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Sets the text channel where greetings and goodbye messages are going to be sent by the bot.",
-            "help": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet setchannel",
-            "usage": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Resets the greetings/goodbye messages text channel back to default.",
-            "help": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**.",
-            "name": "greet setchannel default",
-            "usage": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [
-                "goodbye"
-            ],
-            "description": "Toggles server goodbye messages on/off on the server.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "bye",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [
-                "on"
-            ],
-            "description": "Enables server goodbye messages on the server.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "bye enable",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Sets the text channel where greetings and goodbye messages are going to be sent by the bot.",
-            "help": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**.",
-            "name": "bye setchannel",
-            "usage": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Resets the greetings/goodbye messages text channel back to default.",
-            "help": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**.",
-            "name": "bye setchannel default",
-            "usage": "- By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.\n- This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Command to test your custom server goodbye message.",
-            "help": "This command can only be used by server **administrators**.",
-            "name": "bye test",
-            "usage": "This command can only be used by server **administrators**."
-        },
-        {
-            "aliases": [
-                "off"
-            ],
-            "description": "Disables server goodbye messages on the server.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "bye disable",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Changes the goodbye message to a custom one. Feel free to check the notes to be able to fully utilize this command.",
-            "help": "- This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)\n- You can include the following in your message:\n**{mention}** - Mentions the User;\n**{user}** - Shows Username;\n**{server}** - Shows server name;\n**{membercount}** - Shows number of people in server;\n- This command can only be used by users with the ability to **manage servers**.",
-            "name": "bye message",
-            "usage": "- This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)\n- You can include the following in your message:\n**{mention}** - Mentions the User;\n**{user}** - Shows Username;\n**{server}** - Shows server name;\n**{membercount}** - Shows number of people in server;\n- This command can only be used by users with the ability to **manage servers**."
-        },
-        {
-            "aliases": [],
-            "description": "Resets the server goodbye message back to default.",
-            "help": "This command can only be used by users with the ability to **manage servers**.",
-            "name": "bye message default",
-            "usage": "This command can only be used by users with the ability to **manage servers**."
+            "name": "blacklist add",
+            "usage": "m!blacklist add @someone"
         }
     ],
     "Profiles": [
@@ -854,14 +721,14 @@
             "description": "Displays the profile of the target user.",
             "help": "If you do not specify a user, the bot will display your profile.",
             "name": "profile",
-            "usage": "If you do not specify a user, the bot will display your profile."
+            "usage": "m!profile"
         },
         {
             "aliases": [],
             "description": "Sets (or resets) your profile's biography paragraph to the provided text.",
             "help": "If you wish to reset your biography paragraph, provide no text to the command.",
             "name": "bio",
-            "usage": "If you wish to reset your biography paragraph, provide no text to the command."
+            "usage": "m!bio Some information about me..."
         },
         {
             "aliases": [
@@ -872,16 +739,7 @@
             "description": "Provides further information about all available profile backgrounds.",
             "help": "- Providing a number will display a preview of the profile background.\n- Providing a category will display all available backgrounds within that category.",
             "name": "background",
-            "usage": "- Providing a number will display a preview of the profile background.\n- Providing a category will display all available backgrounds within that category."
-        },
-        {
-            "aliases": [
-                "inv"
-            ],
-            "description": "Shows all profile backgrounds you currently own.",
-            "help": "Profile background purchases are global and can be used cross-server.",
-            "name": "background inventory",
-            "usage": "Profile background purchases are global and can be used cross-server."
+            "usage": "m!background General"
         },
         {
             "aliases": [
@@ -890,7 +748,7 @@
             "description": "Changes your profile background back to default.",
             "help": "*Empty*",
             "name": "background unequip",
-            "usage": "*Empty*"
+            "usage": "m!background unequip"
         },
         {
             "aliases": [
@@ -899,14 +757,23 @@
             "description": "Purchases a profile background from the shop for its' corresponding price",
             "help": "All bought backgrounds are stored in your inventory and can be used cross-server. You only need to buy it once.",
             "name": "background buy",
-            "usage": "All bought backgrounds are stored in your inventory and can be used cross-server. You only need to buy it once."
+            "usage": "m!background buy 3"
+        },
+        {
+            "aliases": [
+                "inv"
+            ],
+            "description": "Shows all profile backgrounds you currently own.",
+            "help": "Profile background purchases are global and can be used cross-server.",
+            "name": "background inventory",
+            "usage": "m!background inventory"
         },
         {
             "aliases": [],
             "description": "Equips a profile background for the server where the command was executed.",
             "help": "If you are not sure which profile backgrounds you own, you can view them by using one of the bot's commands to display your profile background inventory.",
             "name": "background equip",
-            "usage": "If you are not sure which profile backgrounds you own, you can view them by using one of the bot's commands to display your profile background inventory."
+            "usage": "m!background equip 1"
         },
         {
             "aliases": [
@@ -917,30 +784,21 @@
             "description": "Shows your server's experience leaderboard.",
             "help": "*Empty*",
             "name": "leaderboard",
-            "usage": "*Empty*"
+            "usage": "m!leaderboard"
         },
         {
             "aliases": [],
             "description": "Toggles (enables/disables) experience gain and leveling on your server.",
             "help": "This command can only be used by **server administrators**",
             "name": "leveling",
-            "usage": "This command can only be used by **server administrators**"
-        },
-        {
-            "aliases": [
-                "d"
-            ],
-            "description": "Disables experience gain and leveling on your server.",
-            "help": "This command can only be used by **server administrators**",
-            "name": "leveling disable",
-            "usage": "This command can only be used by **server administrators**"
+            "usage": "m!leveling"
         },
         {
             "aliases": [],
             "description": "Resets experience and level progression for all users on your server back to 0.",
             "help": "This command can only be used by **server owners**",
             "name": "leveling reset",
-            "usage": "This command can only be used by **server owners**"
+            "usage": "m!leveling reset"
         },
         {
             "aliases": [
@@ -949,7 +807,16 @@
             "description": "Enables experience gain and leveling on your server.",
             "help": "This command can only be used by **server administrators**",
             "name": "leveling enable",
-            "usage": "This command can only be used by **server administrators**"
+            "usage": "m!leveling enable"
+        },
+        {
+            "aliases": [
+                "d"
+            ],
+            "description": "Disables experience gain and leveling on your server.",
+            "help": "This command can only be used by **server administrators**",
+            "name": "leveling disable",
+            "usage": "m!leveling disable"
         }
     ],
     "Utility": [
@@ -958,7 +825,7 @@
             "description": "Returns the target individual's avatar.",
             "help": "If no argument is parsed, the bot will instead return your avatar.",
             "name": "avatar",
-            "usage": "If no argument is parsed, the bot will instead return your avatar."
+            "usage": "m!avatar @somebody"
         },
         {
             "aliases": [
@@ -967,14 +834,14 @@
             "description": "Rolls a number in a given range.",
             "help": "If no argument is parsed, the bot will roll a number between 1 and 100.",
             "name": "roll",
-            "usage": "If no argument is parsed, the bot will roll a number between 1 and 100."
+            "usage": "m!roll 9000"
         },
         {
             "aliases": [],
             "description": "Returns the bot's uptime.",
             "help": "*Empty*",
             "name": "uptime",
-            "usage": "*Empty*"
+            "usage": "m!uptime"
         },
         {
             "aliases": [
@@ -983,7 +850,7 @@
             "description": "Shows the target individual's user information.",
             "help": "If no argument is parsed, the bot will return your information instead.",
             "name": "userinfo",
-            "usage": "If no argument is parsed, the bot will return your information instead."
+            "usage": "m!userinfo @somebody"
         },
         {
             "aliases": [
@@ -994,7 +861,7 @@
             "description": "Displays general information about the bot.",
             "help": "Server bot latency is directly tied to which shard the target server is placed in.",
             "name": "botinfo",
-            "usage": "Server bot latency is directly tied to which shard the target server is placed in."
+            "usage": "m!botinfo"
         },
         {
             "aliases": [
@@ -1003,7 +870,7 @@
             "description": "Returns an answer for a yes or no question.",
             "help": "*Empty*",
             "name": "8ball",
-            "usage": "*Empty*"
+            "usage": "m!8ball Should I believe you?"
         },
         {
             "aliases": [
@@ -1012,7 +879,7 @@
             "description": "Picks a random item from a provided list of items, separated by a semicolon.",
             "help": "*Empty*",
             "name": "choose",
-            "usage": "*Empty*"
+            "usage": "m!choose item 1;item 2;item 3"
         }
     ]
 }

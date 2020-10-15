@@ -8,6 +8,7 @@ from libs.prefixhandler import PrefixHandler
 from libs.localizations import Localizations
 from libs.commandscontroller import CommandController, CogController
 from datetime import datetime
+from libs.qulib import ExtendedCommand
 import discord
 import json
 import os
@@ -49,7 +50,7 @@ class Core(commands.Cog):
         else:
             return True
 
-    @commands.command(name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module name>", hidden=True)
+    @commands.command(cls=ExtendedCommand, name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module name>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def module_load(self, ctx, *, input_module: str):
         try:
@@ -488,7 +489,9 @@ class Core(commands.Cog):
                 command_dict['aliases'] = command.aliases
                 command_dict['description'] = command.description
                 command_dict['help'] = command.help
-                command_dict['usage'] = command.help
+                command_dict['usage'] = f"{main.prefix}{command.qualified_name} {command.usage}" if command.usage else f"{main.prefix}{command.qualified_name}"
+                if hasattr(command, 'permissions'):
+                    command_dict['permissions'] = command.permissions
                 json_export.setdefault(cog.qualified_name, []).append(command_dict)
 
         qulib.export_commands(json_export)
