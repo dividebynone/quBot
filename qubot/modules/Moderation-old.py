@@ -475,7 +475,7 @@ class ModerationOld(commands.Cog):
         await ctx.send(embed=embed, delete_after=15)
 
     @commands.has_permissions(manage_guild=True)
-    @commands.guild_only()
+    @commands.guild_only() #Added
     @commands.group(name='greet', help=main.lang["command_greetings_help"], description=main.lang["command_greetings_description"], aliases=['greetings'])
     async def server_greetings(self, ctx):
         if not ctx.invoked_subcommand:
@@ -487,7 +487,7 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @server_greetings.command(name='enable', aliases=['on'], help=main.lang["command_greetings_enable_help"], description=main.lang["command_greetings_enable_description"], ignore_extra=True)
-    async def greetings_enable(self, ctx):
+    async def greetings_enable(self, ctx): #Added
         status = await self.Toggles.get_greet_status(ctx.guild.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status != 1:
@@ -499,7 +499,7 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @server_greetings.command(name='disable', aliases=['off'], help=main.lang["command_greetings_disable_help"], description=main.lang["command_greetings_disable_description"], ignore_extra=True)
-    async def greetings_disable(self, ctx):
+    async def greetings_disable(self, ctx): #Added
         status = await self.Toggles.get_greet_status(ctx.guild.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status:
@@ -511,7 +511,7 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @server_greetings.command(name='dm', help=main.lang["command_greetings_dm_help"], description=main.lang["command_greetings_dm_description"], ignore_extra=True)
-    async def greetings_enable_dm(self, ctx):
+    async def greetings_enable_dm(self, ctx): #Added
         await self.Toggles.enable_greeting(ctx.guild.id, True)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_gdm_msg"], color=self.module_embed_color)
@@ -519,13 +519,13 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @server_greetings.command(name='test', help=main.lang["command_greetings_test_help"], description=main.lang["command_greetings_test_description"], ignore_extra=True)
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(administrator=True) #Added
     async def greetings_test(self, ctx):
         await self.on_member_join(ctx.message.author)
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @server_greetings.group(name='message', invoke_without_command=True, help=main.lang["command_greetings_message_help"], description=main.lang["command_greetings_message_description"], usage="Welcome {mention} to {server}!")
-    async def greetings_custom_message(self, ctx, *, message: str):
+    async def greetings_custom_message(self, ctx, *, message: str): #Added
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(message) <= self.max_characters:
             if await self.Toggles.get_greet_status(ctx.guild.id):
@@ -543,7 +543,7 @@ class ModerationOld(commands.Cog):
         await ctx.send(embed=embed)
 
     @greetings_custom_message.command(name='default', help=main.lang["command_greetings_mdefault_help"], description=main.lang["command_greetings_mdefault_description"])
-    async def greetings_custom_message_reset(self, ctx):
+    async def greetings_custom_message_reset(self, ctx): #Added
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await self.Toggles.has_custom_greeting(ctx.guild.id):
             await self.Toggles.reset_greet_msg(ctx.guild.id)
@@ -552,23 +552,23 @@ class ModerationOld(commands.Cog):
             embed = discord.Embed(title=lang["administration_gmessage_default_used"], color=self.module_embed_color)
         await ctx.send(embed=embed)
 
-    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @commands.cooldown(1, 30, commands.BucketType.guild) 
     @server_greetings.group(name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="#general")
-    async def greetings_setchannel(self, ctx, *, channel: discord.TextChannel):
+    async def greetings_setchannel(self, ctx, *, channel: discord.TextChannel): #Added
         await self.Toggles.set_channel(ctx.guild.id, channel.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_gsetchannel"].format(channel.name), color=self.module_embed_color)
         await ctx.send(embed=embed)
 
     @greetings_setchannel.command(name='default', help=main.lang["command_greetings_scdefault_help"], description=main.lang["command_greetings_scdefault_description"])
-    async def greetings_setchannel_reset(self, ctx):
+    async def greetings_setchannel_reset(self, ctx): #Added
         await self.Toggles.set_channel(ctx.guild.id, None)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         embed = discord.Embed(title=lang["administration_gscdefault_msg"], color=self.module_embed_color)
         await ctx.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member): #Added
         status = await self.Toggles.get_greet_status(member.guild.id)
         if status:
             channel_id = await self.Toggles.get_channel(member.guild.id)
@@ -591,7 +591,7 @@ class ModerationOld(commands.Cog):
                 else:
                     await channel.send(message)
 
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_permissions(manage_guild=True) #Added
     @commands.guild_only()
     @commands.group(name='bye', help=main.lang["command_goodbye_help"], description=main.lang["command_goodbye_description"], aliases=['goodbye'])
     async def server_goodbye(self, ctx):
@@ -604,7 +604,7 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @server_goodbye.command(name='enable', aliases=['on'], help=main.lang["command_goodbye_enable_help"], description=main.lang["command_goodbye_enable_description"], ignore_extra=True)
-    async def goodbye_enable(self, ctx):
+    async def goodbye_enable(self, ctx): #Added
         status = await self.Toggles.get_bye_status(ctx.guild.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status != 1:
@@ -616,7 +616,7 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @server_goodbye.command(name='disable', aliases=['off'], help=main.lang["command_goodbye_disable_help"], description=main.lang["command_goodbye_disable_description"], ignore_extra=True)
-    async def goodbye_disable(self, ctx):
+    async def goodbye_disable(self, ctx): #Added
         status = await self.Toggles.get_bye_status(ctx.guild.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if status:
@@ -628,13 +628,13 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @server_goodbye.command(name='test', help=main.lang["command_goodbye_test_help"], description=main.lang["command_goodbye_test_description"], ignore_extra=True)
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(administrator=True) #Added
     async def goodbye_test(self, ctx):
         await self.on_member_remove(ctx.message.author)
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @server_goodbye.group(name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"], usage="Goodbye, {mention}!")
-    async def goodbye_custom_message(self, ctx, *, message: str):
+    async def goodbye_custom_message(self, ctx, *, message: str): #Added
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(message) <= self.max_characters:
             if await self.Toggles.get_bye_status(ctx.guild.id):
@@ -652,7 +652,7 @@ class ModerationOld(commands.Cog):
         await ctx.send(embed=embed)
 
     @goodbye_custom_message.command(name='default', help=main.lang["command_goodbye_mdefault_help"], description=main.lang["command_goodbye_mdefault_description"])
-    async def goodbye_custom_message_reset(self, ctx):
+    async def goodbye_custom_message_reset(self, ctx): #Added
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await self.Toggles.has_custom_goodbye(ctx.guild.id):
             await self.Toggles.reset_bye_msg(ctx.guild.id)
@@ -663,7 +663,7 @@ class ModerationOld(commands.Cog):
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @server_goodbye.group(name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="#general")
-    async def goodbye_setchannel(self, ctx, *, channel: discord.TextChannel):
+    async def goodbye_setchannel(self, ctx, *, channel: discord.TextChannel): #Added
         await ctx.invoke(self.greetings_setchannel, channel=channel)
 
     @goodbye_setchannel.command(name='default', help=main.lang["command_greetings_scdefault_help"], description=main.lang["command_greetings_scdefault_description"])

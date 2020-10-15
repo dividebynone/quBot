@@ -79,7 +79,7 @@
         },
         {
             "aliases": [],
-            "description": "Leave the settlement you are currently in. (if any)",
+            "description": "Leave the settlement you are currently in. (Optional)",
             "help": "- Leaders of settlements with multiple residents cannot leave settlement without transferring ownership.\n- Settlements with only one resident will get **DESTROYED** in the process!",
             "name": "sleave",
             "usage": "m!sleave"
@@ -231,6 +231,13 @@
             "usage": "m!modules hide <module name>"
         },
         {
+            "aliases": [],
+            "description": "Reveals a hidden module from the list of loaded modules.",
+            "help": "This is a subcommand of the **modules** command.\nThis command can only be used by the **BOT OWNER**.",
+            "name": "modules unhide",
+            "usage": "m!modules unhide <module name>"
+        },
+        {
             "aliases": [
                 "e"
             ],
@@ -238,13 +245,6 @@
             "help": "This command can only be used by server **administrators**.",
             "name": "modules enable",
             "usage": "m!modules enable <module name>"
-        },
-        {
-            "aliases": [],
-            "description": "Reveals a hidden module from the list of loaded modules.",
-            "help": "This is a subcommand of the **modules** command.\nThis command can only be used by the **BOT OWNER**.",
-            "name": "modules unhide",
-            "usage": "m!modules unhide <module name>"
         },
         {
             "aliases": [
@@ -513,17 +513,17 @@
         },
         {
             "aliases": [],
-            "description": "Starts a currency giveaway. Users can claim their reward by reacting to the bot message.",
-            "help": "This command can only be used by the **BOT OWNER**.",
-            "name": "giveaway start",
-            "usage": "m!giveaway start 100"
-        },
-        {
-            "aliases": [],
             "description": "Ends a giveaway by a provided bot message ID",
             "help": "This command can only be used by the **BOT OWNER**.",
             "name": "giveaway end",
             "usage": "m!giveaway end"
+        },
+        {
+            "aliases": [],
+            "description": "Starts a currency giveaway. Users can claim their reward by reacting to the bot message.",
+            "help": "This command can only be used by the **BOT OWNER**.",
+            "name": "giveaway start",
+            "usage": "m!giveaway start 100"
         }
     ],
     "HelpFormatter": [
@@ -546,50 +546,72 @@
                 "delete"
             ],
             "description": "Deletes a set number of messages.",
-            "help": "- This command requires a single argument - The number of messages you wish the bot to delete.\n- Available filters: bot *(Filters are specified after the number of messages)*",
+            "help": "**Available filters:**\n\u2022 **bot/bots** = Deletes only bot messages.\n\u2022 **me/author** = Deletes only the command author's messages.\n\u2022 **embed/embeds** = Deletes only embeds.\n\u2022 **file/attachment** = Deletes only file attachments.\n\u2022 **user/member <@somebody>** = Deletes only the specified user's messages.\n\u2022 **has <text>** = Deletes all messages that contain the provided bit of text.\n\u2022 **regex <regex>** = Deletes only messages that match the provided regular expression.",
             "name": "purge",
-            "usage": "m!purge 10"
+            "permissions": [
+                "Manage Messages"
+            ],
+            "usage": "m!purge 10 {filter}"
         },
         {
             "aliases": [],
-            "description": "Kicks the mentioned individual for a certain reason (if any)",
-            "help": "- The kick reason is an optional argument.\n- This command can only be used by users with the ability to **kick** members.",
+            "description": "Kicks the mentioned individual for the provided reason. (Optional)",
+            "help": null,
             "name": "kick",
-            "usage": "m!kick @somebody Spamming"
+            "permissions": [
+                "Kick Members"
+            ],
+            "usage": "m!kick @somebody {Spamming}"
         },
         {
             "aliases": [],
-            "description": "Bans the mentioned individual for a certain reason (if any)",
-            "help": "- The ban reason is an optional argument.\n- This command can only be used by users with the ability to **ban** members.",
+            "description": "Bans the mentioned individual for the provided reason and time length. (Optional)",
+            "help": "- This command accepts the following time units:\n`m(inutes), h(ours), d(ays), w(eeks)`\n*If no time unit is specified, the input defaults to minutes.*",
             "name": "ban",
-            "usage": "m!ban @somebody Harassment"
+            "permissions": [
+                "Ban Members"
+            ],
+            "usage": "m!ban @somebody {\"2 weeks 5 days\"} {Harassment}"
         },
         {
             "aliases": [],
             "description": "Unbans the target individual from the server.",
-            "help": "Since the target individual can not be mentioned directly within the server, a <username>#<discriminator>(see example) or user ID should be provided.",
+            "help": "Since the target individual can not be mentioned directly within the server, a **<username>#<discriminator>** or a **User ID** should be provided.",
             "name": "unban",
+            "permissions": [
+                "Ban Members"
+            ],
             "usage": "m!unban User#1234 OR 116267141744820233"
         },
         {
             "aliases": [],
-            "description": "Soft bans the mentioned individual for a specified reason (if any)",
-            "help": "- The soft ban reason is an optional argument.\n- Soft bans in essence kick the target individual from the server while deleting their messages. It's not the same as a normal ban.\n- This command can only be used by users with the ability to **kick** members and **manage** messages.",
+            "description": "Soft bans the mentioned individual for the provided reason. (Optional)",
+            "help": "Soft bans in essence kick the target individual from the server while deleting their messages. It's not the same as a normal ban.",
             "name": "softban",
-            "usage": "m!softban @somebody Spamming"
+            "permissions": [
+                "Kick Members",
+                "Manage Messages"
+            ],
+            "usage": "m!softban @somebody {Spamming}"
         },
         {
             "aliases": [],
-            "description": "Mutes the target individual from chatting on the server.",
-            "help": "*Empty*",
+            "description": "Mutes the target individual from chatting on the server for a provided time period. (Optional)",
+            "help": "This command accepts the following time units:\n`m(inutes), h(ours), d(ays), w(eeks)`\n*If no time unit is specified, the input defaults to minutes.*",
             "name": "mute",
-            "usage": "m!mute @somebody"
+            "permissions": [
+                "Manage Messages"
+            ],
+            "usage": "m!mute @somebody {2 days}"
         },
         {
             "aliases": [],
             "description": "Unmutes the target individual if they were previously muted using the bot.",
-            "help": "*Empty*",
+            "help": null,
             "name": "unmute",
+            "permissions": [
+                "Manage Messages"
+            ],
             "usage": "m!unmute @somebody"
         },
         {
@@ -597,8 +619,12 @@
                 "sm"
             ],
             "description": "Sets a chatting cooldown for the channel where the command was used.",
-            "help": "- This command accepts the following time units: `s(econds), m(inutes), h(ours)`\n- This command can only be used by users with the ability to **manage messages** and **manage channels**.",
+            "help": "This command accepts the following time units: `s(econds), m(inutes), h(ours)`",
             "name": "slowmode",
+            "permissions": [
+                "Manage Messages",
+                "Manage Channels"
+            ],
             "usage": "m!slowmode 15"
         },
         {
@@ -607,8 +633,12 @@
                 "off"
             ],
             "description": "Disables slowmode for the channel where the command was used.",
-            "help": "*Empty*",
+            "help": null,
             "name": "slowmode disable",
+            "permissions": [
+                "Manage Messages",
+                "Manage Channels"
+            ],
             "usage": "m!slowmode disable"
         },
         {
@@ -619,60 +649,58 @@
             "usage": "m!report @somebody Spamming"
         },
         {
+            "aliases": [],
+            "description": "Selects a text channel where future user reports are going to be sent.",
+            "help": "Using this command will enable user reports if they were previously disabled. (Disabled by default)",
+            "name": "report setchannel",
+            "permissions": [
+                "Administrator"
+            ],
+            "usage": "m!report setchannel #general"
+        },
+        {
             "aliases": [
                 "d",
                 "off"
             ],
             "description": "Disables user reporting for the server where the command was used.",
-            "help": "- To enable user reporting again, you need to set a new report text channel.\n- This command can only be used by server **administrators**.",
+            "help": null,
             "name": "report disable",
+            "permissions": [
+                "Administrator"
+            ],
             "usage": "m!report disable"
         },
         {
             "aliases": [],
-            "description": "Selects a text channel where future user reports are going to be sent.",
-            "help": "- Using this command will enable user reports if they were previously disabled. (Disabled by default)\n- This command can only be used by server **administrators**.",
-            "name": "report setchannel",
-            "usage": "m!report setchannel #general"
-        },
-        {
-            "aliases": [],
-            "description": "Warns the target user for a particular reason. This individual will receive a direct message from the bot.",
-            "help": "- A reason for the warning must be provided in order to use this command.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
+            "description": "Warns the target user for a particular reason. As a result, this individual will receive a direct message from the bot.",
+            "help": null,
             "name": "warn",
+            "permissions": [
+                "Kick Members",
+                "Ban Members"
+            ],
             "usage": "m!warn @someone Spamming"
         },
         {
             "aliases": [],
             "description": "Displays a list of warnings for the target individual.",
-            "help": "- A total of five warnings are displayed per page. You can navigate through pages by providing a page number after the username.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
+            "help": "You can navigate through pages by providing a page number after the username.",
             "name": "warnings",
-            "usage": "m!warnings @someone 2"
-        },
-        {
-            "aliases": [
-                "clear"
+            "permissions": [
+                "Kick Members",
+                "Ban Members"
             ],
-            "description": "Resets all warnings for the target individual.",
-            "help": "This command can only be used by users with the ability to **kick** and **ban** members.",
-            "name": "warnings reset",
-            "usage": "m!warnings reset @someone"
-        },
-        {
-            "aliases": [
-                "remove",
-                "del"
-            ],
-            "description": "Deletes a specific warning that was issued to the target individual.",
-            "help": "- While deleting warnings **WILL NOT** trigger any automatic actions, adding a new warning **WILL**.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
-            "name": "warnings delete",
-            "usage": "m!warnings delete @someone 3"
+            "usage": "m!warnings @someone {2}"
         },
         {
             "aliases": [],
             "description": "Changes the number of warnings needed for a user to trigger an automatic mute/kick/ban from the server. (Disabled by default)",
-            "help": "- Using this command will enable the above-mentioned automatic actions if previously disabled.\n- If any of the number of warnings match for mute, kick or ban, the following will take priority from highest to lowest: ban, kick, mute.\n- This command can only be used by users with the ability to **kick** and **ban** members.",
+            "help": "- Using this command will enable the above-mentioned automatic actions if previously disabled.\n- If any of the number of warnings match for mute, kick or ban, the following will take priority from highest to lowest: ban > kick > mute.",
             "name": "warnings auto",
+            "permissions": [
+                "Administrator"
+            ],
             "usage": "m!warnings auto mute/kick/ban 5"
         },
         {
@@ -681,34 +709,73 @@
                 "off"
             ],
             "description": "Disables the target automatic action from triggering for future user warnings.",
-            "help": "This command can only be used by users with the ability to **kick** and **ban** members.",
+            "help": null,
             "name": "warnings auto disable",
+            "permissions": [
+                "Administrator"
+            ],
             "usage": "m!warnings auto disable mute/kick/ban"
+        },
+        {
+            "aliases": [
+                "clear"
+            ],
+            "description": "Resets all warnings for the target individual.",
+            "help": null,
+            "name": "warnings reset",
+            "permissions": [
+                "Kick Members",
+                "Ban Members"
+            ],
+            "usage": "m!warnings reset @someone"
+        },
+        {
+            "aliases": [
+                "remove",
+                "del"
+            ],
+            "description": "Deletes a specific warning that was issued to the target individual.",
+            "help": null,
+            "name": "warnings delete",
+            "permissions": [
+                "Kick Members",
+                "Ban Members"
+            ],
+            "usage": "m!warnings delete @someone 3"
         },
         {
             "aliases": [],
             "description": "Blacklists the target user. As a result, they will no longer be able to use the bot in that server. If the target user is already blacklisted, they will get removed from the blacklist and regain access to bot commands.",
-            "help": "This command can only be used by server **administrators**.",
+            "help": null,
             "name": "blacklist",
-            "usage": "m!blacklist @someone"
-        },
-        {
-            "aliases": [
-                "r"
+            "permissions": [
+                "Administrator"
             ],
-            "description": "Removes the target user from the bot blacklist. As a result, they will regain access to the bot's commands in that server.",
-            "help": "This command can only be used by server **administrators**.",
-            "name": "blacklist remove",
-            "usage": "m!blacklist remove @someone"
+            "usage": "m!blacklist @someone"
         },
         {
             "aliases": [
                 "a"
             ],
             "description": "Blacklists the target user. As a result, they will no longer be able to use the bot in that server.",
-            "help": "This command can only be used by server **administrators**.",
+            "help": null,
             "name": "blacklist add",
+            "permissions": [
+                "Administrator"
+            ],
             "usage": "m!blacklist add @someone"
+        },
+        {
+            "aliases": [
+                "r"
+            ],
+            "description": "Removes the target user from the bot blacklist. As a result, they will regain access to the bot's commands in that server.",
+            "help": null,
+            "name": "blacklist remove",
+            "permissions": [
+                "Administrator"
+            ],
+            "usage": "m!blacklist remove @someone"
         }
     ],
     "Profiles": [
@@ -743,15 +810,6 @@
         },
         {
             "aliases": [
-                "default"
-            ],
-            "description": "Changes your profile background back to default.",
-            "help": "*Empty*",
-            "name": "background unequip",
-            "usage": "m!background unequip"
-        },
-        {
-            "aliases": [
                 "purchase"
             ],
             "description": "Purchases a profile background from the shop for its' corresponding price",
@@ -777,6 +835,15 @@
         },
         {
             "aliases": [
+                "default"
+            ],
+            "description": "Changes your profile background back to default.",
+            "help": "*Empty*",
+            "name": "background unequip",
+            "usage": "m!background unequip"
+        },
+        {
+            "aliases": [
                 "lb",
                 "xplb",
                 "top"
@@ -792,13 +859,6 @@
             "help": "This command can only be used by **server administrators**",
             "name": "leveling",
             "usage": "m!leveling"
-        },
-        {
-            "aliases": [],
-            "description": "Resets experience and level progression for all users on your server back to 0.",
-            "help": "This command can only be used by **server owners**",
-            "name": "leveling reset",
-            "usage": "m!leveling reset"
         },
         {
             "aliases": [
@@ -817,6 +877,13 @@
             "help": "This command can only be used by **server administrators**",
             "name": "leveling disable",
             "usage": "m!leveling disable"
+        },
+        {
+            "aliases": [],
+            "description": "Resets experience and level progression for all users on your server back to 0.",
+            "help": "This command can only be used by **server owners**",
+            "name": "leveling reset",
+            "usage": "m!leveling reset"
         }
     ],
     "Utility": [

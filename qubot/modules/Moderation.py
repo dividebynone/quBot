@@ -180,6 +180,16 @@ class Moderation(commands.Cog):
             istring = '\n'.join(istring.split('\n')[:lines]) + "\n(+ {} {})".format(other_count, langset["others_string"] if other_count > 1 else langset["other_string"])
         return istring
 
+    # Event that handles the removal of unwanted data.
+    # Note(s): The event will trigger when the bot is kicked from a guild
+    @commands.Cog.listener()
+    @commands.guild_only()
+    async def on_guild_remove(self, guild):
+        await self.BlacklistedUsers.remove_blacklist_guild(guild.id)
+        await self.TemporaryActions.wipe_guild_data(guild.id)
+
+    # Module commands
+
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
