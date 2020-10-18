@@ -6,20 +6,39 @@ class ServerToggles(object):
 
     def __init__(self):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("CREATE TABLE IF NOT EXISTS toggles(guild_id INTEGER PRIMARY KEY, greeting_status INTEGER, bye_status INTEGER, greeting_msg BLOB, bye_msg BLOB, channel_id INTEGER)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS toggles(guild_id INTEGER PRIMARY KEY, greeting_status INTEGER, bye_status INTEGER, greeting_msg BLOB, bye_msg BLOB, greeting_cid INTEGER, bye_cid INTEGER)")
+
+    #Wipe guild data
+    @classmethod
+    async def wipe_guild_data(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM toggles WHERE guild_id=?", (guild_id,))
 
     #Message channel controls
 
     @classmethod
-    async def set_channel(self, guild_id: int, channel_id: int):
+    async def set_greetings_channel(self, guild_id: int, channel_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO toggles (guild_id) VALUES(?)", (guild_id,))
-            cursor.execute("UPDATE toggles SET channel_id=? WHERE guild_id=?", (channel_id, guild_id,))
+            cursor.execute("UPDATE toggles SET greeting_cid=? WHERE guild_id=?", (channel_id, guild_id,))
 
     @classmethod
-    async def get_channel(self, guild_id: int):
+    async def set_bye_channel(self, guild_id: int, channel_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT channel_id FROM toggles WHERE guild_id=?", (guild_id,))
+            cursor.execute("INSERT OR IGNORE INTO toggles (guild_id) VALUES(?)", (guild_id,))
+            cursor.execute("UPDATE toggles SET bye_cid=? WHERE guild_id=?", (channel_id, guild_id,))
+
+    @classmethod
+    async def get_greetings_channel(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT greeting_cid FROM toggles WHERE guild_id=?", (guild_id,))
+            output = cursor.fetchone()
+            return output[0] if output != None else None
+
+    @classmethod
+    async def get_bye_channel(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT bye_cid FROM toggles WHERE guild_id=?", (guild_id,))
             output = cursor.fetchone()
             return output[0] if output != None else None
 

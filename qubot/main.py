@@ -180,6 +180,37 @@ json_lang_en = {
     "other_string": "other",
     "others_string": "others",
     "helpformatter_optional": "{ } = Optional",
+    "automation_genable_already_enabled": "Server member greetings are already enabled.",
+    "automation_genable_embed_title": "Server member greetings have been enabled",
+    "automation_genable_embed_description": "All future greeting messages will be sent in the respective text channel.",
+    "automation_gdisable_already_disabled": "Server member greetings are already disabled.",
+    "automation_gdisable_embed_title": "Server member greetings have been disabled",
+    "automation_gdisable_embed_description": "New server members will no longer be announced.",
+    "automation_gdm_embed_title": "Server member greetings have been enabled",
+    "automation_gdm_embed_description": "All future greeting messages will be sent to users' direct messages.",
+    "automation_gmessage_disabled": "Failed to set custom greeting message. Please enable server greetings first and try again.",
+    "automation_gmessage_invalid": "Invalid custom greet message. Please check for any user errors and try again.",
+    "automation_gmessage_limit": "Custom message is too long. Maximum character limit: **{}**",
+    "automation_gmessage_success": "Custom greeting message has been set successfully",
+    "automation_gmessage_default_success": "The server greeting message has been reset back to default",
+    "automation_gmessage_default_already_used": "The default server greeting message is already being used.",
+    "automation_gsetchannel": "Greeting messages text channel successfully changed to: #{}",
+    "automation_gbsetchannel": "Farewell messages text channel successfully changed to: #{}",
+    "automation_gscdefault": "Greeting messages text channel has been set back to default",
+    "automation_greet_default": "Hey {}, welcome to **{}**!",
+    "automation_gbenable_already_enabled": "Server member goodbye messages are already enabled.",
+    "automation_gbenable_embed_title": "Server member goodbye messages have been enabled",
+    "automation_gbenable_embed_description": "All future goodbye messages will be sent in the respective text channel.",
+    "automation_gbdisable_already_disabled": "Server member goodbye messages are already disabled.",
+    "automation_gbdisable_embed_title": "Server member goodbye messages have been disabled",
+    "automation_gbdisable_embed_description": "People who leave this server will no longer be announced.",
+    "automation_gbmessage_disabled": "Failed to set custom goodbye message. Please enable server goodbye messages first and try again.",
+    "automation_gbmessage_invalid": "Invalid custom goodbye message. Please check for any user errors and try again.",
+    "automation_gbmessage_success": "Custom goodbye message has been set successfully",
+    "automation_gbmessage_default_success": "The server goodbye message has been reset back to default",
+    "automation_gbmessage_default_already_used": "The default goodbye message is already being used.",
+    "automation_gbscdefault": "Goodbye messages text channel has been set back to default",
+    "automation_bye_default": "Goodbye, {}. Wishing you all the best.",
 
 
     "administration_autoaction_ban": "Your last warning triggered an automatic ban action from this server.", #TO-BE-DELETED
@@ -195,30 +226,30 @@ json_lang_en = {
     "administration_blacklist_remove": "Removed user ({}) from bot blacklist.",
     "administration_blacklist_remove_self": "You can't remove yourself from the blacklist.",
     "administration_blacklist_self": "You can't blacklist yourself.",
-    "administration_bye_default": "Goodbye, {}. Wishing you all the best.",
-    "administration_gbdisable_disabled": "Server goodbye messages are already disabled.",
-    "administration_gbdisable_success": "Server goodbye messages have been disabled.",
-    "administration_gbenable_enabled": "Server goodbye messages are already enabled.",
-    "administration_gbenable_success": "Server goodbye messages have been enabled.\nFuture greeting messages will be sent in the respective text channel.",
-    "administration_gbmessage_default_success": "Custom goodbye message has been reset back to default.",
-    "administration_gbmessage_default_used": "Default goodbye message is already being used.",
-    "administration_gbmessage_disabled": "Failed to set custom goodbye message. Please enable goodbye messages first and try again.",
-    "administration_gbmessage_invalid": "Invalid custom goodbye message",
-    "administration_gbmessage_success": "Custom goodbye message has been set successfully.",
-    "administration_gdisable_disabled": "Server greetings are already disabled.",
-    "administration_gdisable_success": "Server greetings have been disabled.",
-    "administration_gdm_msg": "Server greetings have been enabled.\nFuture greeting messages will be sent to users' direct messages.",
-    "administration_genable_enabled": "Server greetings are already enabled.",
-    "administration_genable_success": "Server greetings have been enabled.\nFuture greeting messages will be sent in the respective text channel.",
-    "administration_gmessage_default_success": "Custom greeting message has been reset back to default.",
-    "administration_gmessage_default_used": "Default greeting message is already being used.",
-    "administration_gmessage_disabled": "Failed to set custom greeting message. Please enable greetings first and try again.",
-    "administration_gmessage_invalid": "Invalid custom greet message",
-    "administration_gmessage_limit": "Custom message is too long. Maximum character limit: {}",
-    "administration_gmessage_success": "Custom greeting message has been set successfully.",
-    "administration_greet_default": "Hey {}, welcome to **{}**!",
-    "administration_gscdefault_msg": "Greeting/goodbye messages text channel has been set back to default.",
-    "administration_gsetchannel": "Greeting/Goodbye messages channel successfully changed to **#{}**",
+    "administration_bye_default": "Goodbye, {}. Wishing you all the best.", #TO-BE-DELETED
+    "administration_gbdisable_disabled": "Server goodbye messages are already disabled.", #TO-BE-DELETED
+    "administration_gbdisable_success": "Server goodbye messages have been disabled.", #TO-BE-DELETED
+    "administration_gbenable_enabled": "Server goodbye messages are already enabled.", #TO-BE-DELETED
+    "administration_gbenable_success": "Server goodbye messages have been enabled.\nFuture greeting messages will be sent in the respective text channel.", #TO-BE-DELETED
+    "administration_gbmessage_default_success": "Custom goodbye message has been reset back to default.", #TO-BE-DELETED
+    "administration_gbmessage_default_used": "Default goodbye message is already being used.", #TO-BE-DELETED
+    "administration_gbmessage_disabled": "Failed to set custom goodbye message. Please enable goodbye messages first and try again.", #TO-BE-DELETED
+    "administration_gbmessage_invalid": "Invalid custom goodbye message", #TO-BE-DELETED
+    "administration_gbmessage_success": "Custom goodbye message has been set successfully.", #TO-BE-DELETED
+    "administration_gdisable_disabled": "Server greetings are already disabled.", #TO-BE-DELETED
+    "administration_gdisable_success": "Server greetings have been disabled.", #TO-BE-DELETED
+    "administration_gdm_msg": "Server greetings have been enabled.\nFuture greeting messages will be sent to users' direct messages.", #TO-BE-DELETED
+    "administration_genable_enabled": "Server greetings are already enabled.", #TO-BE-DELETED
+    "administration_genable_success": "Server greetings have been enabled.\nFuture greeting messages will be sent in the respective text channel.", #TO-BE-DELETED
+    "administration_gmessage_default_success": "Custom greeting message has been reset back to default.", #TO-BE-DELETED
+    "administration_gmessage_default_used": "Default greeting message is already being used.", #TO-BE-DELETED
+    "administration_gmessage_disabled": "Failed to set custom greeting message. Please enable greetings first and try again.", #TO-BE-DELETED
+    "administration_gmessage_invalid": "Invalid custom greet message", #TO-BE-DELETED
+    "administration_gmessage_limit": "Custom message is too long. Maximum character limit: {}", #TO-BE-DELETED
+    "administration_gmessage_success": "Custom greeting message has been set successfully.", #TO-BE-DELETED
+    "administration_greet_default": "Hey {}, welcome to **{}**!", #TO-BE-DELETED
+    "administration_gscdefault_msg": "Greeting/goodbye messages text channel has been set back to default.", #TO-BE-DELETED
+    "administration_gsetchannel": "Greeting/Goodbye messages channel successfully changed to **#{}**", #TO-BE-DELETED
     "administration_kick_msg": "{} has been kicked from this server. Reason: {}", #TO-BE-DELETED
     "administration_mute_muted": "{} is already muted.", #TO-BE-DELETED
     "administration_mute_success": "{} has been muted.", #TO-BE-DELETED
@@ -320,24 +351,26 @@ json_lang_en = {
     "command_giveaway_end_description": "Ends a giveaway by a provided bot message ID",
     "command_giveaway_group_description": "Giveaway command group. Please refer to `giveaway start` and `giveaway end` for more information.",
     "command_giveaway_start_description": "Starts a currency giveaway. Users can claim their reward by reacting to the bot message.",
-    "command_goodbye_description": "Toggles server goodbye messages on/off on the server.",
-    "command_goodbye_disable_description": "Disables server goodbye messages on the server.",
-    "command_goodbye_enable_description": "Enables server goodbye messages on the server.",
-    "command_goodbye_mdefault_description": "Resets the server goodbye message back to default.",
+    "command_goodbye_description": "Toggles server member goodbye messages on/off on the server.",
+    "command_goodbye_disable_description": "Disables server member goodbye messages on the server.",
+    "command_goodbye_enable_description": "Enables server member goodbye messages on the server.",
+    "command_goodbye_mdefault_description": "Resets the server member goodbye message back to default.",
     "command_goodbye_message_description": "Changes the goodbye message to a custom one. Feel free to check the notes to be able to fully utilize this command.",
     "command_goodbye_message_help": "- This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)\n- You can include the following in your message:\n**{mention}** - Mentions the User;\n**{user}** - Shows Username;\n**{server}** - Shows server name;\n**{membercount}** - Shows number of people in server;",
     "command_goodbye_test_description": "Command to test your custom server goodbye message.",
-    "command_greetings_description": "Toggles server greeting messages on/off on the server.",
-    "command_greetings_disable_description": "Disables server greeting messages on the server.",
-    "command_greetings_dm_description": "Enables server greetings on the server. Instead of the server's text channel, future messages will instead be sent to users' direct messages.",
-    "command_greetings_enable_description": "Enables server greeting messages on the server.",
+    "command_greetings_description": "Toggles server member greeting messages on/off on the server.",
+    "command_greetings_disable_description": "Disables server member greeting messages on the server.",
+    "command_greetings_dm_description": "Enables server member greetings on the server. Instead of a text channel on your server, future messages will instead be sent directly to users' direct messages.",
+    "command_greetings_enable_description": "Enables server member greeting messages on the server.",
     "command_greetings_mdefault_description": "Resets the server greeting message back to default.",
     "command_greetings_message_description": "Changes the greeting message to a custom one. Feel free to check the notes to be able to fully utilize this command.",
     "command_greetings_message_help": "- This command supports Discord Markdown. (Chat formatting: bold, italics, underline, etc.)\n- You can include the following in your message:\n**{mention}** - Mentions the User;\n**{user}** - Shows Username;\n**{server}** - Shows server name;\n**{membercount}** - Shows number of people in server;",
-    "command_greetings_scdefault_description": "Resets the greetings/goodbye messages text channel back to default.",
-    "command_greetings_setchannel_description": "Sets the text channel where greetings and goodbye messages are going to be sent by the bot.",
+    "command_greetings_scdefault_description": "Resets the server greeting messages text channel back to default.",
+    "command_goodbye_scdefault_description": "Resets the server goodbye messages text channel back to default.",
+    "command_greetings_setchannel_description": "Sets the text channel where server greeting messages are going to be sent by the bot.",
+    "command_goodbye_setchannel_description": "Sets the text channel where server goodbye messages are going to be sent by the bot.",
     "command_greetings_setchannel_help": "By default, these messages are sent to **#general**. If no text channel exists with that name, it uses the first text channel on the list.",
-    "command_greetings_test_description": "Command to test your custom server greetings message.",
+    "command_greetings_test_description": "Command to test your custom server member greetings message.",
     "command_jprivate_description": "Command to join a private settlement.",
     "command_jpublic_description": "Command to join a public settlement.",
     "command_kick_description": "Kicks the mentioned individual for the provided reason. (Optional)",
