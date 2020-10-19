@@ -612,6 +612,7 @@
     "profiles_equip_success": "{}, Your profile background was sucessfully changed to *#{}*",
     "profiles_inventory_empty": "You don't own any profile backgrounds",
     "profiles_inventory_title": "{}'s Inventory",
+    "profiles_leaderboard_description": "The current leveling leaderboard of **{}**.\nYou are currently rank **#{}** in this server.\n\n",
     "profiles_leaderboard_disabled": "No leaderboard. Leveling is disabled on this server",
     "profiles_leaderboard_empty": "The server leaderboard is empty",
     "profiles_leaderboard_title": "Server Leaderboard",

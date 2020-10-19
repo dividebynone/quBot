@@ -38,14 +38,14 @@ class ProfilesHandler(object):
     @classmethod
     async def get_rank(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
-            cursor.execute("SELECT rank FROM (SELECT user_id, RANK() OVER (ORDER BY level DESC, experience DESC) as rank FROM profiles WHERE guild_id=?) as p WHERE p.user_id=?", (guild_id, user_id,))
+            cursor.execute("SELECT rank FROM (SELECT user_id, DENSE_RANK() OVER (ORDER BY level DESC, experience DESC) as rank FROM profiles WHERE guild_id=?) as p WHERE p.user_id=?", (guild_id, user_id,))
             output = cursor.fetchone()
             return output[0] if output else None
 
     @classmethod
     async def leaderboard(self, guild_id: int):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
-            cursor.execute("SELECT user_id, RANK() OVER (ORDER BY level DESC, experience DESC) as rank, IFNULL(level, 0), IFNULL(experience, 0) FROM profiles WHERE guild_id=?", (guild_id,))
+            cursor.execute("SELECT user_id, DENSE_RANK() OVER (ORDER BY level DESC, experience DESC) as rank, IFNULL(level, 0), IFNULL(experience, 0) FROM profiles WHERE guild_id=?", (guild_id,))
             output = cursor.fetchall()
             return output
 

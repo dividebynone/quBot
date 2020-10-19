@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 import libs.roundedrectangles
 from libs.profileshandler import ProfilesHandler, ProfileBackgrounds, LevelingToggle
 from libs.prefixhandler import PrefixHandler
-from libs.qulib import user_get, user_set
+from libs.qulib import user_get, user_set, ExtendedCommand, ExtendedGroup
 import configparser
 import asyncio
 import textwrap
@@ -22,7 +22,7 @@ class Profiles(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.module_embed_color =  0x6e78cc
+        self.embed_color =  0x6e78cc
         print(f'Module {self.__class__.__name__} loaded')
 
         # Module configuration
@@ -110,8 +110,8 @@ class Profiles(commands.Cog):
 
             await ProfilesHandler.update_experience(message.author.id, message.guild.id, user_data)
     
-    @commands.cooldown(5, 30, commands.BucketType.member)
-    @commands.command(name='profile', help=main.lang["command_profile_help"], description=main.lang["command_profile_description"], usage="", aliases=['p', 'me', 'level'])
+    @commands.cooldown(5, 60, commands.BucketType.member)
+    @commands.command(name='profile', help=main.lang["command_profile_help"], description=main.lang["command_profile_description"], aliases=['p', 'me', 'level'])
     @commands.guild_only()
     async def profile(self, ctx, *, user: discord.User = None):
         async with ctx.channel.typing():
@@ -213,12 +213,12 @@ class Profiles(commands.Cog):
         if message:
             if len(message) <= self.bio_char_limit:
                 await ProfilesHandler.set_bio(ctx.author.id, ctx.guild.id, message)
-                embed = discord.Embed(title=lang["profile_bio_success"], color=self.module_embed_color)
+                embed = discord.Embed(title=lang["profile_bio_success"], color=self.embed_color)
             else:
-                embed = discord.Embed(title=lang["profile_bio_char_limit"].format(self.bio_char_limit), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["profile_bio_char_limit"].format(self.bio_char_limit), color=self.embed_color)
         else:
             await ProfilesHandler.set_bio(ctx.author.id, ctx.guild.id, None)
-            embed = discord.Embed(title=lang["profile_bio_reset"], color=self.module_embed_color)
+            embed = discord.Embed(title=lang["profile_bio_reset"], color=self.embed_color)
         await ctx.author.send(embed=embed)
 
     @commands.cooldown(5, 30, commands.BucketType.member)
@@ -230,11 +230,11 @@ class Profiles(commands.Cog):
                 if value.isnumeric():
                     background_info = await ProfileBackgrounds.get_background_info(value)
                     if background_info:
-                        embed = discord.Embed(title=lang['profiles_background_specific_title'], description=f"{background_info['description']}\n\n**{lang['price_string']}:** {background_info['price']} {self.currency_symbol}", color=self.module_embed_color)
+                        embed = discord.Embed(title=lang['profiles_background_specific_title'], description=f"{background_info['description']}\n\n**{lang['price_string']}:** {background_info['price']} {self.currency_symbol}", color=self.embed_color)
                         embed.set_thumbnail(url=background_info['url'])
                         embed.set_footer(text=f"{lang['category_string']}: {background_info['category']}")
                     else:
-                        embed = discord.Embed(title=lang["profiles_background_specific_not_found"], color=self.module_embed_color)
+                        embed = discord.Embed(title=lang["profiles_background_specific_not_found"], color=self.embed_color)
                 else:
                     category_info = await ProfileBackgrounds.get_category(value.capitalize())
                     if category_info:
@@ -249,7 +249,7 @@ class Profiles(commands.Cog):
                                 description = ""
                                 for background in category_info[(index*5):(index*5 + 5)]:
                                     description += f'\u2022 **{background[0]}** - {background[1]}\n\t{f"""**{lang["price_string"]}**: {background[2]} {self.currency_symbol}""" if int(background[0]) not in unlocked_backgrounds else lang["profiles_background_owned"]}\n\n'
-                                embed = discord.Embed(title=lang["profiles_background_category_title"].format(value.capitalize()), description=description, color=self.module_embed_color)
+                                embed = discord.Embed(title=lang["profiles_background_category_title"].format(value.capitalize()), description=description, color=self.embed_color)
                                 embed.set_footer(text=f"{lang['page_string']} {index+1}/{last_index+1} - {str(ctx.author)}" if start_index != last_index else str(ctx.author))
                                 if start_index == last_index:
                                     await ctx.send(embed=embed)
@@ -275,11 +275,11 @@ class Profiles(commands.Cog):
                             await msg.add_reaction(self.pagination_timeout)
                             return
                     else:
-                        embed = discord.Embed(title=lang["profiles_background_category_not_found"], color=self.module_embed_color)
+                        embed = discord.Embed(title=lang["profiles_background_category_not_found"], color=self.embed_color)
             else:
                 categories = await ProfileBackgrounds.get_categories()
                 prefix = PrefixHandler.get_prefix(ctx.guild.id, main.prefix)
-                embed = discord.Embed(title=lang["profiles_background_general_title"], description=lang["profiles_background_general_body"].format(', '.join(categories), prefix, prefix), color=self.module_embed_color)
+                embed = discord.Embed(title=lang["profiles_background_general_title"], description=lang["profiles_background_general_body"].format(', '.join(categories), prefix, prefix), color=self.embed_color)
                 embed.set_footer(text=lang["profiles_background_footer"])
             await ctx.send(embed=embed)
 
@@ -296,29 +296,29 @@ class Profiles(commands.Cog):
                 unlocked_backgrounds = await ProfileBackgrounds.unlocked_backgrounds(user.id)
                 if not unlocked_backgrounds or bg_id not in unlocked_backgrounds:
                     if user_info['currency'] <= 0 or background_info['price'] > user_info['currency']:
-                        embed = discord.Embed(title=lang["profiles_buy_insufficient_funds"].format(background_info['price'] - user_info['currency'], self.currency_symbol), color=self.module_embed_color)
+                        embed = discord.Embed(title=lang["profiles_buy_insufficient_funds"].format(background_info['price'] - user_info['currency'], self.currency_symbol), color=self.embed_color)
                     else:
-                        await ctx.send(embed = discord.Embed(title=lang["profiles_buy_confirmation"].format(background_info['price'], self.currency_symbol), color = self.module_embed_color))
+                        await ctx.send(embed = discord.Embed(title=lang["profiles_buy_confirmation"].format(background_info['price'], self.currency_symbol), color = self.embed_color))
                         try:
                             msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel, timeout=60.0)
                             if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
-                                embed = discord.Embed(title=lang["profiles_buy_success"].format(bg_id, background_info['price'], self.currency_symbol), color=self.module_embed_color)
+                                embed = discord.Embed(title=lang["profiles_buy_success"].format(bg_id, background_info['price'], self.currency_symbol), color=self.embed_color)
                                 user_info['currency'] -= background_info['price']
                                 await ProfileBackgrounds.unlock_background(user.id, bg_id)
                                 await user_set(user, user_info)
                             else:
-                                embed = discord.Embed(title=lang["wait_for_cancelled"], color=self.module_embed_color)
+                                embed = discord.Embed(title=lang["wait_for_cancelled"], color=self.embed_color)
                         except asyncio.TimeoutError:
-                            embed = discord.Embed(title=lang["wait_for_timeout"], color=self.module_embed_color)
+                            embed = discord.Embed(title=lang["wait_for_timeout"], color=self.embed_color)
 
                         
                 else:
-                    embed = discord.Embed(title=lang["profiles_buy_owned"].format(bg_id), description=background_info['description'], color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["profiles_buy_owned"].format(bg_id), description=background_info['description'], color=self.embed_color)
                     embed.set_thumbnail(url=background_info['url'])
             else:
                 return
         else:
-            embed = discord.Embed(title=lang["profiles_buy_not_found"], color=self.module_embed_color)
+            embed = discord.Embed(title=lang["profiles_buy_not_found"], color=self.embed_color)
         await ctx.send(embed=embed)
     
     @commands.cooldown(3, 60, commands.BucketType.member)
@@ -337,7 +337,7 @@ class Profiles(commands.Cog):
                     description = ""
                     for background in unlocked_backgrounds[(index*5):(index*5 + 5)]:
                         description += f'\u2022 **{background[0]}** - {background[1]}\n'
-                    embed = discord.Embed(title=lang["profiles_inventory_title"].format(ctx.author.name), description=description, color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["profiles_inventory_title"].format(ctx.author.name), description=description, color=self.embed_color)
                     if start_index == last_index:
                         await ctx.send(embed=embed)
                         return
@@ -363,7 +363,7 @@ class Profiles(commands.Cog):
                 await msg.add_reaction(self.pagination_timeout)
                 return
         else:
-            embed = discord.Embed(title=lang["profiles_inventory_empty"], color=self.module_embed_color)
+            embed = discord.Embed(title=lang["profiles_inventory_empty"], color=self.embed_color)
         await ctx.send(embed=embed)
     
     @commands.cooldown(10, 30, commands.BucketType.member)
@@ -372,33 +372,33 @@ class Profiles(commands.Cog):
     async def background_equip(self, ctx, bg_id: int = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if bg_id == None:
-            embed = discord.Embed(title=lang["profiles_unequip_message"].format(str(ctx.author)), color=self.module_embed_color)
+            embed = discord.Embed(title=lang["profiles_unequip_message"].format(str(ctx.author)), color=self.embed_color)
             await ProfilesHandler.equip_background(ctx.author.id, ctx.guild.id, bg_id)
         else:
             background_info = await ProfileBackgrounds.get_background_info(bg_id)
             if background_info:
                 unlocked_backgrounds = await ProfileBackgrounds.unlocked_backgrounds(ctx.author.id)
                 if bg_id in unlocked_backgrounds:
-                    embed = discord.Embed(title=lang["profiles_equip_success"].format(str(ctx.author), bg_id), color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["profiles_equip_success"].format(str(ctx.author), bg_id), color=self.embed_color)
                     await ProfilesHandler.equip_background(ctx.author.id, ctx.guild.id, bg_id)
                 else:
-                    embed = discord.Embed(title=lang["profiles_equip_not_owned"], color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["profiles_equip_not_owned"], color=self.embed_color)
             else:
-                embed = discord.Embed(title=lang["profiles_equip_not_found"], color=self.module_embed_color)
+                embed = discord.Embed(title=lang["profiles_equip_not_found"], color=self.embed_color)
         await ctx.send(embed=embed)
 
     @commands.cooldown(5, 60, commands.BucketType.member)
     @commands.guild_only()
-    @background.command(name='unequip', help=main.lang["empty_string"], description=main.lang["command_bg_unequip_description"], ignore_extra=True, aliases=['default'])
+    @background.command(name='unequip', description=main.lang["command_bg_unequip_description"], ignore_extra=True, aliases=['default'])
     async def background_unequip(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ProfilesHandler.equip_background(ctx.author.id, ctx.guild.id, None)
-        embed = discord.Embed(title=lang["profiles_unequip_message"].format(str(ctx.author)), color=self.module_embed_color)
+        embed = discord.Embed(title=lang["profiles_unequip_message"].format(str(ctx.author)), color=self.embed_color)
         await ctx.send(embed=embed)
 
     @commands.cooldown(5, 60, commands.BucketType.member)
     @commands.guild_only()
-    @commands.command(name='leaderboard', help=main.lang["empty_string"], description=main.lang["command_leaderboard_description"], ignore_extra=True, aliases=['lb', 'xplb', 'top'])
+    @commands.command(name='leaderboard', description=main.lang["command_leaderboard_description"], ignore_extra=True, aliases=['lb', 'xplb', 'top'])
     async def profiles_leaderboard(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if not LevelingToggle.is_disabled(ctx.guild.id):
@@ -407,15 +407,18 @@ class Profiles(commands.Cog):
                 index = start_index = 0
                 last_index = math.floor(len(leaderboard)/10)
 
+                user_rank = await ProfilesHandler.get_rank(ctx.author.id, ctx.guild.id)
+
                 msg = None
                 action = ctx.send
                 try:
                     while True:
-                        description = ""
+                        description = lang["profiles_leaderboard_description"].format(ctx.guild.name, user_rank)
                         for person in leaderboard[(index*10):(index*10 + 10)]:
                             user = self.bot.get_user(person[0]) or person[0]
                             description += f"**#{person[1]} {str(user)}** ({lang['level_string']} {person[2]} : {person[3]} {lang['exp_string']})\n"
-                        embed = discord.Embed(title=lang["profiles_leaderboard_title"], description=description, color=self.module_embed_color)
+                        embed = discord.Embed(title=lang["profiles_leaderboard_title"], description=description, color=self.embed_color)
+                        embed.set_thumbnail(url=str(ctx.guild.icon_url))
                         if start_index == last_index:
                             await ctx.send(embed=embed)
                             return
@@ -441,65 +444,63 @@ class Profiles(commands.Cog):
                     await msg.add_reaction(self.pagination_timeout)
                     return
             else:
-                embed = discord.Embed(title=lang["profiles_leaderboard_empty"], color=self.module_embed_color)
+                embed = discord.Embed(title=lang["profiles_leaderboard_empty"], color=self.embed_color)
         else:
-            embed = discord.Embed(title=lang["profiles_leaderboard_disabled"], color=self.module_embed_color)
+            embed = discord.Embed(title=lang["profiles_leaderboard_disabled"], color=self.embed_color)
         await ctx.send(embed=embed)
 
-    @commands.cooldown(5, 60, commands.BucketType.member)
+    @commands.cooldown(5, 60, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
-    @commands.group(name='leveling', help=main.lang["command_leveling_help"], description=main.lang["command_leveling_toggle_description"], invoke_without_command=True)
+    @commands.group(cls=ExtendedGroup, name='leveling', description=main.lang["command_leveling_toggle_description"], invoke_without_command=True, permissions=['Administrator'])
     @commands.guild_only()
     async def leveling_toggle(self, ctx):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             if not LevelingToggle.is_disabled(ctx.guild.id):
                 await LevelingToggle.disable_leveling(ctx.guild.id)
-                embed = discord.Embed(title=lang["profiles_leveling_disabled"], color=self.module_embed_color)
+                embed = discord.Embed(title=lang["profiles_leveling_disabled"], color=self.embed_color)
             else:
                 await LevelingToggle.enable_leveling(ctx.guild.id)
-                embed = discord.Embed(title=lang["profiles_leveling_enabled"], color=self.module_embed_color)
+                embed = discord.Embed(title=lang["profiles_leveling_enabled"], color=self.embed_color)
             await ctx.send(embed=embed)
 
-    @commands.cooldown(5, 60, commands.BucketType.member)
+    @commands.cooldown(5, 60, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
-    @leveling_toggle.command(name='enable', help=main.lang["command_leveling_help"], description=main.lang["command_leveling_enable_description"], aliases=['e'], ignore_extra=True)
+    @leveling_toggle.command(cls=ExtendedCommand, name='enable', description=main.lang["command_leveling_enable_description"], aliases=['e'], ignore_extra=True, permissions=['Administrator'])
     async def leveling_enable(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if LevelingToggle.is_disabled(ctx.guild.id):
             await LevelingToggle.enable_leveling(ctx.guild.id)
-            embed = discord.Embed(title=lang["profiles_leveling_enabled"], color=self.module_embed_color)
+            await ctx.send(embed = discord.Embed(title=lang["profiles_leveling_enabled"], color=self.embed_color))
         else:
-            embed = discord.Embed(title=lang["profiles_leveling_already_enabled"], color=self.module_embed_color)
-        await ctx.send(embed=embed)
+            await ctx.send(lang["profiles_leveling_already_enabled"], delete_after=15)
 
-    @commands.cooldown(5, 60, commands.BucketType.member)
+    @commands.cooldown(5, 60, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
-    @leveling_toggle.command(name='disable', help=main.lang["command_leveling_help"], description=main.lang["command_leveling_disable_description"], aliases=['d'], ignore_extra=True)
+    @leveling_toggle.command(cls=ExtendedCommand, name='disable', description=main.lang["command_leveling_disable_description"], aliases=['d'], ignore_extra=True, permissions=['Administrator'])
     async def leveling_disable(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if not LevelingToggle.is_disabled(ctx.guild.id):
             await LevelingToggle.disable_leveling(ctx.guild.id)
-            embed = discord.Embed(title=lang["profiles_leveling_disabled"], color=self.module_embed_color)
+            await ctx.send(embed = discord.Embed(title=lang["profiles_leveling_disabled"], color=self.embed_color))
         else:
-            embed = discord.Embed(title=lang["profiles_leveling_already_disabled"], color=self.module_embed_color)
-        await ctx.send(embed=embed)
-
-    @commands.cooldown(5, 60, commands.BucketType.member)
-    @leveling_toggle.command(name='reset', help=main.lang["command_leveling_reset_help"], description=main.lang["command_leveling_reset_description"], ignore_extra=True)
+            await ctx.send(lang["profiles_leveling_already_disabled"], delete_after=15)
+   
+    @commands.cooldown(5, 60, commands.BucketType.guild)
+    @leveling_toggle.command(cls=ExtendedCommand, name='reset', description=main.lang["command_leveling_reset_description"], ignore_extra=True, permissions=['Server Owner'])
     async def leveling_reset(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if ctx.author.id == ctx.guild.owner.id:
-            await ctx.send(embed = discord.Embed(title=lang["profiles_leveling_reset_confirmation"], color = self.module_embed_color))
+            await ctx.send(embed = discord.Embed(title=lang["profiles_leveling_reset_confirmation"], color = self.embed_color))
             try:
                 msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel, timeout=60.0)
                 if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
                     await ProfilesHandler.reset_leveling(ctx.guild.id)
-                    embed = discord.Embed(title=lang["profiles_leveling_reset_message"], color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["profiles_leveling_reset_message"], color=self.embed_color)
                 else:
-                    embed = discord.Embed(title=lang["wait_for_cancelled"], color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["wait_for_cancelled"], color=self.embed_color)
             except asyncio.TimeoutError:
-                embed = discord.Embed(title=lang["wait_for_timeout"], color=self.module_embed_color)
+                embed = discord.Embed(title=lang["wait_for_timeout"], color=self.embed_color)
             await ctx.send(embed=embed)
 
 def setup(bot):
