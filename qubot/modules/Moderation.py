@@ -817,11 +817,14 @@ class Moderation(commands.Cog):
     async def get_modlog_channel(self, ctx):
         if ctx.guild:
             channel_id = await self.Modlog.get_channel(ctx.guild.id)
-            try:
-                channel = await self.bot.fetch_channel(channel_id) if channel_id else None
-                return channel if channel else ctx
-            except discord.Forbidden:
-                pass
+            if channel_id:
+                try:
+                    channel = await self.bot.fetch_channel(channel_id) if channel_id else None
+                    return channel if channel else ctx
+                except discord.Forbidden:
+                    pass
+                except discord.NotFound:
+                    await self.Modlog.wipe_data(ctx.guild.id)
         return ctx
 
 def setup(bot):
