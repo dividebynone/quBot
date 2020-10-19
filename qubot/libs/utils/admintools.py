@@ -225,3 +225,25 @@ class TemporaryActions(object):
     async def wipe_guild_data(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("DELETE FROM temporary_actions WHERE guild_id=?",(guild_id,))
+
+class ModlogSetup(object):
+    def __init__(self):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS modlog(guild_id INTEGER PRIMARY KEY, channel_id INTEGER)")
+
+    @classmethod
+    async def set_channel(self, guild_id: int, channel_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("INSERT OR REPLACE INTO modlog(guild_id, channel_id) VALUES(?, ?)", (guild_id, channel_id,))
+
+    @classmethod
+    async def get_channel(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT channel_id FROM modlog WHERE guild_id=?", (guild_id,))
+            output = cursor.fetchone()
+            return output[0] if output else None
+
+    @classmethod
+    async def wipe_data(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM modlog WHERE guild_id=?",(guild_id,))

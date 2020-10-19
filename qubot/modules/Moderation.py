@@ -81,6 +81,7 @@ class Moderation(commands.Cog):
         self.AutoActions = admintools.AutoWarningActions()
         self.BlacklistedUsers = admintools.BlacklistedUsers()
         self.TemporaryActions = admintools.TemporaryActions()
+        self.Modlog = admintools.ModlogSetup()
         
         # Setting up configuration environment (config.ini)
         self.config_section = 'Moderation'
@@ -187,6 +188,7 @@ class Moderation(commands.Cog):
     async def on_guild_remove(self, guild):
         await self.BlacklistedUsers.remove_blacklist_guild(guild.id)
         await self.TemporaryActions.wipe_guild_data(guild.id)
+        await self.Modlog.wipe_data(guild.id)
 
     # Module commands
 
@@ -240,7 +242,7 @@ class Moderation(commands.Cog):
                         check = is_target_user
                     except commands.UserNotFound:
                         embed = discord.Embed(title=lang["moderation_purge_usernotfound"], color=self.embed_color)
-                        await ctx.send(embed=embed, delete_after=10)
+                        await ctx.send(embed=embed, delete_after=15)
                         return
                 elif lowered in ('has', 'contains') and len(filters) > 1:
                     check = is_string
@@ -248,12 +250,12 @@ class Moderation(commands.Cog):
                     check = is_regex
                 else:
                     embed = discord.Embed(title=lang["moderation_purge_invalid_filter"], color=self.embed_color)
-                    await ctx.send(embed=embed, delete_after=10)
+                    await ctx.send(embed=embed, delete_after=15)
                     return
 
             deleted = await ctx.channel.purge(limit=messages, check=check, bulk=True)
             embed = discord.Embed(title=lang["moderation_purge_success"].format(len(deleted)), color=self.embed_color)
-            await ctx.send(embed=embed, delete_after=10)
+            await ctx.send(embed=embed, delete_after=15)
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
@@ -278,11 +280,12 @@ class Moderation(commands.Cog):
                 if reason:
                     embed.add_field(name=lang["reason_string"], value=reason or lang["empty_string"], inline=False)
                 embed.set_footer(text=lang["moderation_kick_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_kick_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_kick_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_kick_not_found"], delete_after=10)
+            await ctx.send(lang["moderation_kick_not_found"], delete_after=15)
     
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
@@ -318,11 +321,12 @@ class Moderation(commands.Cog):
                 if time_period:
                     embed.add_field(name=lang["moderation_embed_expiration"], value=timestamp.strftime('%Y/%m/%d at %H:%M UTC'), inline=False)
                 embed.set_footer(text=lang["moderation_ban_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_ban_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_ban_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_ban_not_found"], delete_after=10)
+            await ctx.send(lang["moderation_ban_not_found"], delete_after=15)
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
@@ -348,11 +352,12 @@ class Moderation(commands.Cog):
                 if reason:
                     embed.add_field(name=lang["reason_string"], value=reason or lang["empty_string"], inline=False)
                 embed.set_footer(text=lang["moderation_unban_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_unban_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_unban_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_unban_not_found"], delete_after=10)
+            await ctx.send(lang["moderation_unban_not_found"], delete_after=15)
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, manage_messages=True)
@@ -378,11 +383,12 @@ class Moderation(commands.Cog):
                 if reason:
                     embed.add_field(name=lang["reason_string"], value=reason or lang["empty_string"], inline=False)
                 embed.set_footer(text=lang["moderation_softban_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_softban_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_softban_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_softban_not_found"], delete_after=10)
+            await ctx.send(lang["moderation_softban_not_found"], delete_after=15)
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
@@ -415,11 +421,12 @@ class Moderation(commands.Cog):
                 embed.set_footer(text=lang["moderation_mute_embed_footer"].format(str(ctx.author)))
                 if time_period:
                     embed.add_field(name=lang["moderation_embed_expiration"], value=timestamp.strftime('%Y/%m/%d at %H:%M UTC'), inline=False)
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_mute_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_mute_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_mute_not_found"], delete_after=10)
+            await ctx.send(lang["moderation_mute_not_found"], delete_after=15)
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
@@ -445,11 +452,12 @@ class Moderation(commands.Cog):
                 embed = discord.Embed(title=lang["moderation_unmute_embed_title"], timestamp=datetime.utcnow(), color=self.embed_color_alt)
                 embed.add_field(name=lang["moderation_unmute_embed_users"], value=output or lang["empty_string"], inline=True)
                 embed.set_footer(text=lang["moderation_unmute_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_unmute_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_unmute_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_mute_not_found"], delete_after=10)
+            await ctx.send(lang["moderation_mute_not_found"], delete_after=15)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True, manage_channels=True)
@@ -474,7 +482,7 @@ class Moderation(commands.Cog):
                     embed = discord.Embed(title=lang["moderation_slowmode_enabled"].format(formatted_time_string), color=self.embed_color)
             else:
                 embed = discord.Embed(title=lang["moderation_slowmode_max"].format(int(self.MAX_SLOWMODE/3600)), color=self.embed_color)
-            await ctx.send(embed=embed, delete_after=10)
+            await ctx.send(embed=embed, delete_after=15)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True, manage_channels=True)
@@ -483,8 +491,7 @@ class Moderation(commands.Cog):
     async def slowmode_disable(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.channel.edit(slowmode_delay=0)
-        embed = discord.Embed(title=lang["moderation_slowmode_disabled"], color=self.embed_color)
-        await ctx.send(embed=embed, delete_after=10)
+        await ctx.send(embed = discord.Embed(title=lang["moderation_slowmode_disabled"], color=self.embed_color), delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
     @commands.has_permissions(send_messages=True)
@@ -513,10 +520,13 @@ class Moderation(commands.Cog):
     @commands.guild_only()
     @report.command(cls=ExtendedCommand, name='setchannel', help=main.lang["command_report_setchannel_help"], description=main.lang["command_report_setchannel_description"], usage='#general', permissions=['Administrator'])
     async def report_setchannel(self, ctx, channel: discord.TextChannel):
-        await self.Reports.set_channel(ctx.guild.id, channel.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=lang["moderation_report_setchannel"].format(str(channel)), color=self.embed_color)
-        await ctx.send(embed=embed)
+        try:
+            channel = await self.bot.fetch_channel(channel.id)
+            await self.Reports.set_channel(ctx.guild.id, channel.id)
+            await ctx.send(embed = discord.Embed(title=lang["moderation_report_setchannel"].format(str(channel)), color=self.embed_color))
+        except discord.Forbidden:
+            await ctx.send(lang["moderation_channel_forbidden"].format(ctx.author.mention), delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
@@ -527,10 +537,9 @@ class Moderation(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if channel_id:
             await self.Reports.disable(ctx.guild.id)
-            embed = discord.Embed(title=lang["moderation_report_disable_success"], color=self.embed_color)
+            await ctx.send(embed = discord.Embed(title=lang["moderation_report_disable_success"], color=self.embed_color))
         else:
-            embed = discord.Embed(title=lang["moderation_report_disable_disabled"], color=self.embed_color)
-        await ctx.send(embed=embed)
+            await ctx.send(lang["moderation_report_disable_disabled"], delete_after=15)       
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
@@ -585,13 +594,14 @@ class Moderation(commands.Cog):
                     if len(reached_limit.strip()) > 0:
                         embed.add_field(name=lang["moderation_warn_embed_reached_limit"], value=reached_limit, inline=False)
                     embed.set_footer(text=lang["moderation_warn_embed_footer"].format(str(ctx.author)))
-                    await ctx.send(embed=embed)
+                    action = await self.get_modlog_channel(ctx)
+                    await action.send(embed=embed)
                 else:
-                    await ctx.send(lang["moderation_warn_empty"].format(ctx.author.mention), delete_after=10)
+                    await ctx.send(lang["moderation_warn_empty"].format(ctx.author.mention), delete_after=15)
             else:
                 raise commands.BadArgument("Failed to warn user. Message author matches one of the target users.")
         else:
-            await ctx.send(lang["moderation_warn_not_found"], delete_after=10)
+            await ctx.send(lang["moderation_warn_not_found"], delete_after=15)
  
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
@@ -647,7 +657,7 @@ class Moderation(commands.Cog):
                     await msg.add_reaction(self.PAGINATION_TIMEOUT)
                     return
             else:
-                await ctx.send(lang["moderation_warnings_empty"].format(ctx.author.mention, str(member)), delete_after=10)
+                await ctx.send(lang["moderation_warnings_empty"].format(ctx.author.mention, str(member)), delete_after=15)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
@@ -667,9 +677,10 @@ class Moderation(commands.Cog):
                 embed = discord.Embed(title=lang["moderation_warnings_reset_embed_title"], description=lang["moderation_warnings_reset_embed_description"], timestamp=datetime.utcnow(), color=self.embed_color_alt)
                 embed.add_field(name=lang["users_string"], value=output or lang["empty_string"], inline=True)
                 embed.set_footer(text=lang["moderation_warnings_reset_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_warnings_reset_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_warnings_reset_empty"].format(ctx.author.mention), delete_after=15)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
@@ -683,9 +694,11 @@ class Moderation(commands.Cog):
                 await ctx.message.delete()
                 await self.Warnings.delete_warning(ctx.guild.id, member.id, index)
                 embed = discord.Embed(title=lang["moderation_warnings_delete"].format(number, str(member)), color=self.embed_color_alt)
+                embed.set_footer(text=lang["moderation_warnings_delete_embed_footer"].format(str(ctx.author)))
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             except IndexError:
-                embed = discord.Embed(title=lang["moderation_warnings_outofrange"], color=self.embed_color_alt)
-            await ctx.send(embed=embed)
+                await ctx.send(lang["moderation_warnings_outofrange"], delete_after=15)         
 
     @commands.cooldown(10, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
@@ -712,8 +725,7 @@ class Moderation(commands.Cog):
         if action.lower() in ('mute', 'kick', 'ban'):
             await self.AutoActions.disable_autoaction(ctx.guild.id, action)
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            embed = discord.Embed(title=lang["moderation_autoaction_disable"].format(action.lower()), color=self.embed_color)
-            await ctx.send(embed=embed)
+            await ctx.send(embed = discord.Embed(title=lang["moderation_autoaction_disable"].format(action.lower()), color=self.embed_color))
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
@@ -744,11 +756,12 @@ class Moderation(commands.Cog):
                 embed = discord.Embed(title=lang["moderation_blacklist_embed_title"], description=lang["moderation_blacklist_embed_description"], timestamp=datetime.utcnow(), color=self.embed_color)
                 embed.add_field(name=lang["users_string"], value=blacklisted_users or lang["empty_string"], inline=True)
                 embed.set_footer(text=lang["moderation_blacklist_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_blacklist_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_blacklist_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_blacklist_self"].format(ctx.author.mention), delete_after=10)
+            await ctx.send(lang["moderation_blacklist_self"].format(ctx.author.mention), delete_after=15)
         
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
@@ -771,11 +784,45 @@ class Moderation(commands.Cog):
                 embed = discord.Embed(title=lang["moderation_blacklist_remove_embed_title"], description=lang["moderation_blacklist_remove_embed_description"], timestamp=datetime.utcnow(), color=self.embed_color_alt)
                 embed.add_field(name=lang["users_string"], value=discharged_users or lang["empty_string"], inline=True)
                 embed.set_footer(text=lang["moderation_blacklist_remove_embed_footer"].format(str(ctx.author)))
-                await ctx.send(embed=embed)
+                action = await self.get_modlog_channel(ctx)
+                await action.send(embed=embed)
             else:
-                await ctx.send(lang["moderation_blacklist_remove_empty"].format(ctx.author.mention), delete_after=10)
+                await ctx.send(lang["moderation_blacklist_remove_empty"].format(ctx.author.mention), delete_after=15)
         else:
-            await ctx.send(lang["moderation_blacklist_remove_self"].format(ctx.author.mention), delete_after=10)
+            await ctx.send(lang["moderation_blacklist_remove_self"].format(ctx.author.mention), delete_after=15)
+
+    @commands.cooldown(5, 30, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @commands.group(cls=ExtendedGroup, name='modlog', invoke_without_command=True, description=main.lang["command_modlog_channel_description"], usage='#modlog', permissions=['Administrator'])
+    async def modlog(self, ctx, *, channel: discord.TextChannel):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            try:
+                channel = await self.bot.fetch_channel(channel.id)
+                await self.Modlog.set_channel(ctx.guild.id, channel.id)
+                await ctx.send(embed = discord.Embed(title=lang["moderation_modlog_embed_title"], description=lang["moderation_modlog_embed_description"].format(channel.mention), color=self.embed_color))
+            except discord.Forbidden:
+                await ctx.send(lang["moderation_channel_forbidden"].format(ctx.author.mention), delete_after=15)
+
+    @commands.cooldown(5, 30, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()  
+    @modlog.command(cls=ExtendedCommand, name='default', description=main.lang["command_modlog_default_description"], permissions=['Administrator'])
+    async def modlog_default(self, ctx):
+        await self.Modlog.wipe_data(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await ctx.send(embed = discord.Embed(title=lang["moderation_modlog_default_embed_title"], description=lang["moderation_modlog_default_embed_description"], color=self.embed_color))
+
+    async def get_modlog_channel(self, ctx):
+        if ctx.guild:
+            channel_id = await self.Modlog.get_channel(ctx.guild.id)
+            try:
+                channel = await self.bot.fetch_channel(channel_id) if channel_id else None
+                return channel if channel else ctx
+            except discord.Forbidden:
+                pass
+        return ctx
 
 def setup(bot):
     bot.add_cog(Moderation(bot))

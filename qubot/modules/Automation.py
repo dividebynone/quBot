@@ -67,7 +67,7 @@ class Automation(commands.Cog):
             await self.Toggles.enable_greeting(ctx.guild.id, False)
             await ctx.send(embed = discord.Embed(title=lang["automation_genable_embed_title"], description=lang["automation_genable_embed_description"], color=self.embed_color))
         else:
-            await ctx.send(lang["automation_genable_already_enabled"], delete_after=10)
+            await ctx.send(lang["automation_genable_already_enabled"], delete_after=15)
         
     @server_greetings.command(cls=ExtendedCommand, name='disable', description=main.lang["command_greetings_disable_description"], ignore_extra=True, aliases=['d', 'off'], permissions=['Manage Server'])
     async def greetings_disable(self, ctx):
@@ -77,7 +77,7 @@ class Automation(commands.Cog):
             await self.Toggles.disable_greeting(ctx.guild.id)
             await ctx.send(embed = discord.Embed(title=lang["automation_gdisable_embed_title"], description=lang["automation_gdisable_embed_description"], color=self.embed_color))
         else:
-            await ctx.send(lang["automation_gdisable_already_disabled"], delete_after=10)
+            await ctx.send(lang["automation_gdisable_already_disabled"], delete_after=15)
 
     @server_greetings.command(cls=ExtendedCommand, name='dm', description=main.lang["command_greetings_dm_description"], ignore_extra=True, permissions=['Manage Server'])
     async def greetings_enable_dm(self, ctx):
@@ -87,7 +87,7 @@ class Automation(commands.Cog):
             await self.Toggles.enable_greeting(ctx.guild.id, True)
             await ctx.send(embed = discord.Embed(title=lang["automation_gdm_embed_title"], description=lang["automation_gdm_embed_description"], color=self.embed_color))
         else:
-            await ctx.send(lang["automation_genable_already_enabled"], delete_after=10)
+            await ctx.send(lang["automation_genable_already_enabled"], delete_after=15)
 
     @server_greetings.command(cls=ExtendedCommand, name='test', description=main.lang["command_greetings_test_description"], ignore_extra=True, permissions=['Manage Server'])
     async def greetings_test(self, ctx):
@@ -103,11 +103,11 @@ class Automation(commands.Cog):
                     await self.Toggles.set_greet_msg(ctx.guild.id, message)
                     await ctx.send(embed = discord.Embed(title=lang["automation_gmessage_success"], color=self.embed_color))
                 except ValueError:
-                    await ctx.send(lang["automation_gmessage_invalid"], delete_after=10)
+                    await ctx.send(lang["automation_gmessage_invalid"], delete_after=15)
             else:
-                await ctx.send(lang["automation_gmessage_disabled"], delete_after=10)
+                await ctx.send(lang["automation_gmessage_disabled"], delete_after=15)
         else:
-            await ctx.send(lang["automation_gmessage_limit"].format(self.max_characters), delete_after=10)
+            await ctx.send(lang["automation_gmessage_limit"].format(self.max_characters), delete_after=15)
     
     @greetings_custom_message.command(cls=ExtendedCommand, name='default', description=main.lang["command_greetings_mdefault_description"], permissions=['Manage Server'])
     async def greetings_custom_message_reset(self, ctx):
@@ -116,7 +116,7 @@ class Automation(commands.Cog):
             await self.Toggles.reset_greet_msg(ctx.guild.id)
             await ctx.send(embed = discord.Embed(title=lang["automation_gmessage_default_success"], color=self.embed_color))
         else:
-            await ctx.send(lang["automation_gmessage_default_already_used"], delete_after=10)
+            await ctx.send(lang["automation_gmessage_default_already_used"], delete_after=15)
 
     @server_greetings.group(cls=ExtendedGroup, name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="#general", permissions=['Manage Server'])
     async def greetings_setchannel(self, ctx, *, channel: discord.TextChannel):
@@ -178,7 +178,7 @@ class Automation(commands.Cog):
             await self.Toggles.enable_goodbye(ctx.guild.id)
             await ctx.send(embed = discord.Embed(title=lang["automation_gbenable_embed_title"], description=lang["automation_gbenable_embed_description"], color=self.embed_color))
         else:
-            await ctx.send(lang["automation_gbenable_already_enabled"], delete_after=10)
+            await ctx.send(lang["automation_gbenable_already_enabled"], delete_after=15)
 
     @server_goodbye.command(cls=ExtendedCommand, name='disable', description=main.lang["command_goodbye_disable_description"], ignore_extra=True, aliases=['d', 'off'], permissions=['Manage Server'])
     async def goodbye_disable(self, ctx):
@@ -188,7 +188,7 @@ class Automation(commands.Cog):
             await self.Toggles.disable_goodbye(ctx.guild.id)
             await ctx.send(embed = discord.Embed(title=lang["automation_gbdisable_embed_title"], description=lang["automation_gbdisable_embed_description"], color=self.embed_color))
         else:
-            await ctx.send(lang["automation_gbdisable_already_disabled"], delete_after=10)
+            await ctx.send(lang["automation_gbdisable_already_disabled"], delete_after=15)
 
     @server_goodbye.command(cls=ExtendedCommand, name='test', description=main.lang["command_goodbye_test_description"], ignore_extra=True, permissions=['Manage Server'])
     async def goodbye_test(self, ctx):
@@ -204,11 +204,11 @@ class Automation(commands.Cog):
                     await self.Toggles.set_bye_msg(ctx.guild.id, message)
                     await ctx.send(embed = discord.Embed(title=lang["automation_gbmessage_success"], color=self.embed_color))
                 except ValueError:
-                    await ctx.send(lang["automation_gbmessage_invalid"], delete_after=10)
+                    await ctx.send(lang["automation_gbmessage_invalid"], delete_after=15)
             else:
-                await ctx.send(lang["automation_gbmessage_disabled"], delete_after=10)
+                await ctx.send(lang["automation_gbmessage_disabled"], delete_after=15)
         else:
-            await ctx.send(lang["automation_gmessage_limit"].format(self.max_characters), delete_after=10)
+            await ctx.send(lang["automation_gmessage_limit"].format(self.max_characters), delete_after=15)
 
     @goodbye_custom_message.command(cls=ExtendedCommand, name='default', description=main.lang["command_goodbye_mdefault_description"], permissions=['Manage Server'])
     async def goodbye_custom_message_reset(self, ctx):
@@ -217,7 +217,7 @@ class Automation(commands.Cog):
             await self.Toggles.reset_bye_msg(ctx.guild.id)
             await ctx.send(embed = discord.Embed(title=lang["automation_gbmessage_default_success"], color=self.embed_color))
         else:
-            await ctx.send(lang["automation_gbmessage_default_already_used"], delete_after=10)
+            await ctx.send(lang["automation_gbmessage_default_already_used"], delete_after=15)
 
     @server_goodbye.group(cls=ExtendedGroup, name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_goodbye_setchannel_description"], usage="#general", permissions=['Manage Server'])
     async def goodbye_setchannel(self, ctx, *, channel: discord.TextChannel):

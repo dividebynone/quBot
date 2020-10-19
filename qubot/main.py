@@ -162,6 +162,7 @@ json_lang_en = {
     "moderation_warnings_reset_empty": "{}, I could not reset warnings for the provided users. They might no longer be in this server.",
     "moderation_warnings_delete": "Successfully deleted warning with corresponding number '{}' for {}.",
     "moderation_warnings_outofrange": "The warning you are trying to delete does not exist. Are you sure you have entered the correct value?",
+    "moderation_warnings_delete_embed_footer": "Deleted by: {}",
     "moderation_autoaction_max": "Automatic actions cannot exceed the maximum warnings limit, which is {}",
     "moderation_autoaction_success": "Gotcha, an automatic {} will be triggered when a user reaches {} warnings!",
     "moderation_autoaction_disable": "Automatic {} disabled. To enable it again, set it to a new value.",
@@ -175,6 +176,11 @@ json_lang_en = {
     "moderation_blacklist_remove_embed_footer": "Approved by: {}",
     "moderation_blacklist_remove_empty": "{}, I could not discharge the provided users' blacklist status. They are probably not blacklisted or are no longer in this server.",
     "moderation_blacklist_remove_self": "{}, you can't remove yourself from the blacklist.",
+    "moderation_modlog_embed_title": "Moderation actions channel successfully changed",
+    "moderation_modlog_embed_description": "All future moderation action messages will be displayed in {}.",
+    "moderation_modlog_default_embed_title": "Moderation actions channel has been reset back to default",
+    "moderation_modlog_default_embed_description": "Future messages will be displayed in the same channel where the command was executed.",
+    "moderation_channel_forbidden": "{}, I don't have access to this channel. You could either grant me access to it or pick another text channel.",
     "needed_permissions": "Needed Permissions",
     "users_string": "Users",
     "other_string": "other",
@@ -211,6 +217,8 @@ json_lang_en = {
     "automation_gbmessage_default_already_used": "The default goodbye message is already being used.",
     "automation_gbscdefault": "Goodbye messages text channel has been set back to default",
     "automation_bye_default": "Goodbye, {}. Wishing you all the best.",
+    "command_modlog_channel_description": "Moves all moderation action messages to a separate channel.",
+    "command_modlog_default_description": "Restores the modlog channel settings back to default. As a result, future moderation actions will be displayed in the channel where the command was executed.",
 
 
     "administration_autoaction_ban": "Your last warning triggered an automatic ban action from this server.", #TO-BE-DELETED

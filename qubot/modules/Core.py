@@ -471,9 +471,9 @@ class Core(commands.Cog):
     async def prefix_show(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.module_embed_color))
-
-    @commands.is_owner()
+ 
     @commands.group(name='export', hidden=True)
+    @commands.is_owner()
     async def export_group(self, ctx):
         if not ctx.invoked_subcommand:
             pass
