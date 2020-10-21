@@ -515,7 +515,7 @@ class Conquest(commands.Cog):
         else:
             await ctx.send(lang["conquest_promote_self"], delete_after=15)
 
-    @commands.command(name='skick', help=main.lang["command_skick_help"], description=main.lang["command_skick_description"], usage='@somebody')
+    @commands.command(name='skick', help=main.lang["command_sleader"], description=main.lang["command_skick_description"], usage='@somebody')
     @commands.guild_only()
     async def conquest_kick(self, ctx, *, user: discord.User):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang

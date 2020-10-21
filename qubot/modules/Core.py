@@ -77,7 +77,7 @@ class Core(commands.Cog):
         try:
             input_module_path = f'modules.{input_module}'
             if input_module_path in loaded_modules:
-                 self.bot.unload_extension(input_module_path)
+                self.bot.unload_extension(input_module_path)
         except Exception as e:
             embed = discord.Embed(title=f'**`ERROR:`** {type(e).__name__} - {e}', color=self.embed_color)
         else:

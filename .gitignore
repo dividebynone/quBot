@@ -4,7 +4,6 @@
 /qubot/data/modules.mdls
 /qubot/databases
 /qubot/logs
-/qubot/modules/Voting.py
 /QBEnv
 /.vscode
 *.ini
