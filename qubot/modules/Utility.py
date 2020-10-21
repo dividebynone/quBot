@@ -62,8 +62,8 @@ class Utility(commands.Cog):
         embed.set_thumbnail(url="{}".format(user.avatar_url))
         embed.add_field(name=lang["utility_uinfo_id"], value=user.id, inline=True)
         embed.add_field(name=lang["utility_uinfo_nickname"], value=user.nick, inline=True)
-        embed.add_field(name=lang["utility_uinfo_created"], value=user_created_at, inline=True)
-        embed.add_field(name=lang["utility_uinfo_joined"], value=user_joined_at, inline=True)
+        embed.add_field(name=lang["utility_uinfo_created"], value=f'{user_created_at} UTC', inline=False)
+        embed.add_field(name=lang["utility_uinfo_joined"], value=f'{user_joined_at} UTC', inline=True)
         embed.add_field(name=lang["utility_uinfo_sroles"].format(len(user_roles_dict)), value=user_roles, inline=False)
         await ctx.send(embed=embed)
 

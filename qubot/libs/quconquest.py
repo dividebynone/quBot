@@ -50,7 +50,7 @@ class quConquest(object):
     async def get_settlement(get_string:str, input_data):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             if get_string == 'user':
-                cursor.execute("SELECT * FROM conquest WHERE founderid=? OR leaderid=?", (input_data,input_data,))
+                cursor.execute("SELECT * FROM conquest WHERE leaderid=?", (input_data,))
             elif get_string == 'settlement':
                 cursor.execute("SELECT * FROM conquest WHERE name=?", (input_data,))
             elif get_string == 'code':
@@ -83,10 +83,10 @@ class quConquest(object):
     async def update_settlement(get_string:str, input_data, dict_input):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             if get_string == 'user':
-                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE founderid=? OR leaderid=?",
+                cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE leaderid=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
                                 dict_input["date_created"], dict_input["tech_attack"], dict_input["tech_defence"], dict_input["name"], dict_input["tech_tree"], dict_input["type"],
-                                dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data, input_data])
+                                dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data])
             elif get_string == 'invite':
                 cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE invite_string=?",
                                 [dict_input["founderid"], dict_input["leaderid"], dict_input["treasury"], dict_input["entry_fee"], dict_input["invite_string"],
@@ -155,7 +155,7 @@ class quConquest(object):
                 new_code = string_generator(15)
                 cursor.execute("SELECT invite_string FROM conquest WHERE invite_string=?", (new_code,))
 
-            cursor.execute("UPDATE conquest SET invite_string=? WHERE founderid=? OR leaderid=?", (new_code, user_id, user_id,))
+            cursor.execute("UPDATE conquest SET invite_string=? WHERE leaderid=?", (new_code, user_id,))
             return True if cursor.rowcount > 0 else False
     
     @staticmethod
@@ -169,10 +169,11 @@ class quConquest(object):
                 cursor.execute("SELECT invite_string FROM conquest WHERE invite_string=?", (new_code,))
 
             return new_code
+
     @staticmethod
     async def get_code(user_id: str):
        with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
-            cursor.execute("SELECT invite_string FROM conquest WHERE founderid=? OR leaderid=?", (user_id, user_id,))
+            cursor.execute("SELECT invite_string FROM conquest WHERE leaderid=?", (user_id,))
             db_output = cursor.fetchone()
             return db_output[0] if db_output != None else None
 
@@ -226,6 +227,8 @@ class quConquest(object):
                     tech_tree = db_output[0]
                     return pow(await quConquest.level_converter(tech_tree[building_id-1]), 2)
 
+    # Settlement Buildings
+
     @staticmethod
     async def get_building(building_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
@@ -245,6 +248,13 @@ class quConquest(object):
             cursor.execute("SELECT * FROM buildings")
             db_output = [dict(row) for row in cursor.fetchall()]
             return db_output
+
+    @staticmethod
+    async def get_building_names():
+        with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
+            cursor.execute("SELECT id, name name FROM buildings")
+            output = cursor.fetchall()
+            return {x[1].lower(): x[0] for x in output} if output else None
 
     @staticmethod
     async def upgrade_building(settlement_id: int , building_id: int):
