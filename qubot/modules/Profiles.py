@@ -23,7 +23,6 @@ class Profiles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.embed_color =  0x6e78cc
-        print(f'Module {self.__class__.__name__} loaded')
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -70,6 +69,8 @@ class Profiles(commands.Cog):
         self.left = '⬅️'
         self.right = '➡️'
         self.pagination_timeout = '⏹️'
+
+        print(f'Module {self.__class__.__name__} loaded')
     
     def predicate(self, message, l, r):
         def check(reaction, user):
@@ -288,7 +289,7 @@ class Profiles(commands.Cog):
     async def background_buy(self, ctx, bg_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         user = ctx.author
-        user_info = await user_get(user)
+        user_info = await user_get(user.id)
         background_info = await ProfileBackgrounds.get_background_info(bg_id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if background_info:
@@ -305,7 +306,7 @@ class Profiles(commands.Cog):
                                 embed = discord.Embed(title=lang["profiles_buy_success"].format(bg_id, background_info['price'], self.currency_symbol), color=self.embed_color)
                                 user_info['currency'] -= background_info['price']
                                 await ProfileBackgrounds.unlock_background(user.id, bg_id)
-                                await user_set(user, user_info)
+                                await user_set(user.id, user_info)
                             else:
                                 embed = discord.Embed(title=lang["wait_for_cancelled"], color=self.embed_color)
                         except asyncio.TimeoutError:

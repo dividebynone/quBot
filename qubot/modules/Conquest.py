@@ -127,7 +127,7 @@ class Conquest(commands.Cog):
                         if entry_fee < self.minetryfee:
                             await ctx.send(lang["conquest_entry_requirement"], delete_after=15)
                         else:
-                            user_data = await qulib.user_get(user)
+                            user_data = await qulib.user_get(user.id)
                             if user_data["currency"] < entry_fee:
                                 await ctx.send(lang["conquest_insufficient_funds"], delete_after=15)
                             else:
@@ -139,7 +139,7 @@ class Conquest(commands.Cog):
                                 dict_input["type"] = set_type_lowered
                                 user_data["currency"] -= entry_fee
 
-                                await qulib.user_set(user,user_data)
+                                await qulib.user_set(user.id, user_data)
                                 settlement_id = await quConquest.create_settlement(user.id, dict_input)
                                 if settlement_id:
                                     await quConquest.add_member(user.id, settlement_id)
@@ -250,7 +250,7 @@ class Conquest(commands.Cog):
         if datetime.now() < age_restriction:
             await ctx.send(lang["conquest_join_age_restriction"], delete_after=15)
         else:
-            user_info = await qulib.user_get(user)
+            user_info = await qulib.user_get(user.id)
             cdata = await quConquest.get_settlement('code', invite_code)
             if cdata:
                 if await quConquest.find_member(user.id):
@@ -262,7 +262,7 @@ class Conquest(commands.Cog):
                     cdata["size"] += 1
                     cdata["treasury"] += int(cdata["entry_fee"])
                     user_info["currency"] -= int(cdata["entry_fee"])
-                    await qulib.user_set(user, user_info)
+                    await qulib.user_set(user.id, user_info)
                     await quConquest.update_settlement('invite', invite_code, cdata)
                     await ctx.send(embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.embed_color))
             else:
@@ -278,7 +278,7 @@ class Conquest(commands.Cog):
             if datetime.now() < age_restriction:
                 await ctx.send(lang["conquest_join_age_restriction"], delete_after=15)
             else:
-                user_info = await qulib.user_get(user)
+                user_info = await qulib.user_get(user.id)
                 settlementid = await quConquest.get_settlement_id(target_user.id)
                 cdata = await quConquest.get_settlement('id', settlementid)
                 if cdata:
@@ -293,7 +293,7 @@ class Conquest(commands.Cog):
                         cdata["size"] += 1
                         cdata["treasury"] += int(cdata["entry_fee"])
                         user_info["currency"] -= int(cdata["entry_fee"])
-                        await qulib.user_set(user, user_info)
+                        await qulib.user_set(user.id, user_info)
                         await quConquest.update_settlement('id', settlementid, cdata)
                         await ctx.send(embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.embed_color))
                 else:
@@ -841,7 +841,7 @@ class Conquest(commands.Cog):
         if await quConquest.find_member(ctx.author.id):
             settlement_id = await quConquest.get_settlement_id(ctx.author.id)
             cdata = await quConquest.get_settlement('id', settlement_id)
-            author_info = await qulib.user_get(ctx.author)
+            author_info = await qulib.user_get(ctx.author.id)
             json_data = await qulib.data_get()
             if number > 0:
                 if author_info['currency'] <= 0 or number > author_info['currency']:
@@ -849,7 +849,7 @@ class Conquest(commands.Cog):
                 else:
                     author_info['currency'] -= number
                     cdata['treasury'] += number
-                    await qulib.user_set(ctx.author, author_info)
+                    await qulib.user_set(ctx.author.id, author_info)
                     await quConquest.update_settlement("id", settlement_id, cdata)
                     await ctx.send(embed = discord.Embed(title=lang["conquest_deposit_success"].format(number, json_data['Conquest']['gold_icon']), color=self.embed_color))
         else:

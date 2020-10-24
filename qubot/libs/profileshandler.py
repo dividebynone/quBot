@@ -1,6 +1,5 @@
 from libs.sqlhandler import sqlconnect
 import main
-import math
 import os
 
 class ProfilesHandler(object):

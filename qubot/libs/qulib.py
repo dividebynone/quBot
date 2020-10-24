@@ -99,19 +99,19 @@ def user_database_init():
     with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
         cursor.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KEY , currency INTEGER, daily_time BLOB)")
 
-async def user_get(user: discord.User):
+async def user_get(user_id: int):
     with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
-        cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user.id, '0'))
-        cursor.execute("SELECT IfNull(currency,0), IfNull(daily_time,0) FROM users WHERE userid=?", (user.id,))
+        cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user_id, '0'))
+        cursor.execute("SELECT IfNull(currency,0), IfNull(daily_time,0) FROM users WHERE userid=?", (user_id,))
         db_output = list(cursor.fetchone())
         return_dict = dict(currency=db_output[0], daily_time=db_output[1])
         return return_dict
 
-async def user_set(user: discord.User, dict_input):
+async def user_set(user_id: int, dict_input):
     with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
-        cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user.id, '0'))
+        cursor.execute("INSERT OR IGNORE INTO users(userid, currency) VALUES(?, ?)", (user_id, '0'))
         cursor.execute("UPDATE users SET currency=?, daily_time=? WHERE userid=?",
-                        (dict_input['currency'], dict_input['daily_time'], user.id))
+                        (dict_input['currency'], dict_input['daily_time'], user_id))
 
 # Auxiliary functions
  

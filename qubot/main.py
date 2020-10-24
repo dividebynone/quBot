@@ -224,6 +224,12 @@ json_lang_en = {
     "command_export_description": "Exports various bot data into a file.",
     "command_export_help": "**Available export functions:**\n• **commands** = Exports command metadata into a JSON file.",
     "command_export_commands_description": "Exports all command metadata into a JSON file. The target file is saved in the folder 'exports'.",
+    "voting_vote_embed_title": "Voting",
+    "voting_vote_embed_description": "Voting is one of the ways you can directly support me and my creator. We are grateful to every single one of you doing so.\n\n1) **Discordbotlist.com:** [Click here](https://discordbotlist.com/bots/qubot/upvote) (24 hour cooldown)\n\n**Voting will reward the following:**\n• **Discordbotlist.com** - {} {}",
+    "voting_user_vote_embed_title": "Thank you for voting!",
+    "voting_user_vote_embed_description": "Thank you for supporting this bot on **{}**!\nAs a reward, you were given **{}** {} **(Combo: {})**\n\n*Your combo resets if you don't vote within 48 hours of your last vote*",
+    "command_vote_test_description": "Simulates a successful user vote for the bot.",
+    "command_vote_description": "A help command that provides further information about bot voting.",
 
 
     "administration_autoaction_ban": "Your last warning triggered an automatic ban action from this server.", #TO-BE-DELETED

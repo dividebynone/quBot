@@ -1,12 +1,16 @@
 from discord.ext import tasks, commands
 from main import bot_path, config
 import libs.qulib as qulib
+import libs.votingtracker as votingtracker
 from aiohttp import web
+from datetime import datetime, timedelta, timezone
+from libs.qulib import ExtendedCommand
 import aiohttp_cors
 import configparser
 import requests
 import discord
 import main
+import time
 import dbl
 import ssl
 import os
@@ -17,6 +21,8 @@ class Voting(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.embed_color = 0xffd426
+
+        self.VotingTracker = votingtracker.VotingTracker()
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -67,8 +73,10 @@ class Voting(commands.Cog):
 
         # self.dblpy = dbl.DBLClient(self.bot, self.token, webhook_path='/dblwebhook', webhook_auth=self.webhook_auth, webhook_port=5000, autopost=True) # Autopost will post your guild count every 30 minutes
         
-        self.bot.loop.create_task(self.webhook())
-        self.dbl_update_stats.start() # pylint: disable=no-member
+        # self.bot.loop.create_task(self.webhook())
+        # self.dbl_update_stats.start() # pylint: disable=no-member
+
+        print(f'Module {self.__class__.__name__} loaded')
 
     @tasks.loop(minutes=30.0)
     async def update_stats(self):
@@ -79,22 +87,22 @@ class Voting(commands.Cog):
         # except Exception as e:
         #     main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
 
-    @tasks.loop(minutes=30.0)
-    async def dbl_update_stats(self):
-        try:
-            shards_guild_counter = 0
-            for shard in self.bot.latencies:
-                guild_list = (g for g in self.bot.guilds if g.shard_id is shard[0])
-                for _ in guild_list:
-                    shards_guild_counter += 1
+    # @tasks.loop(minutes=30.0)
+    # async def dbl_update_stats(self):
+    #     try:
+    #         shards_guild_counter = 0
+    #         for shard in self.bot.latencies:
+    #             guild_list = (g for g in self.bot.guilds if g.shard_id is shard[0])
+    #             for _ in guild_list:
+    #                 shards_guild_counter += 1
 
-            app_info = await self.bot.application_info()
-            url = f'https://discordbotlist.com/api/v1/bots/{app_info.id}/stats'
-            headers = {'Authorization': self.dbl_token}
-            requests.post(url, headers=headers, data={'guilds': shards_guild_counter}, verify=True)
-            main.logger.info('Posted server count ({}) on discordbotlist.com'.format(shards_guild_counter))
-        except Exception as e:
-            main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
+    #         app_info = await self.bot.application_info()
+    #         url = f'https://discordbotlist.com/api/v1/bots/{app_info.id}/stats'
+    #         headers = {'Authorization': self.dbl_token}
+    #         requests.post(url, headers=headers, data={'guilds': shards_guild_counter}, verify=True)
+    #         main.logger.info('Posted server count ({}) on discordbotlist.com'.format(shards_guild_counter))
+    #     except Exception as e:
+    #         main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
 
     @commands.Cog.listener()
     async def on_dbl_vote(self, data):
@@ -102,64 +110,99 @@ class Voting(commands.Cog):
         try:
             user = self.bot.get_user(int(data['user']))
             if user is not None:
-                user_info = await qulib.user_get(user)
                 isWeekend = bool(data['isWeekend'])
                 reward = self.daily_amount if isWeekend else int(self.daily_amount/2)
-                user_info['currency'] += reward
-                await qulib.user_set(user, user_info)
-                embed = discord.Embed(title=f"Thank you for supporting this bot on Top.GG\nAs a reward, you were given {reward} {self.currency_symbol}", color = self.embed_color)
-                await user.send(embed=embed)
+
+                voting_info, vote_multiplier = await self.vote_handler(user.id, reward)
+                if voting_info:
+                    await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("top.gg", int(reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
         except Exception:
             pass
 
-    async def webhook(self):
-        async def vote_handler(request):
-            try:
-                req_auth = request.headers.get('Authorization')
-                if self.dbl_webhook_auth == req_auth.strip():
-                    main.logger.info('[Discordbotlist.com] Bot received an upvote!')
-                    data = await request.json()
-                    user = self.bot.get_user(int(data['id']))
-                    if user is not None:
-                        user_info = await qulib.user_get(user)
-                        user_info['currency'] += self.daily_amount
-                        await qulib.user_set(user, user_info)
-                        embed = discord.Embed(title=f"Thank you for supporting this bot on discordbotlist.com\nAs a reward, you were given {self.daily_amount} {self.currency_symbol}", color = self.embed_color)
-                        await user.send(embed=embed)
-                    return web.Response()
-                else:
-                    return web.Response(status=401)
-            except Exception:
-                raise
+    # async def webhook(self):
+    #     async def webhook_handler(request):
+    #         try:
+    #             req_auth = request.headers.get('Authorization')
+    #             if self.dbl_webhook_auth == req_auth.strip():
+    #                 main.logger.info('[Discordbotlist.com] Bot received an upvote!')
+    #                 data = await request.json()
+    #                 user = self.bot.get_user(int(data['id']))
+    #                 if user is not None:
+    #                     voting_info, vote_multiplier = await self.vote_handler(user.id, self.daily_amount)
+    #                     if voting_info:
+    #                         await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.daily_amount * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+    #                         return web.Response()
+    #             else:
+    #                 return web.Response(status=401)
+    #         except Exception:
+    #             raise
 
-        web_app = web.Application(loop=self.bot.loop)
+    #     web_app = web.Application(loop=self.bot.loop)
 
-        cors = aiohttp_cors.setup(web_app, defaults={
-                "https://discordbotlist.com": aiohttp_cors.ResourceOptions (
-                    allow_credentials=True,
-                    expose_headers="*",
-                    allow_headers=("Accept", "Authorization", "Content-Type", "X-DBL-Signature", "Origin", "X-Requested-With",),
-                    max_age=3600,
-                )
-            })
+    #     cors = aiohttp_cors.setup(web_app, defaults={
+    #             "https://discordbotlist.com": aiohttp_cors.ResourceOptions (
+    #                 allow_credentials=True,
+    #                 expose_headers="*",
+    #                 allow_headers=("Accept", "Authorization", "Content-Type", "X-DBL-Signature", "Origin", "X-Requested-With",),
+    #                 max_age=3600,
+    #             )
+    #         })
 
-        resource = cors.add(web_app.router.add_resource("/discordbotlist"))
-        cors.add(resource.add_route("POST", vote_handler))
+    #     resource = cors.add(web_app.router.add_resource("/discordbotlist"))
+    #     cors.add(resource.add_route("POST", webhook_handler))
 
-        web_runner = web.AppRunner(web_app)
-        await web_runner.setup()
+    #     web_runner = web.AppRunner(web_app)
+    #     await web_runner.setup()
 
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        ssl_context.load_cert_chain(os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.crt'), os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.key'))
+    #     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    #     ssl_context.load_cert_chain(os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.crt'), os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.key'))
 
-        site = web.TCPSite(web_runner, host="0.0.0.0", port=5050, ssl_context=ssl_context)
-        await site.start()
+    #     site = web.TCPSite(web_runner, host="0.0.0.0", port=5050, ssl_context=ssl_context)
+    #     await site.start()
 
-    @commands.command(name='vote', help="You can vote for the bot only every 12 hours.", description="Gives more information about bot voting.", ignore_extra=True)
-    async def topgg_vote(self, ctx):
-        embed = discord.Embed(title=f"Voting:", description=f"**Discordbotlist.com:** [Click here](https://discordbotlist.com/bots/qubot/upvote) (24 hour cooldown)\n\n**Voting Rewards:**\n \
-            Voting will give you the following currency reward:\n• **Discordbotlist.com** - {self.daily_amount}** {self.currency_symbol}", color = self.embed_color)
-        await ctx.send(embed=embed)
+    @commands.group(name='vote', invoke_without_command=True, description=main.lang["command_vote_description"])
+    async def vote_command(self, ctx):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            await ctx.send(embed = discord.Embed(title=lang["voting_vote_embed_title"], description=lang["voting_vote_embed_description"].format(self.daily_amount, self.currency_symbol), color = self.embed_color))
+
+    @vote_command.command(cls=ExtendedCommand, name='test', description=main.lang["command_vote_test_description"], hidden=True, permissions=['Bot Owner'])
+    @commands.is_owner()
+    async def vote_test(self, ctx):
+        voting_info, vote_multiplier = await self.vote_handler(ctx.author.id, self.daily_amount)
+        if voting_info:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            await ctx.author.send(embed = discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.daily_amount * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+
+    async def vote_handler(self, user_id: int, vote_amount: int):
+        try:
+            voting_info = await self.VotingTracker.get_user(user_id)
+            user_info = await qulib.user_get(user_id)
+            if None not in (voting_info, user_info):
+                unix_now = int(time.time())
+                vote_multiplier = 1
+                if voting_info['last_voted'] is not None:
+                    timestamp_now = datetime.fromtimestamp(unix_now, tz=timezone.utc)
+                    last_voted_timestamp = datetime.fromtimestamp(voting_info['last_voted'], tz=timezone.utc) + timedelta(days=2)
+                    if last_voted_timestamp >= timestamp_now:
+                        if voting_info['combo'] < 3:
+                            vote_multiplier = 1.5
+                        elif voting_info['combo'] < 6:
+                            vote_multiplier = 2
+                        else:
+                            vote_multiplier = 2.5
+                    else:
+                        voting_info['combo'] = 0
+
+                user_info['currency'] += int(vote_amount * vote_multiplier)
+                voting_info['combo'] += 1
+                voting_info['last_voted'] = unix_now
+                await self.VotingTracker.update_user(user_id, voting_info)
+                await qulib.user_set(user_id, user_info)
+                return voting_info, vote_multiplier
+            return None
+        except Exception:
+            raise
 
 def setup(bot):
     bot.add_cog(Voting(bot))
