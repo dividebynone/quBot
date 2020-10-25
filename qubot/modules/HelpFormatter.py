@@ -9,7 +9,6 @@ class HelpFormatter(commands.Cog):
         self.bot = bot
         self.module_embed_color =  0x8aeb59
         bot.remove_command('help')
-        print(f'Module {self.__class__.__name__} loaded')
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -17,6 +16,8 @@ class HelpFormatter(commands.Cog):
         self.module_dependencies = []
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
+
+        print(f'Module {self.__class__.__name__} loaded')
 
     @commands.command(name='help', aliases=['h'])
     async def help(self, ctx, command = None, *, subcommand = None):
@@ -56,7 +57,7 @@ class HelpFormatter(commands.Cog):
                 embed = discord.Embed(title=lang["helpformatter_cmd_not_found"], color=self.module_embed_color)
         else:
             app_info = await self.bot.application_info()
-            embed = discord.Embed(title=lang["helpformatter_help"], description=lang["helpformatter_help_description"].format(main.prefix, main.prefix, main.prefix, app_info.id), color=self.module_embed_color)
+            embed = discord.Embed(title=lang["helpformatter_help"], description=lang["helpformatter_help_description"].format(main.prefix, main.prefix, main.prefix, main.prefix, app_info.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
 
 def setup(bot):

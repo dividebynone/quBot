@@ -25,6 +25,13 @@ class CommandController(object):
             cursor.execute("DELETE FROM disabled_commands WHERE command_name=? AND guild_id=?",(command_name, guild_id,))
 
     @classmethod
+    async def disabled_commands(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT command_name FROM disabled_commands WHERE guild_id=?",(guild_id,))
+            output = cursor.fetchall()
+            return [x[0] for x in output] if output else None
+
+    @classmethod
     async def remove_disabled_commands(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("DELETE FROM disabled_commands WHERE guild_id=?",(guild_id,))
@@ -47,7 +54,7 @@ class CogController(object):
             return True if output else False
 
     @classmethod
-    def disabled_cogs(self, guild_id: int):
+    async def disabled_cogs(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("SELECT cog_name FROM disabled_cogs WHERE guild_id=?",(guild_id,))
             output = cursor.fetchall()

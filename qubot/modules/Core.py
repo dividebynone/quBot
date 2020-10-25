@@ -5,10 +5,11 @@ from main import logger
 import libs.qulib as qulib
 from libs.utils.admintools import BlacklistedUsers
 from libs.prefixhandler import PrefixHandler
-from libs.localizations import Localizations
 from libs.commandscontroller import CommandController, CogController
 from datetime import datetime
 from libs.qulib import ExtendedCommand, ExtendedGroup
+import asyncio
+import math
 import discord
 import json
 import os
@@ -20,7 +21,7 @@ class Core(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.embed_color =  0xf0f3f4
+        self.embed_color =  0x91becc
 
         self.BlacklistedUsers = BlacklistedUsers()
         self.CommandController = CommandController()
@@ -34,7 +35,22 @@ class Core(commands.Cog):
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
+        self.left = '⬅️'
+        self.right = '➡️'
+        self.pagination_timeout = '⏹️'
+
         print(f'Module {self.__class__.__name__} loaded')
+
+    def predicate(self, message, l, r):
+        def check(reaction, user):
+            if reaction.message.id != message.id or user.id == self.bot.user.id:
+                return False
+            if l and reaction.emoji == self.left:
+                return True
+            if r and reaction.emoji == self.right:
+                return True
+            return False
+        return check
 
     def bot_check(self, ctx):
         if ctx.guild:
@@ -51,7 +67,7 @@ class Core(commands.Cog):
         else:
             return True
 
-    @commands.command(cls=ExtendedCommand, name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module name>", hidden=True, permissions=['Bot Owner'])
+    @commands.command(cls=ExtendedCommand, name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def module_load(self, ctx, *, input_module: str):
         try:
@@ -71,7 +87,7 @@ class Core(commands.Cog):
                         modules_file.write(f'{input_module}\n')             
         await ctx.send(embed=embed, delete_after=15)
 
-    @commands.command(cls=ExtendedCommand, name='unload', help=main.lang["command_module_help"], description=main.lang["command_unload_description"], usage="<module name>", hidden=True, permissions=['Bot Owner'])
+    @commands.command(cls=ExtendedCommand, name='unload', help=main.lang["command_module_help"], description=main.lang["command_unload_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def module_unload(self, ctx, *, input_module: str):
         try:
@@ -97,7 +113,7 @@ class Core(commands.Cog):
                     modules_file.close()
         await ctx.send(embed=embed, delete_after=15)
 
-    @commands.command(cls=ExtendedCommand, name='reload', help=main.lang["command_module_help"], description=main.lang["command_reload_description"], usage="<module name>", hidden=True, permissions=['Bot Owner'])
+    @commands.command(cls=ExtendedCommand, name='reload', help=main.lang["command_module_help"], description=main.lang["command_reload_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def module_reload(self, ctx, *, input_module: str):
         try:
@@ -127,7 +143,7 @@ class Core(commands.Cog):
             await ctx.author.send(embed = discord.Embed(title=lang["core_modules_list"],description=modules_list, color=self.embed_color))
 
     @commands.cooldown(10, 60, commands.BucketType.guild)
-    @modules.command(cls=ExtendedCommand, name='enable', description=main.lang["command_modules_enable_description"], usage="<module name>", aliases=['e'], permissions=['Administrator'])
+    @modules.command(cls=ExtendedCommand, name='enable', description=main.lang["command_modules_enable_description"], usage="<module>", aliases=['e'], permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def modules_enable(self, ctx, *, input_module: str):
@@ -139,7 +155,7 @@ class Core(commands.Cog):
             cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
             if CogController.is_disabled(cog_name, ctx.guild.id):
                 if cog_name in modules_config.setdefault("dependencies", {}):
-                    disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
+                    disabled_cogs = await CogController.disabled_cogs(ctx.guild.id)
                     unloaded_dependencies = set(modules_config.setdefault("dependencies", {})[cog_name]).intersection(disabled_cogs)
                     if len(unloaded_dependencies) > 0:
                         embed = discord.Embed(title=lang["core_module_enable_dependencies"].format(', '.join(str(e) for e in unloaded_dependencies)), color=self.embed_color)
@@ -155,7 +171,7 @@ class Core(commands.Cog):
         await ctx.send(embed=embed, delete_after=30)
 
     @commands.cooldown(10, 60, commands.BucketType.guild)
-    @modules.command(cls=ExtendedCommand, name='disable', description=main.lang["command_modules_disable_description"], usage="<module name>", aliases=['d'], permissions=['Administrator'])
+    @modules.command(cls=ExtendedCommand, name='disable', description=main.lang["command_modules_disable_description"], usage="<module>", aliases=['d'], permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def modules_disable(self, ctx, *, input_module: str):
@@ -166,7 +182,7 @@ class Core(commands.Cog):
         if input_module.lower() in loaded_modules_lowercase:
             cog_name = loaded_modules_names[loaded_modules_lowercase.index(input_module.lower())]
             if not CogController.is_disabled(cog_name, ctx.guild.id):
-                disabled_cogs = CogController.disabled_cogs(ctx.guild.id)
+                disabled_cogs = await CogController.disabled_cogs(ctx.guild.id)
                 loaded_dependencies = []
                 for cog in modules_config.setdefault("dependencies", {}):
                     if cog_name in modules_config.setdefault("dependencies", {})[cog]:
@@ -190,7 +206,7 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_disable_not_found"], color=self.embed_color)
         await ctx.send(embed=embed, delete_after=30)
         
-    @modules.command(cls=ExtendedCommand, name='hide', description=main.lang["command_modules_hide_description"], usage="<module name>", permissions=['Bot Owner'])
+    @modules.command(cls=ExtendedCommand, name='hide', description=main.lang["command_modules_hide_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def hide(self, ctx, *, input_module: str):
         input_module_path = f'modules.{input_module}'
@@ -207,7 +223,7 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_hide_fail"], color=self.embed_color)
         await ctx.author.send(embed=embed)
 
-    @modules.command(cls=ExtendedCommand, name='unhide', description=main.lang["command_modules_unhide_description"], usage="<module name>", permissions=['Bot Owner'])
+    @modules.command(cls=ExtendedCommand, name='unhide', description=main.lang["command_modules_unhide_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def unhide(self, ctx, *, input_module: str):
         input_module_path = f'modules.{input_module}'
@@ -224,7 +240,7 @@ class Core(commands.Cog):
             embed = discord.Embed(title=lang["core_module_unhide_fail"], color=self.embed_color)
         await ctx.author.send(embed=embed)
     
-    @commands.group(name='commands', invoke_without_command=True, description=main.lang["command_cmds_description"], usage="<module name>", aliases=['cmds'])
+    @commands.group(name='commands', invoke_without_command=True, description=main.lang["command_cmds_description"], usage="<module>", aliases=['cmds'])
     async def cmds_list(self, ctx, *, input_module: str = None):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -232,27 +248,55 @@ class Core(commands.Cog):
                 loaded_modules_names = [i.replace('modules.', '') for i in loaded_modules]
                 input_module = input_module.capitalize()
                 if input_module in loaded_modules_names:
-                    display_list = ''
+                    cmds_list = []
                     isowner = await ctx.bot.is_owner(ctx.author)
-
                     for command in self.bot.get_cog(input_module).walk_commands():
                         if not command.hidden or isowner:
-                            if command.parent:
-                                display_list += f'\u002d\u002d\u002d {" ".join(command.qualified_name.split()[1:])}\n'
-                            else:
-                                display_list += f'\u2022 {command.name}\n'
-                    if not display_list:
-                        embed = discord.Embed(title=lang["core_cmds_list_empty"].format(input_module), color=self.embed_color)
-                    else:
-                        embed = discord.Embed(title=lang["core_cmds_list"].format(input_module),description=display_list, color=self.embed_color)
+                            cmds_list.append(command)
+
+                    index = start_index = 0
+                    last_index = math.floor(len(cmds_list)/10)
+                    if len(cmds_list) % 10 == 0:
+                        last_index -= 1
+                      
+                    msg = None
+                    action = ctx.author.send
+                    try:
+                        while True:
+                            embed = discord.Embed(title=lang["core_cmds_embed_title"].format(input_module), color=self.embed_color)
+                            for command in cmds_list[(index*10):(index*10 + 10)]:
+                                embed.add_field(name=f'{main.prefix}{command.qualified_name} {command.signature}', value=command.description or lang["empty_string"], inline=False)
+                            if start_index != last_index:
+                                embed.set_footer(text=f"{lang['page_string']} {index+1}/{last_index+1}")
+                            res = await action(embed=embed)
+                            if start_index == last_index:
+                                return
+                            if res is not None:
+                                msg = res
+                            l = index != 0
+                            r = index != last_index
+                            await msg.add_reaction(self.left)
+                            if l:
+                                await msg.add_reaction(self.left)
+                            if r:
+                                await msg.add_reaction(self.right)
+
+                            react = (await self.bot.wait_for('reaction_add', check=self.predicate(msg, l, r), timeout=120.0))[0]
+                            if react.emoji == self.left:
+                                index -= 1
+                            elif react.emoji == self.right:
+                                index += 1
+                            action = msg.edit
+                    except asyncio.TimeoutError:
+                        await msg.add_reaction(self.pagination_timeout)
+                        return
                 else:
-                    embed = discord.Embed(title=lang["core_cmds_list_not_found"].format(input_module), color=self.embed_color)
+                    await ctx.author.send(lang["core_cmds_list_not_found"].format(input_module), delete_after=15)
             else:
-                embed = discord.Embed(title=lang["core_cmds_list_marg"], color=self.embed_color)
-            await ctx.author.send(embed=embed)
+                await ctx.author.send(lang["core_cmds_list_marg"], delete_after=15)     
 
     @commands.cooldown(10, 30, commands.BucketType.guild)
-    @cmds_list.command(cls=ExtendedCommand, name='enable', description=main.lang["command_command_enable_description"], usage='userid', aliases=['e'], permissions=['Administrator'])
+    @cmds_list.command(cls=ExtendedCommand, name='enable', description=main.lang["command_command_enable_description"], usage='<command>', aliases=['e'], permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def commands_enable(self, ctx, *, command:str):
@@ -277,7 +321,7 @@ class Core(commands.Cog):
             raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")
 
     @commands.cooldown(10, 30, commands.BucketType.guild)
-    @cmds_list.command(cls=ExtendedCommand, name='disable', description=main.lang["command_command_disable_description"], usage='userid', aliases=['d'], permissions=['Administrator'])
+    @cmds_list.command(cls=ExtendedCommand, name='disable', description=main.lang["command_command_disable_description"], usage='<command>', aliases=['d'], permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def commands_disable(self, ctx, *, command:str):
@@ -306,7 +350,7 @@ class Core(commands.Cog):
             raise commands.errors.BadArgument("Could not enable/disable command. Command not found.")
 
     @commands.cooldown(10, 30, commands.BucketType.user)
-    @commands.command(name='userid', help=main.lang["command_userid_help"], description=main.lang["command_userid_description"], aliases=['uid'], usage="@somebody", hidden=True)
+    @commands.command(name='userid', help=main.lang["command_userid_help"], description=main.lang["command_userid_description"], aliases=['uid'], usage="<user>", hidden=True)
     async def userid(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -327,7 +371,7 @@ class Core(commands.Cog):
         await ctx.author.send(embed = discord.Embed(title=lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.embed_color))
 
     @commands.cooldown(10, 30, commands.BucketType.user)
-    @commands.command(name='roleid', description=main.lang["command_roleid_description"], aliases=['rid'], usage="Moderator", hidden=True)
+    @commands.command(name='roleid', description=main.lang["command_roleid_description"], aliases=['rid'], usage="<role>", hidden=True)
     @commands.guild_only()
     async def roleid(self, ctx, *, role: discord.Role):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -353,12 +397,12 @@ class Core(commands.Cog):
             string_output += lang["core_latencies"].format(shard[0], shards_guild_counter, "%.4f" % float(shard[1]*1000))
         await ctx.author.send(embed = discord.Embed(title=lang["core_latencies_msg"], description=string_output, color=self.embed_color))
 
-    @commands.command(cls=ExtendedCommand, name='setname', description=main.lang["command_setname_description"], usage="<new name>", hidden=True, permissions=['Bot Owner'])
+    @commands.command(cls=ExtendedCommand, name='setname', description=main.lang["command_setname_description"], usage="<name>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def setname(self, ctx, *, input_name: str):
         await self.bot.user.edit(username=input_name)
     
-    @commands.command(cls=ExtendedCommand, name='setstatus', help=main.lang["command_setstatus_help"], description=main.lang["command_setstatus_description"], usage="dnd", hidden=True, permissions=['Bot Owner'])
+    @commands.command(cls=ExtendedCommand, name='setstatus', help=main.lang["command_setstatus_help"], description=main.lang["command_setstatus_description"], usage="<status>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def setstatus(self, ctx, input_status: str):
         input_status = input_status.lower()
@@ -366,7 +410,7 @@ class Core(commands.Cog):
             status_dict = {'online': discord.Status.online, 'offline': discord.Status.offline, 'idle': discord.Status.idle, 'dnd': discord.Status.dnd, 'invisible': discord.Status.invisible}
             await ctx.bot.change_presence(status=status_dict.get(input_status, discord.Status.online), shard_id=None)
     
-    @commands.command(cls=ExtendedCommand, name='setactivity', help=main.lang["command_setactivity_help"], description=main.lang["command_setactivity_description"], usage="playing with corgis", hidden=True, permissions=['Bot Owner'])
+    @commands.command(cls=ExtendedCommand, name='setactivity', help=main.lang["command_setactivity_help"], description=main.lang["command_setactivity_description"], usage="<activity>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def setactivity(self, ctx, input_activity:str = None, *, input_string:str = None):
         input_activity = input_activity.lower()
@@ -399,38 +443,6 @@ class Core(commands.Cog):
         await self.bot.http.close()
         await self.bot.close()
 
-    @commands.command(name="langs", description=main.lang["command_langs_description"], aliases=['languages'], ignore_extra=True)
-    async def lang_list(self, ctx):
-        lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data', 'localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
-        lang_list = [x.replace('language_', '') for x in lang_directory_list]
-        lang_string = ''
-        for lang_item in lang_list:
-            lang_string += f'\u2022 {lang_item}\n'
-        localization = Localizations()
-        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=lang["core_langs_title"], description=lang_string, color=self.embed_color)
-        embed.set_footer(text=f'{lang["core_langs_footer"]}: {localization.get_language(ctx.guild.id, main.languagecode)}')
-        await ctx.send(embed=embed)
-
-    @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.command(cls=ExtendedCommand, name="langset", description=main.lang["command_langset_description"], usage="en-US", permissions=['Administrator'])
-    @commands.has_permissions(administrator=True)
-    @commands.guild_only()
-    async def lang_set(self, ctx, lang_code: str = None):
-        lang_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join(bot_path, 'data', 'localization')) if ("language" in os.path.splitext(i)[0] and os.path.splitext(i)[1] == ".json")]
-        lang_list = [x.replace('language_', '') for x in lang_directory_list]
-        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if lang_code in lang_list:
-            localization = Localizations()
-            if lang_code != localization.get_language(ctx.guild.id, main.languagecode):
-                localization.set_language(ctx.guild.id, lang_code)
-                embed = discord.Embed(title=lang["core_langset_success"].format(lang_code), color=self.embed_color)
-            else:
-                embed = discord.Embed(title=lang["core_langset_same"], color=self.embed_color)
-        else:
-            embed = discord.Embed(title=lang["core_langset_notfound"], color=self.embed_color)
-        await ctx.send(embed=embed)
-
     @commands.cooldown(5, 60, commands.BucketType.user)
     @commands.command(name="translate", description=main.lang["command_translate_description"], ignore_extra=True)
     async def translate(self, ctx):
@@ -439,35 +451,6 @@ class Core(commands.Cog):
         embed.set_thumbnail(url=str(self.bot.user.avatar_url))
         await ctx.send(embed=embed)
 
-    @commands.group(cls=ExtendedGroup, name='prefix', invoke_without_command=True, help=main.lang["command_prefix_help"], description=main.lang["command_prefix_description"], usage="q!", permissions=['Administrator'])
-    @commands.has_permissions(administrator=True)
-    @commands.guild_only()
-    async def prefix(self, ctx, *, new_prefix: str = None):
-        if not ctx.invoked_subcommand:
-            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            if not new_prefix:
-                embed = discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.embed_color)
-            elif len(new_prefix) > main.max_prefix_length:
-                embed = discord.Embed(title=lang["core_prefix_length_limit"].format(main.max_prefix_length), color=self.embed_color)
-            else:
-                PrefixHandler.set_prefix(ctx.guild.id, new_prefix)
-                embed = discord.Embed(title=lang["core_prefix_success"].format(new_prefix), color=self.embed_color)
-            await ctx.send(embed=embed)
-
-    @prefix.command(cls=ExtendedCommand, name='reset', description=main.lang["command_prefix_reset_description"], ignore_extra=True, permissions=['Administrator'])
-    @commands.guild_only()
-    @commands.has_permissions(administrator=True)
-    async def prefix_reset(self, ctx):
-        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        PrefixHandler.set_prefix(ctx.guild.id, main.prefix)
-        await ctx.send(embed=discord.Embed(title=lang["core_prefix_reset"].format(main.prefix), color=self.embed_color))
-
-    @prefix.command(cls=ExtendedCommand, name='show', description=main.lang["command_prefix_show_description"], ignore_extra=True, permissions=['Administrator'])
-    @commands.guild_only()
-    async def prefix_show(self, ctx):
-        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed=discord.Embed(title=lang["core_prefix_info"].format(PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.embed_color))
- 
     @commands.group(cls=ExtendedGroup, name='export', help=main.lang["command_export_help"], description=main.lang["command_export_description"], usage="<function>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def export_group(self, ctx):
@@ -476,6 +459,7 @@ class Core(commands.Cog):
 
     @export_group.command(cls=ExtendedCommand, name='commands', description=main.lang["command_export_commands_description"], aliases=['cmds', 'cmd'], permissions=['Bot Owner'])
     async def export_commands(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         json_export = {}
         for cog_name in self.bot.cogs:
             cog = self.bot.cogs[cog_name]
@@ -491,7 +475,7 @@ class Core(commands.Cog):
                 json_export.setdefault(cog.qualified_name, []).append(command_dict)
 
         qulib.export_commands(json_export)
-        await ctx.send("Successfully exported all bot commands to local JSON file.", delete_after=15)
+        await ctx.send(lang["core_export_commands_success"], delete_after=15)
 
     @commands.Cog.listener()
     @commands.guild_only()

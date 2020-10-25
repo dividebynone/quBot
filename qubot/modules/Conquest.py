@@ -114,7 +114,7 @@ class Conquest(commands.Cog):
             return False
         return check
 
-    @commands.command(name='screate', help=main.lang["command_ccreate_help"], description=main.lang["command_ccreate_description"], usage='<public/private> 100 My Settlement Name', aliases=['sc'])
+    @commands.command(name='screate', help=main.lang["command_ccreate_help"], description=main.lang["command_ccreate_description"], usage='<public/private> <entry fee> <name>', aliases=['sc'])
     @commands.guild_only()
     async def conquest_create(self, ctx, set_type: str, entry_fee: int, *, s_name: str):
         user = ctx.author
@@ -154,7 +154,7 @@ class Conquest(commands.Cog):
             await ctx.send(lang["conquest_create_part_of"], delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
-    @commands.command(name='sinfo', help=main.lang["command_cinfo_help"], description=main.lang["command_cinfo_description"], usage='{@somebody}', aliases=['si','settlement'])
+    @commands.command(name='sinfo', help=main.lang["command_cinfo_help"], description=main.lang["command_cinfo_description"], usage='{user}', aliases=['si','settlement'])
     @commands.guild_only()
     async def conquest_info(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
@@ -268,7 +268,7 @@ class Conquest(commands.Cog):
             else:
                 await ctx.send(lang["conquest_join_not_found"], delete_after=15)
 
-    @conquest_join.command(name='public', description=main.lang["command_jpublic_description"], usage="<@somebody>")
+    @conquest_join.command(name='public', description=main.lang["command_jpublic_description"], usage="<user>")
     @commands.guild_only()
     async def public(self, ctx, *, target_user: discord.User):
         user = ctx.author
@@ -301,7 +301,7 @@ class Conquest(commands.Cog):
         else:
             await ctx.send(lang["conquest_join_target_fail"], delete_after=15)
 
-    @commands.group(name='code', description=main.lang["command_code_description"], usage='show/new')
+    @commands.group(name='code', description=main.lang["command_code_description"], usage='{show/new}')
     async def conquest_code(self, ctx):
         if not ctx.invoked_subcommand:
             await ctx.invoke(self.code_show)
@@ -327,7 +327,7 @@ class Conquest(commands.Cog):
             await ctx.send(lang["conquest_code_new_fail"], delete_after=15)
 
     @commands.cooldown(1, 1800, commands.BucketType.user)
-    @commands.command(name='attack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='@somebody', ignore_extra=True, cooldown_after_parsing = True)
+    @commands.command(name='attack', help=main.lang["command_cattack_help"], description=main.lang["command_cattack_description"], usage='<user>', ignore_extra=True, cooldown_after_parsing = True)
     @commands.guild_only()
     async def conquest_attack(self, ctx, *, defence_user: discord.User):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -482,7 +482,7 @@ class Conquest(commands.Cog):
         else:
             await ctx.send(lang["conquest_not_part_of"], delete_after=15)
 
-    @commands.command(name="promote", help=main.lang["command_promote_help"], description=main.lang["command_promote_description"], usage='@somebody')
+    @commands.command(name="promote", help=main.lang["command_promote_help"], description=main.lang["command_promote_description"], usage='<user>')
     @commands.guild_only()
     async def conquest_promote(self, ctx, *, user: discord.User):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -515,7 +515,7 @@ class Conquest(commands.Cog):
         else:
             await ctx.send(lang["conquest_promote_self"], delete_after=15)
 
-    @commands.command(name='skick', help=main.lang["command_sleader"], description=main.lang["command_skick_description"], usage='@somebody')
+    @commands.command(name='skick', help=main.lang["command_sleader"], description=main.lang["command_skick_description"], usage='<user>')
     @commands.guild_only()
     async def conquest_kick(self, ctx, *, user: discord.User):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -676,7 +676,7 @@ class Conquest(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
-    @conquest_buildings.command(name='upgrade', help=main.lang["command_sleader"], description=main.lang["command_bupgrade_description"], usage='1', ignore_extra=True)
+    @conquest_buildings.command(name='upgrade', help=main.lang["command_sleader"], description=main.lang["command_bupgrade_description"], usage='<building id>', ignore_extra=True)
     async def buildings_upgrade(self, ctx, building_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if 1 <= building_id <=10:
@@ -729,7 +729,7 @@ class Conquest(commands.Cog):
             await ctx.send(lang["conquest_requirements_range"], delete_after=15)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
-    @commands.command(name='requirements', description=main.lang["command_reqs_description"], usage="1", aliases=['reqs'])
+    @commands.command(name='requirements', description=main.lang["command_reqs_description"], usage="<building id>", aliases=['reqs'])
     async def conquest_requirements(self, ctx, *, building_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if 1 <= building_id <=10:
@@ -773,7 +773,7 @@ class Conquest(commands.Cog):
             embed.set_footer(text=lang["conquest_market_reminder"])
             await ctx.send(embed=embed)
 
-    @conquest_market.command(name='sell', help=main.lang["command_sleader"], description=main.lang["command_msell_description"], usage='wood 150')
+    @conquest_market.command(name='sell', help=main.lang["command_sleader"], description=main.lang["command_msell_description"], usage='<resource> <amount>')
     async def market_sell(self, ctx, item: str, quantity: int):
         if item.lower() in ("cloth", "wood", "stone", "food", "1", "2", "3", "4"):
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -802,7 +802,7 @@ class Conquest(commands.Cog):
             else:
                 await ctx.send(lang["conquest_not_part_of"], delete_after=15)
 
-    @conquest_market.command(name='buy', help=main.lang["command_sleader"], description=main.lang["command_mbuy_description"], usage='cloth 50')
+    @conquest_market.command(name='buy', help=main.lang["command_sleader"], description=main.lang["command_mbuy_description"], usage='<resource> <amount>')
     async def market_buy(self, ctx, item: str, quantity: int):
         if item.lower() in ("cloth", "wood", "stone", "food", "1", "2", "3", "4"):
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -835,7 +835,7 @@ class Conquest(commands.Cog):
                 await ctx.send(lang["conquest_not_part_of"], delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
-    @commands.command(name="deposit", help=main.lang["command_deposit_help"], description=main.lang["command_deposit_description"], usage='100')
+    @commands.command(name="deposit", help=main.lang["command_deposit_help"], description=main.lang["command_deposit_description"], usage='<amount>')
     async def conquest_deposit(self, ctx, number: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await quConquest.find_member(ctx.author.id):
@@ -856,7 +856,7 @@ class Conquest(commands.Cog):
             await ctx.send(lang["conquest_not_part_of"], delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
-    @commands.command(name='rename', help=main.lang["command_srename_help"], description=main.lang["command_srename_description"], usage='My new settlement name')
+    @commands.command(name='rename', help=main.lang["command_srename_help"], description=main.lang["command_srename_description"], usage='<new name>')
     async def conquest_settlement_rename(self, ctx, *, name: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(name) <= self.sname_limit:

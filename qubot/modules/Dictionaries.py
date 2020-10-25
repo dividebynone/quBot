@@ -12,7 +12,6 @@ class Dictionaries(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.embed_color =  0x80e093
-        print(f'Module {self.__class__.__name__} loaded')
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -21,7 +20,9 @@ class Dictionaries(commands.Cog):
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
-    @commands.command(name='dict', help=main.lang["dictionaries_english_only"], description=main.lang["command_meanings_description"], aliases=['whatis', 'meaning', 'meanings'])
+        print(f'Module {self.__class__.__name__} loaded')
+
+    @commands.command(name='dict', help=main.lang["dictionaries_english_only"], description=main.lang["command_meanings_description"], usage="<term>", aliases=['whatis', 'meaning', 'meanings'])
     @commands.is_nsfw()
     async def dictionary_getmeanings(self, ctx, *, input: str):
         result = await quDict.get_top_meanings(input)
@@ -37,7 +38,7 @@ class Dictionaries(commands.Cog):
         else:
             await ctx.send(lang["dictionaries_word_not_found"])
 
-    @commands.command(name='synonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_synonyms_description"], usage="hot", aliases=['synonyms'])
+    @commands.command(name='synonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_synonyms_description"], usage="<term>", aliases=['synonyms'])
     @commands.is_nsfw()
     async def dictionary_getsynonyms(self, ctx, *, input: str):
         result = await quDict.get_top_synonyms(input)
@@ -50,7 +51,7 @@ class Dictionaries(commands.Cog):
         else:
             await ctx.send(lang["dictionaries_word_not_found"])
 
-    @commands.command(name='antonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_antonyms_description"], usage="hot", aliases=['antonyms'])
+    @commands.command(name='antonym', help=main.lang["dictionaries_english_only"], description=main.lang["command_antonyms_description"], usage="<term>", aliases=['antonyms'])
     @commands.is_nsfw()
     async def dictionary_getantonyms(self, ctx, *, input: str):
         result = await quDict.get_top_antonyms(input)
@@ -63,7 +64,7 @@ class Dictionaries(commands.Cog):
         else:
             await ctx.send(lang["dictionaries_word_not_found"])
 
-    @commands.command(name='urbandict', help=main.lang["dictionaries_english_only"], description=main.lang["command_urbandict_description"], usage="hello", aliases=['ud'])
+    @commands.command(name='urbandict', help=main.lang["dictionaries_english_only"], description=main.lang["command_urbandict_description"], usage="<term>", aliases=['ud'])
     @commands.is_nsfw()
     async def dictionary_get_urbandict(self, ctx, *, input: str):
         result = await quDict.get_urbandict_definitions(input)

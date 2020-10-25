@@ -207,7 +207,7 @@ class Profiles(commands.Cog):
             await ctx.send(file=discord.File(buffer_output, 'profile.png'))
 
     @commands.cooldown(3, 60, commands.BucketType.member)
-    @commands.command(name='bio', help=main.lang["command_bio_help"], description=main.lang["command_bio_description"], usage="Some information about me...")
+    @commands.command(name='bio', help=main.lang["command_bio_help"], description=main.lang["command_bio_description"], usage="<text>")
     @commands.guild_only()
     async def bio_command(self, ctx, *, message: str = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -223,7 +223,7 @@ class Profiles(commands.Cog):
         await ctx.author.send(embed=embed)
 
     @commands.cooldown(5, 30, commands.BucketType.member)
-    @commands.group(name='background', invoke_without_command=True, help=main.lang["command_background_help"], description=main.lang["command_background_description"], usage="General", aliases=['backgrounds', 'bg', 'bgs'])
+    @commands.group(name='background', invoke_without_command=True, help=main.lang["command_background_help"], description=main.lang["command_background_description"], usage="{category or background id}", aliases=['backgrounds', 'bg', 'bgs'])
     async def background(self, ctx, value = None):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -241,6 +241,8 @@ class Profiles(commands.Cog):
                     if category_info:
                         index = start_index = 0
                         last_index = math.floor(len(category_info)/5)
+                        if len(category_info) % 5 == 0:
+                            last_index -= 1
                         unlocked_backgrounds = await ProfileBackgrounds.unlocked_backgrounds(ctx.author.id)
                          
                         msg = None
@@ -285,7 +287,7 @@ class Profiles(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.cooldown(10, 60, commands.BucketType.member)
-    @background.command(name='buy', help=main.lang["command_bg_buy_help"], description=main.lang["command_bg_buy_description"], usage='3', aliases=['purchase'])
+    @background.command(name='buy', help=main.lang["command_bg_buy_help"], description=main.lang["command_bg_buy_description"], usage='<background id>', aliases=['purchase'])
     async def background_buy(self, ctx, bg_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         user = ctx.author
@@ -311,8 +313,6 @@ class Profiles(commands.Cog):
                                 embed = discord.Embed(title=lang["wait_for_cancelled"], color=self.embed_color)
                         except asyncio.TimeoutError:
                             embed = discord.Embed(title=lang["wait_for_timeout"], color=self.embed_color)
-
-                        
                 else:
                     embed = discord.Embed(title=lang["profiles_buy_owned"].format(bg_id), description=background_info['description'], color=self.embed_color)
                     embed.set_thumbnail(url=background_info['url'])
@@ -330,6 +330,8 @@ class Profiles(commands.Cog):
         if unlocked_backgrounds:
             index = start_index = 0
             last_index = math.floor(len(unlocked_backgrounds)/5)
+            if len(unlocked_backgrounds) % 5 == 0:
+                last_index -= 1
 
             msg = None
             action = ctx.send
@@ -369,7 +371,7 @@ class Profiles(commands.Cog):
     
     @commands.cooldown(10, 30, commands.BucketType.member)
     @commands.guild_only()
-    @background.command(name='equip', help=main.lang["command_bg_equip_help"], description=main.lang["command_bg_equip_description"], usage='1')
+    @background.command(name='equip', help=main.lang["command_bg_equip_help"], description=main.lang["command_bg_equip_description"], usage='<background id>')
     async def background_equip(self, ctx, bg_id: int = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if bg_id == None:
@@ -407,6 +409,8 @@ class Profiles(commands.Cog):
             if leaderboard:
                 index = start_index = 0
                 last_index = math.floor(len(leaderboard)/10)
+                if len(leaderboard) % 10 == 0:
+                    last_index -= 1
 
                 user_rank = await ProfilesHandler.get_rank(ctx.author.id, ctx.guild.id)
 

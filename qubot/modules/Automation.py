@@ -93,7 +93,7 @@ class Automation(commands.Cog):
     async def greetings_test(self, ctx):
         await self.on_member_join(ctx.message.author)
 
-    @server_greetings.group(cls=ExtendedGroup, name='message', invoke_without_command=True, help=main.lang["command_greetings_message_help"], description=main.lang["command_greetings_message_description"], usage="Welcome {mention} to {server}!", permissions=['Manage Server'])
+    @server_greetings.group(cls=ExtendedGroup, name='message', invoke_without_command=True, help=main.lang["command_greetings_message_help"], description=main.lang["command_greetings_message_description"], usage="<message>", permissions=['Manage Server'])
     async def greetings_custom_message(self, ctx, *, message: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(message) <= self.max_characters:
@@ -118,7 +118,7 @@ class Automation(commands.Cog):
         else:
             await ctx.send(lang["automation_gmessage_default_already_used"], delete_after=15)
 
-    @server_greetings.group(cls=ExtendedGroup, name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="#general", permissions=['Manage Server'])
+    @server_greetings.group(cls=ExtendedGroup, name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_greetings_setchannel_description"], usage="<channel>", permissions=['Manage Server'])
     async def greetings_setchannel(self, ctx, *, channel: discord.TextChannel):
         await self.Toggles.set_greetings_channel(ctx.guild.id, channel.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -194,7 +194,7 @@ class Automation(commands.Cog):
     async def goodbye_test(self, ctx):
         await self.on_member_remove(ctx.message.author)
 
-    @server_goodbye.group(cls=ExtendedGroup, name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"], usage="Goodbye, {mention}!", permissions=['Manage Server'])
+    @server_goodbye.group(cls=ExtendedGroup, name='message', invoke_without_command=True, help=main.lang["command_goodbye_message_help"], description=main.lang["command_goodbye_message_description"], usage="<message>", permissions=['Manage Server'])
     async def goodbye_custom_message(self, ctx, *, message: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(message) <= self.max_characters:
@@ -219,7 +219,7 @@ class Automation(commands.Cog):
         else:
             await ctx.send(lang["automation_gbmessage_default_already_used"], delete_after=15)
 
-    @server_goodbye.group(cls=ExtendedGroup, name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_goodbye_setchannel_description"], usage="#general", permissions=['Manage Server'])
+    @server_goodbye.group(cls=ExtendedGroup, name='setchannel', invoke_without_command=True, help=main.lang["command_greetings_setchannel_help"], description=main.lang["command_goodbye_setchannel_description"], usage="<channel>", permissions=['Manage Server'])
     async def goodbye_setchannel(self, ctx, *, channel: discord.TextChannel):
         await self.Toggles.set_bye_channel(ctx.guild.id, channel.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang

@@ -73,36 +73,36 @@ class Voting(commands.Cog):
 
         # self.dblpy = dbl.DBLClient(self.bot, self.token, webhook_path='/dblwebhook', webhook_auth=self.webhook_auth, webhook_port=5000, autopost=True) # Autopost will post your guild count every 30 minutes
         
-        # self.bot.loop.create_task(self.webhook())
-        # self.dbl_update_stats.start() # pylint: disable=no-member
+        self.bot.loop.create_task(self.webhook())
+        self.dbl_update_stats.start() # pylint: disable=no-member
 
         print(f'Module {self.__class__.__name__} loaded')
 
     @tasks.loop(minutes=30.0)
     async def update_stats(self):
         main.logger.info('Attempting to post server count')
-        # try:
-        #     await self.dblpy.post_guild_count()
-        #     main.logger.info('Posted server count ({}) on TopGG'.format(self.dblpy.guild_count()))
-        # except Exception as e:
-        #     main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
+        try:
+            await self.dblpy.post_guild_count()
+            main.logger.info('Posted server count ({}) on TopGG'.format(self.dblpy.guild_count()))
+        except Exception as e:
+            main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
 
-    # @tasks.loop(minutes=30.0)
-    # async def dbl_update_stats(self):
-    #     try:
-    #         shards_guild_counter = 0
-    #         for shard in self.bot.latencies:
-    #             guild_list = (g for g in self.bot.guilds if g.shard_id is shard[0])
-    #             for _ in guild_list:
-    #                 shards_guild_counter += 1
+    @tasks.loop(minutes=30.0)
+    async def dbl_update_stats(self):
+        try:
+            shards_guild_counter = 0
+            for shard in self.bot.latencies:
+                guild_list = (g for g in self.bot.guilds if g.shard_id is shard[0])
+                for _ in guild_list:
+                    shards_guild_counter += 1
 
-    #         app_info = await self.bot.application_info()
-    #         url = f'https://discordbotlist.com/api/v1/bots/{app_info.id}/stats'
-    #         headers = {'Authorization': self.dbl_token}
-    #         requests.post(url, headers=headers, data={'guilds': shards_guild_counter}, verify=True)
-    #         main.logger.info('Posted server count ({}) on discordbotlist.com'.format(shards_guild_counter))
-    #     except Exception as e:
-    #         main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
+            app_info = await self.bot.application_info()
+            url = f'https://discordbotlist.com/api/v1/bots/{app_info.id}/stats'
+            headers = {'Authorization': self.dbl_token}
+            requests.post(url, headers=headers, data={'guilds': shards_guild_counter}, verify=True)
+            main.logger.info('Posted server count ({}) on discordbotlist.com'.format(shards_guild_counter))
+        except Exception as e:
+            main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
 
     @commands.Cog.listener()
     async def on_dbl_vote(self, data):
@@ -119,46 +119,46 @@ class Voting(commands.Cog):
         except Exception:
             pass
 
-    # async def webhook(self):
-    #     async def webhook_handler(request):
-    #         try:
-    #             req_auth = request.headers.get('Authorization')
-    #             if self.dbl_webhook_auth == req_auth.strip():
-    #                 main.logger.info('[Discordbotlist.com] Bot received an upvote!')
-    #                 data = await request.json()
-    #                 user = self.bot.get_user(int(data['id']))
-    #                 if user is not None:
-    #                     voting_info, vote_multiplier = await self.vote_handler(user.id, self.daily_amount)
-    #                     if voting_info:
-    #                         await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.daily_amount * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
-    #                         return web.Response()
-    #             else:
-    #                 return web.Response(status=401)
-    #         except Exception:
-    #             raise
+    async def webhook(self):
+        async def webhook_handler(request):
+            try:
+                req_auth = request.headers.get('Authorization')
+                if self.dbl_webhook_auth == req_auth.strip():
+                    main.logger.info('[Discordbotlist.com] Bot received an upvote!')
+                    data = await request.json()
+                    user = self.bot.get_user(int(data['id']))
+                    if user is not None:
+                        voting_info, vote_multiplier = await self.vote_handler(user.id, self.daily_amount)
+                        if voting_info:
+                            await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.daily_amount * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+                            return web.Response()
+                else:
+                    return web.Response(status=401)
+            except Exception:
+                pass
 
-    #     web_app = web.Application(loop=self.bot.loop)
+        web_app = web.Application(loop=self.bot.loop)
 
-    #     cors = aiohttp_cors.setup(web_app, defaults={
-    #             "https://discordbotlist.com": aiohttp_cors.ResourceOptions (
-    #                 allow_credentials=True,
-    #                 expose_headers="*",
-    #                 allow_headers=("Accept", "Authorization", "Content-Type", "X-DBL-Signature", "Origin", "X-Requested-With",),
-    #                 max_age=3600,
-    #             )
-    #         })
+        cors = aiohttp_cors.setup(web_app, defaults={
+                "https://discordbotlist.com": aiohttp_cors.ResourceOptions (
+                    allow_credentials=True,
+                    expose_headers="*",
+                    allow_headers=("Accept", "Authorization", "Content-Type", "X-DBL-Signature", "Origin", "X-Requested-With",),
+                    max_age=3600,
+                )
+            })
 
-    #     resource = cors.add(web_app.router.add_resource("/discordbotlist"))
-    #     cors.add(resource.add_route("POST", webhook_handler))
+        resource = cors.add(web_app.router.add_resource("/discordbotlist"))
+        cors.add(resource.add_route("POST", webhook_handler))
 
-    #     web_runner = web.AppRunner(web_app)
-    #     await web_runner.setup()
+        web_runner = web.AppRunner(web_app)
+        await web_runner.setup()
 
-    #     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    #     ssl_context.load_cert_chain(os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.crt'), os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.key'))
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_context.load_cert_chain(os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.crt'), os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.key'))
 
-    #     site = web.TCPSite(web_runner, host="0.0.0.0", port=5050, ssl_context=ssl_context)
-    #     await site.start()
+        site = web.TCPSite(web_runner, host="0.0.0.0", port=5050, ssl_context=ssl_context)
+        await site.start()
 
     @commands.group(name='vote', invoke_without_command=True, description=main.lang["command_vote_description"])
     async def vote_command(self, ctx):

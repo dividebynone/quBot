@@ -9,13 +9,11 @@ import discord
 import secrets
 import random
 
-
 class Utility(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.embed_color =  0xb405e3
-        print(f'Module {self.__class__.__name__} loaded')
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -24,7 +22,9 @@ class Utility(commands.Cog):
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
-    @commands.command(name='avatar', help=main.lang["command_avatar_help"], description=main.lang["command_avatar_description"], usage="@somebody")
+        print(f'Module {self.__class__.__name__} loaded')
+
+    @commands.command(name='avatar', help=main.lang["command_avatar_help"], description=main.lang["command_avatar_description"], usage="<user>")
     async def avatar(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
@@ -32,12 +32,11 @@ class Utility(commands.Cog):
         embed.set_image(url=user.avatar_url)
         await ctx.send(embed=embed)
 
-    @commands.command(name='roll', help=main.lang["command_roll_help"], description=main.lang["command_roll_description"], usage="9000", aliases=['r'], ignore_extra=True)
-    async def roll(self, ctx, input_number: int = 100):
+    @commands.command(name='roll', help=main.lang["command_roll_help"], description=main.lang["command_roll_description"], usage="<number>", aliases=['r'], ignore_extra=True)
+    async def roll(self, ctx, number: int = 100):
         random.seed()
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=lang["utility_roll_msg"].format(random.randrange(input_number + 1)), color=self.embed_color)
-        await ctx.send(embed=embed)
+        await ctx.send(embed = discord.Embed(title=lang["utility_roll_msg"].format(random.randrange(number + 1)), color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name='uptime', description=main.lang["command_uptime_description"], ignore_extra=True, permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
@@ -45,11 +44,9 @@ class Utility(commands.Cog):
         time_on_command = datetime.today().replace(microsecond=0)
         bot_uptime = time_on_command - bot_starttime
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=lang["utility_uptime_msg"].format(bot_uptime.days,int(bot_uptime.seconds/3600),
-                              int((bot_uptime.seconds/60)%60),int(bot_uptime.seconds%60)), color=self.embed_color)
-        await ctx.send(embed=embed, delete_after=10)
+        await ctx.send(embed = discord.Embed(title=lang["utility_uptime_msg"].format(bot_uptime.days,int(bot_uptime.seconds/3600), int((bot_uptime.seconds/60)%60),int(bot_uptime.seconds%60)), color=self.embed_color))
 
-    @commands.command(name='userinfo', help=main.lang["command_uinfo_help"], description=main.lang["command_uinfo_description"], usage="@somebody", aliases=['uinfo'])
+    @commands.command(name='userinfo', help=main.lang["command_uinfo_help"], description=main.lang["command_uinfo_description"], usage="<user>", aliases=['uinfo'])
     @commands.guild_only()
     async def userinfo(self, ctx, *, user: discord.Member = None):
         user = user or ctx.author
@@ -104,14 +101,14 @@ class Utility(commands.Cog):
         embed.set_footer(text=lang["utility_binfo_author_footer"])
         await ctx.send(embed=embed)
 
-    @commands.command(name='8ball', description=main.lang["command_8ball_description"], usage="Should I believe you?", aliases=['8b'])
+    @commands.command(name='8ball', description=main.lang["command_8ball_description"], usage="<question>", aliases=['8b'])
     async def eight_ball(self, ctx, *, string: str):
         random.seed()
         ball_answer = random.randrange(1,21)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.send(embed = discord.Embed(title=lang[f"utility_8ball_{ball_answer}"], color=self.embed_color))
 
-    @commands.command(name='choose', description=main.lang["command_choose_description"], usage="item 1;item 2;item 3", aliases=['pick'])
+    @commands.command(name='choose', description=main.lang["command_choose_description"], usage="item 1; item 2; item 3...", aliases=['pick'])
     async def choose_random_items(self, ctx, *, choices: str):
         items = choices.split(';')
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
