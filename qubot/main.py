@@ -587,7 +587,7 @@ json_lang_en = {
     "core_command_disable": "Successfully disabled command ({}) in server.",
     "core_command_enable": "Successfully enabled command ({}) in server.",
     "core_command_restricted_module": "This command is part of a module (**{}**) that is marked as integral and can't be disabled.",
-    "core_latencies": "Shard **{}** ({} Servers) | Latency: {}ms\n",
+    "core_latencies": "Shard **{}** ({} Servers) | Latency: {}ms {}\n",
     "core_latencies_msg": "Shards Overview",
     "core_module_disable_already_disabled": "Module '**{}**' is already disabled on this server.",
     "core_module_disable_dependencies": "This module cannot be disabled as the following currently enabled modules depend on it: *{}*",

@@ -394,7 +394,16 @@ class Core(commands.Cog):
             guild_list = (g for g in self.bot.guilds if g.shard_id is shard[0])
             for _ in guild_list:
                 shards_guild_counter += 1
-            string_output += lang["core_latencies"].format(shard[0], shards_guild_counter, "%.4f" % float(shard[1]*1000))
+            latency_ms = "%.4f" % float(shard[1]*1000)
+
+            def latency_status(latency):
+                if float(latency) < 200:
+                    return u"\U0001F7E9"
+                if float(latency) < 5000:
+                    return u"\U0001F7E8"
+                return u"\U0001F7E5"
+
+            string_output += lang["core_latencies"].format(shard[0], shards_guild_counter, latency_ms, latency_status(latency_ms))
         await ctx.author.send(embed = discord.Embed(title=lang["core_latencies_msg"], description=string_output, color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name='setname', description=main.lang["command_setname_description"], usage="<name>", hidden=True, permissions=['Bot Owner'])
