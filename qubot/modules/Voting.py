@@ -78,14 +78,14 @@ class Voting(commands.Cog):
 
         print(f'Module {self.__class__.__name__} loaded')
 
-    @tasks.loop(minutes=30.0)
-    async def update_stats(self):
-        main.logger.info('Attempting to post server count')
-        try:
-            await self.dblpy.post_guild_count()
-            main.logger.info('Posted server count ({}) on TopGG'.format(self.dblpy.guild_count()))
-        except Exception as e:
-            main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
+    # @tasks.loop(minutes=30.0)
+    # async def update_stats(self):
+    #     main.logger.info('Attempting to post server count')
+    #     try:
+    #         await self.dblpy.post_guild_count()
+    #         main.logger.info('Posted server count ({}) on TopGG'.format(self.dblpy.guild_count()))
+    #     except Exception as e:
+    #         main.logger.exception('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
 
     @tasks.loop(minutes=30.0)
     async def dbl_update_stats(self):

@@ -55,31 +55,23 @@ class Economy(commands.Cog):
         user = user or ctx.author
         if user.id is not ctx.author.id:
             user_info = await user_get(user.id)
-        time_on_command = datetime.today().replace(microsecond=0)
+        time_on_command = datetime.utcnow().replace(microsecond=0)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if author_info['daily_time']:
             daily = datetime.strptime(author_info['daily_time'], '%Y-%m-%d %H:%M:%S')
             daily_active = daily + dt.timedelta(days=1)
             if time_on_command < daily_active:
-                wait_time = daily_active - time_on_command
-                embed = discord.Embed(
-                    title=lang["economy_daily_claimed"].format(int(wait_time.seconds/3600), 
-                                                                    int((wait_time.seconds/60)%60),
-                                                                    int(wait_time.seconds%60)), 
-                    color=self.embed_color)
-                await ctx.send(embed=embed)
+                await ctx.send(embed = discord.Embed(title=lang["economy_daily_claimed_title"], 
+                               description=lang["economy_daily_claimed_description"].format(f'**{qulib.humanize_time(lang, daily_active)}**'), 
+                               color=self.embed_color))
                 return 
         if user.id is ctx.author.id:
             author_info['currency'] += self.daily_amount
-            embed = discord.Embed(
-                    title=lang["economy_daily_received"].format(user, self.daily_amount, self.currency_symbol),
-                    color=self.embed_color)
+            embed = discord.Embed(title=lang["economy_daily_received"].format(user, self.daily_amount, self.currency_symbol), color=self.embed_color)
         else:
             user_info['currency'] += self.daily_amount         
             await user_set(user.id, user_info)
-            embed = discord.Embed(
-                    title=lang["economy_daily_gifted"].format(ctx.author, self.daily_amount, self.currency_symbol, user),
-                    color=self.embed_color)
+            embed = discord.Embed(title=lang["economy_daily_gifted"].format(ctx.author, self.daily_amount, self.currency_symbol, user), color=self.embed_color)
         author_info['daily_time'] = time_on_command
         await user_set(ctx.author.id, author_info)
         await ctx.send(embed=embed)

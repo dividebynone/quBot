@@ -814,6 +814,19 @@ class Moderation(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.send(embed = discord.Embed(title=lang["moderation_modlog_default_embed_title"], description=lang["moderation_modlog_default_embed_description"], color=self.embed_color))
 
+    @commands.cooldown(5, 30, commands.BucketType.user)
+    @commands.guild_only()
+    @commands.command(name='lastjoined', help=main.lang["command_lastjoined_help"], description=main.lang["command_lastjoined_description"], usage="{user count}", aliases=['lj'])
+    async def lastjoined(self, ctx, users: int = 5):
+        users = max(min(users, 20), 5)
+        member_list = sorted(ctx.guild.members, key=lambda x: x.joined_at, reverse=True)[:users]
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        embed = discord.Embed(timestamp=datetime.utcnow(), color=self.embed_color)
+        embed.set_author(name=lang["moderation_lastjoined_header"].format(ctx.guild.name), icon_url=str(ctx.guild.icon_url))
+        for member in member_list:
+            embed.add_field(name=f'{str(member)} [{lang["id_string"]}: {member.id}]', value=f'> **{lang["joined_string"]}:** {qulib.humanize_time(lang, member.joined_at, past=True)}\n> **{lang["created_string"]}:** {qulib.humanize_time(lang, member.created_at, past=True)}', inline=False)
+        await ctx.send(embed=embed)
+
     async def get_modlog_channel(self, ctx):
         if ctx.guild:
             channel_id = await self.Modlog.get_channel(ctx.guild.id)

@@ -1,6 +1,5 @@
 from libs.sqlhandler import sqlconnect
 from discord.ext import commands
-from datetime import datetime
 from main import bot_path
 import sqlite3
 import discord
@@ -118,6 +117,104 @@ async def user_set(user_id: int, dict_input):
 def string_generator(size):
     chars = string.ascii_lowercase + string.digits
     return ''.join(random.choice(chars) for _ in range(size))
+
+def plural(number: int, singular: str, plural: str):
+    if number > 0:
+        return f"{number} {singular if number == 1 else plural}"
+    else:
+        return ""
+
+def humanize_join(sequence, final, delim=', '):
+    size = len(sequence)
+
+    if size == 0:
+        return ''
+    if size == 1:
+        return sequence[0]
+    if size == 2:
+        return f'{sequence[0]} {final} {sequence[1]}'
+
+    return delim.join(sequence[:-1]) + f' {final} {sequence[-1]}'
+
+def humanize_time(lang, time, accuracy=3, past=False):
+    from datetime import datetime, timezone
+    from dateutil.relativedelta import relativedelta
+
+    if type(time) is float:
+        time = datetime.fromtimestamp(time)
+    now = datetime.now().replace(tzinfo=timezone.utc)
+    time = time.replace(tzinfo=timezone.utc)
+    if time < now:
+        delta = relativedelta(now, time).normalized()
+        structured = lang["timeago"] if past else "{}"
+    else:
+        delta = relativedelta(time, now).normalized()
+        structured = "{}"
+
+    accuracy = max(accuracy, 1)
+    attrs = ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds']
+    local = {
+        'years': [lang["year_string"], lang["years_string"]],
+        'months': [lang["month_string"], lang["months_string"]],
+        'weeks': [lang["week_string"], lang["weeks_string"]],
+        'days': [lang["day_string"], lang["days_string"]],
+        'hours': [lang["hour_string"], lang["hours_string"]],
+        'minutes': [lang["minute_string"], lang["minutes_string"]],
+        'seconds': [lang["second_string"], lang["seconds_string"]],
+        }
+
+    def formatted(elem, attr):
+        return plural(elem, local[attr][0], local[attr][1])
+
+    output = []
+    counter = 0
+    for attr in attrs:
+        elem = getattr(delta, attr)
+        if counter >= accuracy:
+            break
+        if not elem or elem <= 0:
+            continue
+        else:
+            output.append(formatted(elem, attr))
+
+        counter += 1
+
+    if len(output) == 0:
+        return lang["now_string"]
+    else:
+        return structured.format(humanize_join(output, lang["and_string"]))
+    # then = now - delta
+    # diff = now - then
+
+    # if diff.days < 0:
+    #     return None
+
+    # humanized_seconds = plural(delta.seconds, lang["second_string"], lang["seconds_string"])
+    # humanized_minutes = plural(delta.minutes, lang["minute_string"], lang["minutes_string"])
+    # humanized_hours = plural(delta.hours, lang["hour_string"], lang["hours_string"])
+    # print(f"{time} - {diff.days}")
+    # if diff.days == 0:
+    #     if diff.seconds < 60:
+    #         return structured.format(humanized_seconds)
+    #     if diff.seconds < 3600:
+    #         return structured.format(f'{humanized_minutes} {lang["and_string"]} {humanized_seconds}')
+    #     if diff.seconds < 86400:
+    #         return structured.format(f'{humanized_hours}, {humanized_minutes} {lang["and_string"]} {humanized_seconds}')
+
+    # humanized_days = plural(delta.days, lang["day_string"], lang["days_string"])
+    # if diff.days < 7:
+    #     return structured.format(f'{humanized_days}, {humanized_hours} {lang["and_string"]} {humanized_minutes}')
+    
+    # humanized_weeks = plural(delta.weeks, lang["week_string"], lang["weeks_string"])
+    # if diff.days < 31:
+    #     return structured.format(f'{humanized_weeks}, {humanized_days} {lang["and_string"]} {humanized_hours}')
+
+    # humanized_months = plural(delta.months, lang["month_string"], lang["months_string"])
+    # if diff.days < 366:
+    #     return structured.format(f'{humanized_months}, {humanized_weeks} {lang["and_string"]} {humanized_days}')
+
+    # humanized_years = plural(delta.years, lang["year_string"], lang["years_string"])
+    # return structured.format(f'{humanized_years}, {humanized_months} {lang["and_string"]} {humanized_weeks}')
 
 # Extended Command
 

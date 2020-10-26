@@ -41,10 +41,8 @@ class Utility(commands.Cog):
     @commands.command(cls=ExtendedCommand, name='uptime', description=main.lang["command_uptime_description"], ignore_extra=True, permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     async def uptime(self, ctx):
-        time_on_command = datetime.today().replace(microsecond=0)
-        bot_uptime = time_on_command - bot_starttime
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["utility_uptime_msg"].format(bot_uptime.days,int(bot_uptime.seconds/3600), int((bot_uptime.seconds/60)%60),int(bot_uptime.seconds%60)), color=self.embed_color))
+        await ctx.send(embed = discord.Embed(title=lang["utility_uptime_msg"].format(qulib.humanize_time(lang, bot_starttime)), color=self.embed_color))
 
     @commands.command(name='userinfo', help=main.lang["command_uinfo_help"], description=main.lang["command_uinfo_description"], usage="<user>", aliases=['uinfo'])
     @commands.guild_only()
@@ -67,8 +65,6 @@ class Utility(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.command(name='botinfo', help=main.lang["command_binfo_help"], description=main.lang["command_binfo_description"], aliases=['binfo', 'status', 'about'], ignore_extra=True)
     async def botinfo(self, ctx):
-        time_on_command = datetime.today().replace(microsecond=0)
-        bot_uptime = time_on_command - main.bot_starttime
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         shards_guild_counter = 0
         total_guild_users = 0
@@ -83,21 +79,15 @@ class Utility(commands.Cog):
 
         app_info = await self.bot.application_info()
 
-        day_string = lang["days_string"] if bot_uptime.days != 1 else lang["day_string"]
-        hours = int(bot_uptime.seconds/3600)
-        hour_string = lang["hours_string"] if hours != 1 else lang["hour_string"]
-        minutes = int((bot_uptime.seconds/60)%60)
-        minutes_string = lang["minutes_string"] if minutes != 1 else lang["minute_string"]
-
         embed = discord.Embed(title=lang["utility_binfo_title"] ,color = self.embed_color)
         embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
         embed.add_field(name=lang["utility_binfo_bname"], value=app_info.name, inline=True)
-        embed.add_field(name=lang["utility_binfo_owner"], value=str(app_info.owner), inline=True)
-        embed.add_field(name=lang["utility_binfo_version"], value=main.version, inline=True)
-        embed.add_field(name=lang["utility_binfo_guilds"], value=shards_guild_counter, inline=True)
-        embed.add_field(name=lang["utility_binfo_users"], value=total_guild_users, inline=True)
+        embed.add_field(name=lang["owner_string"], value=str(app_info.owner), inline=True)
+        embed.add_field(name=lang["version_string"], value=main.version, inline=True)
+        embed.add_field(name=lang["guilds_string"], value=shards_guild_counter, inline=True)
+        embed.add_field(name=lang["users_string"], value=total_guild_users, inline=True)
         embed.add_field(name=lang["utility_binfo_latency"], value=f'{current_shard_latency} ms', inline=True)
-        embed.add_field(name=lang["utility_binfo_uptime"], value=lang["utility_binfo_uptime_format"].format(bot_uptime.days, day_string, hours, hour_string, minutes, minutes_string), inline=False)
+        embed.add_field(name=lang["uptime_string"], value=f"```{qulib.humanize_time(lang, bot_starttime)}```", inline=False)
         embed.set_footer(text=lang["utility_binfo_author_footer"])
         await ctx.send(embed=embed)
 
