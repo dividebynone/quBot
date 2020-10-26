@@ -303,7 +303,7 @@ class Profiles(commands.Cog):
                     else:
                         await ctx.send(embed = discord.Embed(title=lang["profiles_buy_confirmation"].format(background_info['price'], self.currency_symbol), color = self.embed_color))
                         try:
-                            msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel, timeout=60.0)
+                            msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
                             if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
                                 embed = discord.Embed(title=lang["profiles_buy_success"].format(bg_id, background_info['price'], self.currency_symbol), color=self.embed_color)
                                 user_info['currency'] -= background_info['price']
@@ -401,16 +401,18 @@ class Profiles(commands.Cog):
 
     @commands.cooldown(5, 60, commands.BucketType.member)
     @commands.guild_only()
-    @commands.command(name='leaderboard', description=main.lang["command_leaderboard_description"], ignore_extra=True, aliases=['lb', 'xplb', 'top'])
-    async def profiles_leaderboard(self, ctx):
+    @commands.command(name='leaderboard', description=main.lang["command_leaderboard_description"], usage="{page}", aliases=['lb', 'xplb', 'top'], ignore_extra=True)
+    async def profiles_leaderboard(self, ctx, page: int = 1):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if not LevelingToggle.is_disabled(ctx.guild.id):
             leaderboard = await ProfilesHandler.leaderboard(ctx.guild.id)
             if leaderboard:
-                index = start_index = 0
+                
                 last_index = math.floor(len(leaderboard)/10)
                 if len(leaderboard) % 10 == 0:
                     last_index -= 1
+                page = min(last_index, (page - 1)) if page and page >= 1 else 0
+                index = page
 
                 user_rank = await ProfilesHandler.get_rank(ctx.author.id, ctx.guild.id)
 
@@ -424,7 +426,7 @@ class Profiles(commands.Cog):
                             description += f"**#{person[1]} {str(user)}** ({lang['level_string']} {person[2]} : {person[3]} {lang['exp_string']})\n"
                         embed = discord.Embed(title=lang["profiles_leaderboard_title"], description=description, color=self.embed_color)
                         embed.set_thumbnail(url=str(ctx.guild.icon_url))
-                        if start_index == last_index:
+                        if last_index == 0:
                             await ctx.send(embed=embed)
                             return
                         embed.set_footer(text=f"{lang['page_string']} {index+1}/{last_index+1}")
@@ -498,7 +500,7 @@ class Profiles(commands.Cog):
         if ctx.author.id == ctx.guild.owner.id:
             await ctx.send(embed = discord.Embed(title=lang["profiles_leveling_reset_confirmation"], color = self.embed_color))
             try:
-                msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel, timeout=60.0)
+                msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
                 if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
                     await ProfilesHandler.reset_leveling(ctx.guild.id)
                     embed = discord.Embed(title=lang["profiles_leveling_reset_message"], color=self.embed_color)

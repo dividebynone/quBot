@@ -85,7 +85,7 @@ class Settings(commands.Cog):
         embed.set_footer(text=lang["settings_reset_confirmation_footer"])
         await ctx.send(embed = embed)
         try:
-            msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel, timeout=60.0)
+            msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
             if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
                 self.PrefixHandler.remove_guild(ctx.guild.id) # PrefixHandler takes care of language data removal as well since its tied to the same table
                 await self.CommandController.remove_disabled_commands(ctx.guild.id)

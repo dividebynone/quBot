@@ -5,7 +5,7 @@ import datetime as dt
 from main import config, bot_path
 import libs.qulib as qulib
 from libs.prefixhandler import PrefixHandler
-from libs.quconquest import quConquest
+import libs.quconquest as quconquest
 import configparser
 import textwrap
 import asyncio
@@ -40,7 +40,7 @@ class Conquest(commands.Cog):
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
-        quConquest.database_init()
+        self.quConquest = quconquest.quConquest()
 
         if 'Conquest' not in config.sections():
             config.add_section('Conquest')
@@ -96,7 +96,7 @@ class Conquest(commands.Cog):
         else:
             data["Conquest"]["resources_time"] = time_on_loop.strftime('%Y-%m-%d %H:%M:%S')
             await qulib.data_set(data)
-            await quConquest.send_resource_dailies()
+            await self.quConquest.send_resource_dailies()
             self.daily_cloth_price = rand_generator.randint(15,20)
             self.daily_wood_price = rand_generator.randint(15,20)
             self.daily_stone_price = rand_generator.randint(15,20)
@@ -119,8 +119,8 @@ class Conquest(commands.Cog):
     async def conquest_create(self, ctx, set_type: str, entry_fee: int, *, s_name: str):
         user = ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if not await quConquest.find_member(user.id):
-            if len(s_name) <= self.sname_limit:
+        if not await self.quConquest.find_member(user.id):
+            if len(s_name) <= self.sname_limit and len(s_name) > 3:
                 if all(x.isalnum() or x.isspace() for x in s_name):
                     set_type_lowered = set_type.lower()
                     if set_type_lowered in ('public', 'private'):
@@ -131,19 +131,20 @@ class Conquest(commands.Cog):
                             if user_data["currency"] < entry_fee:
                                 await ctx.send(lang["conquest_insufficient_funds"], delete_after=15)
                             else:
+                                access_dict = {'public': quconquest.SettlementAccess.Public, 'private': quconquest.SettlementAccess.Private}
                                 dict_input = {}
                                 dict_input["entry_fee"] = entry_fee
-                                dict_input["invite_string"] = await quConquest.get_unique_code()
+                                dict_input["invite_string"] = await self.quConquest.get_unique_code()
                                 dict_input["date_created"] = datetime.today().replace(microsecond=0)
                                 dict_input["name"] = s_name
-                                dict_input["type"] = set_type_lowered
+                                dict_input["type"] = access_dict[set_type_lowered]
                                 user_data["currency"] -= entry_fee
 
                                 await qulib.user_set(user.id, user_data)
-                                settlement_id = await quConquest.create_settlement(user.id, dict_input)
+                                settlement_id = await self.quConquest.create_settlement(user.id, dict_input)
                                 if settlement_id:
-                                    await quConquest.add_member(user.id, settlement_id)
-                                await ctx.send(embed = discord.Embed(title=lang["conquest_create_success"].format(ctx.author.mention), color = self.embed_color))
+                                    await self.quConquest.add_member(user.id, settlement_id)
+                                await ctx.send(embed = discord.Embed(title=lang["conquest_create_title"], description=lang["conquest_create_success"].format(ctx.author.mention), color = self.embed_color))
                     else:
                         await ctx.send(lang["conquest_create_public_private"], delete_after=15)
                 else:
@@ -159,9 +160,9 @@ class Conquest(commands.Cog):
     async def conquest_info(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        async with ctx.channel.typing():
-            if await quConquest.find_member(user.id):
-                cdata = await quConquest.get_settlement('id', await quConquest.get_settlement_id(user.id))
+        if await self.quConquest.find_member(user.id):
+            async with ctx.channel.typing():
+                cdata = await self.quConquest.get_settlement('id', await self.quConquest.get_settlement_id(user.id))
                 if cdata:
                     founder = ctx.guild.get_member(cdata["founderid"]) or cdata["founderid"]
                     leader = ctx.guild.get_member(cdata["leaderid"]) or cdata["leaderid"]
@@ -225,7 +226,7 @@ class Conquest(commands.Cog):
                     image.paste(settlement_overlay, (0, 0), mask=settlement_overlay)
 
                     #Settlement Access
-                    access_icon = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', f'{cdata["type"].lower()}-settlement.png'))
+                    access_icon = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', f'{cdata["type"]}-settlement.png'))
                     image.paste(access_icon, (482, 408), mask=access_icon)
 
                     # Sending image
@@ -234,6 +235,8 @@ class Conquest(commands.Cog):
                     buffer_output.seek(0)
 
                     await ctx.send(file=discord.File(buffer_output, f'settlement-{cdata["settlement_id"]}.png'))
+        else:
+            await ctx.send(lang["conquest_sinfo_part_of"].format(ctx.author.mention), delete_after=15)
 
     @commands.group(name='join', description=main.lang["command_cjoin_description"], usage='<private/public> ...')
     async def conquest_join(self, ctx):
@@ -251,19 +254,19 @@ class Conquest(commands.Cog):
             await ctx.send(lang["conquest_join_age_restriction"], delete_after=15)
         else:
             user_info = await qulib.user_get(user.id)
-            cdata = await quConquest.get_settlement('code', invite_code)
+            cdata = await self.quConquest.get_settlement('code', invite_code)
             if cdata:
-                if await quConquest.find_member(user.id):
+                if await self.quConquest.find_member(user.id):
                     await ctx.send(lang["conquest_join_part_of"], delete_after=15)
                 elif int(user_info["currency"]) < int(cdata["entry_fee"]):
                     await ctx.send(lang["conquest_join_min_entry"].format(cdata["entry_fee"]), delete_after=15)
                 else:
-                    await quConquest.add_member(user.id, cdata["settlement_id"])
+                    await self.quConquest.add_member(user.id, cdata["settlement_id"])
                     cdata["size"] += 1
                     cdata["treasury"] += int(cdata["entry_fee"])
                     user_info["currency"] -= int(cdata["entry_fee"])
                     await qulib.user_set(user.id, user_info)
-                    await quConquest.update_settlement('invite', invite_code, cdata)
+                    await self.quConquest.update_settlement('invite', invite_code, cdata)
                     await ctx.send(embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.embed_color))
             else:
                 await ctx.send(lang["conquest_join_not_found"], delete_after=15)
@@ -273,28 +276,28 @@ class Conquest(commands.Cog):
     async def public(self, ctx, *, target_user: discord.User):
         user = ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if await quConquest.find_member(target_user.id):
+        if await self.quConquest.find_member(target_user.id):
             age_restriction = ctx.author.created_at + dt.timedelta(weeks=1)
             if datetime.now() < age_restriction:
                 await ctx.send(lang["conquest_join_age_restriction"], delete_after=15)
             else:
                 user_info = await qulib.user_get(user.id)
-                settlementid = await quConquest.get_settlement_id(target_user.id)
-                cdata = await quConquest.get_settlement('id', settlementid)
+                settlementid = await self.quConquest.get_settlement_id(target_user.id)
+                cdata = await self.quConquest.get_settlement('id', settlementid)
                 if cdata:
-                    if await quConquest.find_member(user.id):
+                    if await self.quConquest.find_member(user.id):
                         await ctx.send(lang["conquest_join_part_of"], delete_after=15)
-                    elif cdata["type"] == "private":
+                    elif cdata["type"] == quconquest.SettlementAccess.Private:
                         await ctx.send(lang["conquest_join_private_msg"], delete_after=15)
                     elif int(user_info["currency"]) < int(cdata["entry_fee"]):
                         await ctx.send(lang["conquest_join_min_entry"].format(cdata["entry_fee"]), delete_after=15)
                     else:
-                        await quConquest.add_member(user.id, cdata["settlement_id"])
+                        await self.quConquest.add_member(user.id, cdata["settlement_id"])
                         cdata["size"] += 1
                         cdata["treasury"] += int(cdata["entry_fee"])
                         user_info["currency"] -= int(cdata["entry_fee"])
                         await qulib.user_set(user.id, user_info)
-                        await quConquest.update_settlement('id', settlementid, cdata)
+                        await self.quConquest.update_settlement('id', settlementid, cdata)
                         await ctx.send(embed = discord.Embed(title=lang["conquest_join_success"].format(cdata["name"]), color = self.embed_color))
                 else:
                     await ctx.send(lang["conquest_join_not_found"], delete_after=15)
@@ -309,7 +312,7 @@ class Conquest(commands.Cog):
     @commands.cooldown(5, 30, commands.BucketType.user)
     @conquest_code.command(name='show', help=main.lang["command_code_help"], description=main.lang["command_code_show_description"], ignore_extra=True)
     async def code_show(self, ctx):
-        cdata = await quConquest.get_settlement('user', ctx.author.id)
+        cdata = await self.quConquest.get_settlement('user', ctx.author.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if cdata and ctx.author.id == cdata["leaderid"]:
             await ctx.author.send(embed = discord.Embed(title=lang["conquest_code_success"].format(cdata["invite_string"]), color = self.embed_color))  
@@ -320,8 +323,8 @@ class Conquest(commands.Cog):
     @conquest_code.command(name='new', help=main.lang["command_code_help"], description=main.lang["command_code_new_description"], ignore_extra=True)
     async def code_new(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if await quConquest.generate_new_code(ctx.author.id):
-            new_code = await quConquest.get_code(ctx.author.id)
+        if await self.quConquest.generate_new_code(ctx.author.id):
+            new_code = await self.quConquest.get_code(ctx.author.id)
             await ctx.author.send(embed = discord.Embed(title=lang["conquest_code_new_success"].format(new_code), color = self.embed_color))
         else:
             await ctx.send(lang["conquest_code_new_fail"], delete_after=15)
@@ -334,10 +337,10 @@ class Conquest(commands.Cog):
         attack_user = ctx.author
         if attack_user.id is defence_user.id:
             await ctx.send(lang["conquest_attack_self"], delete_after=15)
-        elif await quConquest.find_member(defence_user.id):
-            cdata_defence = await quConquest.get_settlement('id', await quConquest.get_settlement_id(defence_user.id))
+        elif await self.quConquest.find_member(defence_user.id):
+            cdata_defence = await self.quConquest.get_settlement('id', await self.quConquest.get_settlement_id(defence_user.id))
             if cdata_defence:
-                cdata_offence = await quConquest.get_settlement('user', attack_user.id)
+                cdata_offence = await self.quConquest.get_settlement('user', attack_user.id)
                 if cdata_offence:
                     attack_score = (cdata_offence["size"] + (1/4)*cdata_offence["tech_attack"])/(cdata_defence["size"] + (1/4)*cdata_defence["tech_defence"])
                     attack_score_calculated = (50*attack_score)*100 if attack_score <=1 else (50 + 8.35*attack_score)*100
@@ -419,8 +422,8 @@ class Conquest(commands.Cog):
                     embed.set_image(url=f'attachment://attack-{cdata_offence["settlement_id"]}-{cdata_defence["settlement_id"]}.png')
                     await ctx.send(file=discord.File(buffer_output, f'attack-{cdata_offence["settlement_id"]}-{cdata_defence["settlement_id"]}.png'), embed=embed)
 
-                    await quConquest.update_settlement('invite', cdata_offence["invite_string"], cdata_offence)
-                    await quConquest.update_settlement('invite', cdata_defence["invite_string"], cdata_defence)
+                    await self.quConquest.update_settlement('invite', cdata_offence["invite_string"], cdata_offence)
+                    await self.quConquest.update_settlement('invite', cdata_defence["invite_string"], cdata_defence)
                     return
                 else:
                     await ctx.send(lang["conquest_attack_you_no"], delete_after=15)
@@ -430,49 +433,79 @@ class Conquest(commands.Cog):
             await ctx.send(lang["conquest_attack_enemy_part_of"], delete_after=15)
         self.bot.get_command(ctx.command.name).reset_cooldown(ctx)
 
-    @commands.cooldown(10, 60, commands.BucketType.user)
-    @commands.command(name="sleaderboard", help=main.lang["command_sleaderboard_help"], description=main.lang["command_sleaderboard_description"], aliases=['slb'])
+    @commands.cooldown(5, 60, commands.BucketType.user)
+    @commands.command(name="sleaderboard", help=main.lang["command_sleaderboard_help"], description=main.lang["command_sleaderboard_description"], usage="{page}", aliases=['slb'], ignore_extra=True)
     @commands.guild_only()
     async def conquest_leaderboard(self, ctx, page: int = 1):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        page = 1 if page < 1 else page
-        page_index = page - 1
-        leaderboard_data = await quConquest.get_leaderboard()
-        if len(leaderboard_data[(page_index*10):(page_index*10 + 9)]) > 0:
-            counter = page_index*10 + 1 - page_index
-            embed = discord.Embed(title=lang["conquest_leaderboard_title"], color = self.embed_color)
-            embed.set_footer(text=f'{lang["page_string"]} {page}')
-            for item in leaderboard_data[(page_index*10):(page_index*10 + 9)]:
-                embed.add_field(name=f'#{counter} {item[1]} (ID:{item[0]})', value=f'{item[2]} {lang["exp_string"]}',
-                                inline=True)
-                counter += 1
-            await ctx.send(embed=embed)
+        leaderboard_data = await self.quConquest.get_leaderboard()
+        if len(leaderboard_data) > 0:
+            last_index = math.floor(len(leaderboard_data)/10)
+            if len(leaderboard_data) % 10 == 0:
+                last_index -= 1
+            page = min(last_index, (page - 1)) if page and page >= 1 else 0
+            index = page
+            
+            member_rank = await self.quConquest.get_rank(ctx.author.id)
+            msg = None
+            action = ctx.send
+            try:
+                while True:
+                    output = f'{lang["conquest_leaderboard_description"].format(ctx.guild.name)}\n' + f'{lang["conquest_leaderboard_ranked"].format(member_rank)}\n\n' if member_rank else '\n'
+                    for item in leaderboard_data[(index*10):(index*10 + 10)]:
+                        output += f'**#{item[3]}** {item[1]} [{lang["id_string"]}: {item[0]}] - **{item[2]} {lang["exp_string"]}**\n'
+                    embed = discord.Embed(title=lang["conquest_leaderboard_title"], description=output, color = self.embed_color)
+                    if last_index == 0:
+                        await ctx.send(embed=embed)
+                        return
+                    embed.set_footer(text=f"{lang['page_string']} {index+1}/{last_index+1}")
+                    res = await action(embed=embed)
+                    if res is not None:
+                        msg = res
+                    l = index != 0
+                    r = index != last_index
+                    await msg.add_reaction(self.left)
+                    if l:
+                        await msg.add_reaction(self.left)
+                    if r:
+                        await msg.add_reaction(self.right)
+
+                    react = (await self.bot.wait_for('reaction_add', check=self.predicate(msg, l, r), timeout=30.0))[0]
+                    if react.emoji == self.left:
+                        index -= 1
+                    elif react.emoji == self.right:
+                        index += 1
+                    action = msg.edit
+            except asyncio.TimeoutError:
+                await msg.add_reaction(self.pagination_timeout)
+                return
         else:
-            await ctx.send(lang["pager_outofrange"], delete_after=15)
+            await ctx.send(lang["conquest_leaderboard_empty"], delete_after=15)
 
     @commands.command(name="sleave", help=main.lang["command_sleave_help"], description=main.lang["command_sleave_description"], ignore_extra=True)
     async def conquest_leave(self, ctx):
         user = ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if await quConquest.find_member(user.id):
-            settlementid = await quConquest.get_settlement_id(user.id)
-            cdata = await quConquest.get_settlement('id', settlementid)
+        if await self.quConquest.find_member(user.id):
+            settlementid = await self.quConquest.get_settlement_id(user.id)
+            cdata = await self.quConquest.get_settlement('id', settlementid)
             if cdata:
                 if cdata["size"] > 1 and user.id == cdata["leaderid"]:
                     await ctx.send(lang["conquest_leave_leader"], delete_after=15)
                 else:
-                    await ctx.send(embed = discord.Embed(title=lang["conquest_leave_confirmation"], color = self.embed_color))
+                    await ctx.send(embed = discord.Embed(title=lang["conquest_leave_confirmation_title"],
+                                   description=(lang["conquest_leave_confirmation_description"] + f'\n\n**{lang["conquest_leave_single"]}**' if cdata["size"] == 1 else ''),
+                                   color = self.embed_color))
                     try:
-                        msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel, timeout=60.0)
+                        msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
                         if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
                             if cdata["size"] > 1:
                                     cdata["size"] -= 1
-                                    await quConquest.update_settlement('id', settlementid, cdata)
-                                    await ctx.send(embed = discord.Embed(title=lang["conquest_leave_success"], color = self.embed_color))             
+                                    await self.quConquest.update_settlement('id', settlementid, cdata)          
                             else:
-                                await quConquest.delete_settlement(settlementid)
-                                await ctx.send(embed = discord.Embed(title=lang["conquest_leave_success_alone"], color = self.embed_color))
-                            await quConquest.remove_member(user.id)  
+                                await self.quConquest.delete_settlement(settlementid)
+                            await self.quConquest.remove_member(user.id)
+                            await ctx.send(embed = discord.Embed(title=lang["conquest_leave_success"], color = self.embed_color))  
                         else:
                             await ctx.send(lang["wait_for_cancelled"], delete_after=15)
                     except asyncio.TimeoutError:
@@ -487,18 +520,18 @@ class Conquest(commands.Cog):
     async def conquest_promote(self, ctx, *, user: discord.User):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if user != ctx.author:
-            if await quConquest.find_member(ctx.author.id):
-                settlementid = await quConquest.get_settlement_id(ctx.author.id)
-                cdata = await quConquest.get_settlement('id', settlementid)
-                if await quConquest.find_member(user.id):
-                    if settlementid == await quConquest.get_settlement_id(user.id):
+            if await self.quConquest.find_member(ctx.author.id):
+                settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+                cdata = await self.quConquest.get_settlement('id', settlementid)
+                if await self.quConquest.find_member(user.id):
+                    if settlementid == await self.quConquest.get_settlement_id(user.id):
                         if ctx.author.id == cdata["leaderid"]:
                             await ctx.send(embed = discord.Embed(title=lang["conquest_promote_confirmation"].format(user), color = self.embed_color))
                             try:
-                                msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel, timeout=60.0)
+                                msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
                                 if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
                                     cdata["leaderid"] = user.id
-                                    await quConquest.update_settlement('id', settlementid, cdata)
+                                    await self.quConquest.update_settlement('id', settlementid, cdata)
                                     await ctx.send(embed = discord.Embed(title=lang["conquest_promote_success"].format(user), color = self.embed_color))
                                 else:
                                     await ctx.send(lang["wait_for_cancelled"], delete_after=15)
@@ -520,14 +553,14 @@ class Conquest(commands.Cog):
     async def conquest_kick(self, ctx, *, user: discord.User):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if user != ctx.author:
-            if await quConquest.find_member(ctx.author.id):
-                settlementid = await quConquest.get_settlement_id(ctx.author.id)
-                cdata = await quConquest.get_settlement('id', settlementid)
-                if await quConquest.find_member(user.id):
+            if await self.quConquest.find_member(ctx.author.id):
+                settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+                cdata = await self.quConquest.get_settlement('id', settlementid)
+                if await self.quConquest.find_member(user.id):
                     if ctx.author.id == cdata["leaderid"]:
                         cdata["size"] -= 1
-                        await quConquest.update_settlement('id', settlementid, cdata)
-                        await quConquest.remove_member(user.id)
+                        await self.quConquest.update_settlement('id', settlementid, cdata)
+                        await self.quConquest.remove_member(user.id)
                         await ctx.send(embed = discord.Embed(title=lang["conquest_skick_success"].format(user), color = self.embed_color))
                     else:
                         await ctx.send(lang["conquest_not_leader"], delete_after=15)
@@ -541,23 +574,23 @@ class Conquest(commands.Cog):
     @commands.command(name='resources', description=main.lang["command_resources_description"], ignore_extra=True)
     async def conquest_resources(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if await quConquest.find_member(ctx.author.id):
-            settlement_id = await quConquest.get_settlement_id(ctx.author.id)
-            cdata = await quConquest.get_settlement('id', settlement_id)
+        if await self.quConquest.find_member(ctx.author.id):
+            settlement_id = await self.quConquest.get_settlement_id(ctx.author.id)
+            cdata = await self.quConquest.get_settlement('id', settlement_id)
             if ctx.author.id == cdata["leaderid"]:
-                resources = await quConquest.get_resources(settlement_id)
+                resources = await self.quConquest.get_resources(settlement_id)
                 if resources:
                     json_data = await qulib.data_get()
                     embed = discord.Embed(title=lang["conquest_warehouse_title"].format(cdata["name"]), color=self.embed_color)
                     embed.set_thumbnail(url=json_data['Conquest']['resources_image'])
                     embed.add_field(name=lang["conquest_resources_gold"], value=f'{cdata["treasury"]} {json_data["Conquest"]["gold_icon"]}',inline=True)
-                    embed.add_field(name=f'{lang["conquest_resources_wood"]} (+{await quConquest.get_resource_production_rate(8, settlement_id)}/{lang["day_string"]})',
+                    embed.add_field(name=f'{lang["conquest_resources_wood"]} (+{await self.quConquest.get_resource_production_rate(8, settlement_id)}/{lang["day_string"]})',
                                     value=f'{resources["wood"]} {json_data["Conquest"]["resources_wood"]}',inline=True)
-                    embed.add_field(name=f'{lang["conquest_resources_stone"]} (+{await quConquest.get_resource_production_rate(5, settlement_id)}/{lang["day_string"]})',
+                    embed.add_field(name=f'{lang["conquest_resources_stone"]} (+{await self.quConquest.get_resource_production_rate(5, settlement_id)}/{lang["day_string"]})',
                                     value=f'{resources["stone"]} {json_data["Conquest"]["resources_stone"]}',inline=True)
-                    embed.add_field(name=f'{lang["conquest_resources_food"]} (+{await quConquest.get_resource_production_rate(6, settlement_id)}/{lang["day_string"]})',
+                    embed.add_field(name=f'{lang["conquest_resources_food"]} (+{await self.quConquest.get_resource_production_rate(6, settlement_id)}/{lang["day_string"]})',
                                     value=f'{resources["food"]} {json_data["Conquest"]["resources_food"]}',inline=True)
-                    embed.add_field(name=f'{lang["conquest_resources_cloth"]}  (+{await quConquest.get_resource_production_rate(7, settlement_id)}/{lang["day_string"]})',
+                    embed.add_field(name=f'{lang["conquest_resources_cloth"]}  (+{await self.quConquest.get_resource_production_rate(7, settlement_id)}/{lang["day_string"]})',
                                     value=f'{resources["cloth"]} {json_data["Conquest"]["resources_cloth"]}',inline=True)
             else:
                 embed = discord.Embed(title=lang["conquest_not_leader"], color = self.embed_color)
@@ -575,13 +608,13 @@ class Conquest(commands.Cog):
     @conquest_buildings.command(name='list', description=main.lang["command_blist_description"], ignore_extra=True)
     async def buildings_list(self, ctx, building_id: int = None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if await quConquest.find_member(ctx.author.id):
-            settlementid = await quConquest.get_settlement_id(ctx.author.id)
-            cdata = await quConquest.get_settlement('id', settlementid)
+        if await self.quConquest.find_member(ctx.author.id):
+            settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+            cdata = await self.quConquest.get_settlement('id', settlementid)
             json_data = await qulib.data_get()
-            buildings = await quConquest.get_buildings()
+            buildings = await self.quConquest.get_buildings()
             embed = discord.Embed(title=lang["conquest_buildings_title"], color=self.embed_color)
-            th_level = await quConquest.level_converter(cdata["tech_tree"][0])
+            th_level = await self.quConquest.level_converter(cdata["tech_tree"][0])
 
             last_index = len(buildings) - 1
             if building_id and building_id > 0:
@@ -594,7 +627,7 @@ class Conquest(commands.Cog):
             action = ctx.send
             try:
                 while True:
-                    level = await quConquest.level_converter(cdata["tech_tree"][index])
+                    level = await self.quConquest.level_converter(cdata["tech_tree"][index])
                     upgrade_requirements = ""
                     if level == 10 or (level == 1 and (index+1) in (3, 9)):
                         level_string = f"{lang['level_string']} {level} **(MAX)**"
@@ -645,16 +678,16 @@ class Conquest(commands.Cog):
     @conquest_buildings.command(name='compact', description=main.lang["command_blist_description"], ignore_extra=True)
     async def buildings_list_compact(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if await quConquest.find_member(ctx.author.id):
-            settlementid = await quConquest.get_settlement_id(ctx.author.id)
-            cdata = await quConquest.get_settlement('id', settlementid)
+        if await self.quConquest.find_member(ctx.author.id):
+            settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+            cdata = await self.quConquest.get_settlement('id', settlementid)
             json_data = await qulib.data_get()
-            buildings = await quConquest.get_buildings()
+            buildings = await self.quConquest.get_buildings()
             embed = discord.Embed(title=lang["conquest_buildings_title"], color=self.embed_color)
             embed.set_footer(text=lang["conquest_buildings_footer"].format(cdata['name']))
-            th_level = await quConquest.level_converter(cdata["tech_tree"][0])
+            th_level = await self.quConquest.level_converter(cdata["tech_tree"][0])
             for i in range(len(buildings)):
-                level = await quConquest.level_converter(cdata["tech_tree"][i])
+                level = await self.quConquest.level_converter(cdata["tech_tree"][i])
                 if level == 10 or (level == 1 and (i+1) in (3, 9)):
                     embed.add_field(name=f"**{i+1} ) {buildings[i]['name']}: {lang['level_string']} {level}** *MAX*", value=lang["conquest_max_reached"],inline=False)
                 else:
@@ -680,12 +713,12 @@ class Conquest(commands.Cog):
     async def buildings_upgrade(self, ctx, building_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if 1 <= building_id <=10:
-            if await quConquest.find_member(ctx.author.id):
-                settlementid = await quConquest.get_settlement_id(ctx.author.id)
-                cdata = await quConquest.get_settlement('id', settlementid)
+            if await self.quConquest.find_member(ctx.author.id):
+                settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+                cdata = await self.quConquest.get_settlement('id', settlementid)
                 if ctx.author.id == cdata["leaderid"]:
-                    building = await quConquest.get_building(building_id)
-                    resources = await quConquest.get_resources(settlementid)
+                    building = await self.quConquest.get_building(building_id)
+                    resources = await self.quConquest.get_resources(settlementid)
                     level = int(cdata["tech_tree"][building_id-1]) if cdata['tech_tree'][building_id-1] != "X" else 10
                     th_level = cdata['tech_tree'][0] if cdata['tech_tree'][0] != "X" else 10
                     if (level+1) <= int(th_level) or (building_id == 1):
@@ -711,9 +744,9 @@ class Conquest(commands.Cog):
                                     resources['food'] -= food
                                     resources['stone'] -= stone
                                     resources['wood'] -= wood
-                                    await quConquest.update_resources(settlementid, resources)
-                                    await quConquest.update_settlement('id', settlementid, cdata)
-                                    await quConquest.upgrade_building(settlementid, building_id)
+                                    await self.quConquest.update_resources(settlementid, resources)
+                                    await self.quConquest.update_settlement('id', settlementid, cdata)
+                                    await self.quConquest.upgrade_building(settlementid, building_id)
                                     await ctx.send(embed = discord.Embed(title=lang["conquest_upgrade_success"].format(building['name'], level+1), color=self.embed_color))
                                 else:
                                     await ctx.send(lang["conquest_upgrade_fail"].format(building['name']), delete_after=15)
@@ -733,9 +766,9 @@ class Conquest(commands.Cog):
     async def conquest_requirements(self, ctx, *, building_id: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if 1 <= building_id <=10:
-            if await quConquest.find_member(ctx.author.id):
+            if await self.quConquest.find_member(ctx.author.id):
                 json_data = await qulib.data_get()
-                building = await quConquest.get_building(building_id)
+                building = await self.quConquest.get_building(building_id)
                 description = f"**{lang['conquest_requirements_header']}**\n"
                 for level in range(0, 10):
                     gold = f"{pow(2, int(level)+1)*building['gold']} {json_data['Conquest']['gold_icon']}" if building['gold'] != 0 else ""
@@ -777,21 +810,21 @@ class Conquest(commands.Cog):
     async def market_sell(self, ctx, item: str, quantity: int):
         if item.lower() in ("cloth", "wood", "stone", "food", "1", "2", "3", "4"):
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            if await quConquest.find_member(ctx.author.id):
-                settlementid = await quConquest.get_settlement_id(ctx.author.id)
-                cdata = await quConquest.get_settlement('id', settlementid)
+            if await self.quConquest.find_member(ctx.author.id):
+                settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+                cdata = await self.quConquest.get_settlement('id', settlementid)
                 if cdata['tech_tree'][2] == "1":
                     if ctx.author.id == cdata["leaderid"]:
                         json_data = await qulib.data_get()
                         resources_dict = {"1":"cloth", "2":"wood", "3":"stone", "4":"food"}
                         prices_dict = {"cloth":self.daily_cloth_price, "wood":self.daily_wood_price, "stone":self.daily_stone_price, "food":self.daily_food_price}
-                        resources = await quConquest.get_resources(settlementid)
+                        resources = await self.quConquest.get_resources(settlementid)
                         index = resources_dict[item] if item in resources_dict else item
                         if quantity > 0 and quantity <= resources[index]:
                             resources[index] -= quantity
                             cdata['treasury'] += quantity*prices_dict[index]
-                            await quConquest.update_resources(settlementid, resources)
-                            await quConquest.update_settlement("id", settlementid, cdata)
+                            await self.quConquest.update_resources(settlementid, resources)
+                            await self.quConquest.update_settlement("id", settlementid, cdata)
                             await ctx.send(embed = discord.Embed(title=lang["conquest_market_sell_success"].format(quantity, index, quantity*prices_dict[index], json_data['Conquest']['gold_icon']), color = self.embed_color))
                         else:
                             await ctx.send(lang["conquest_market_sell_fail"], delete_after=15)
@@ -806,15 +839,15 @@ class Conquest(commands.Cog):
     async def market_buy(self, ctx, item: str, quantity: int):
         if item.lower() in ("cloth", "wood", "stone", "food", "1", "2", "3", "4"):
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            if await quConquest.find_member(ctx.author.id):
-                settlementid = await quConquest.get_settlement_id(ctx.author.id)
-                cdata = await quConquest.get_settlement('id', settlementid)
+            if await self.quConquest.find_member(ctx.author.id):
+                settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+                cdata = await self.quConquest.get_settlement('id', settlementid)
                 if cdata['tech_tree'][2] == "1":
                     if ctx.author.id == cdata["leaderid"]:
                         json_data = await qulib.data_get()
                         resources_dict = {"1":"cloth", "2":"wood", "3":"stone", "4":"food"}
                         prices_dict = {"cloth":self.daily_cloth_price, "wood":self.daily_wood_price, "stone":self.daily_stone_price, "food":self.daily_food_price}
-                        resources = await quConquest.get_resources(settlementid)
+                        resources = await self.quConquest.get_resources(settlementid)
                         index = resources_dict[item] if item in resources_dict else item
                         if quantity > 0 and quantity*prices_dict[index] <= cdata['treasury']:
                             if int(cdata['tech_tree'][8]) == 0 and (resources[index] + quantity) > 1000:
@@ -822,8 +855,8 @@ class Conquest(commands.Cog):
                             else:
                                 resources[index] += quantity
                                 cdata['treasury'] -= quantity*prices_dict[index]
-                                await quConquest.update_resources(settlementid, resources)
-                                await quConquest.update_settlement("id", settlementid, cdata)
+                                await self.quConquest.update_resources(settlementid, resources)
+                                await self.quConquest.update_settlement("id", settlementid, cdata)
                                 await ctx.send(embed = discord.Embed(title=lang["conquest_market_buy_success"].format(quantity, index, quantity*prices_dict[index], json_data['Conquest']['gold_icon']), color = self.embed_color))
                         else:
                             await ctx.send(lang["conquest_market_buy_fail"], delete_after=15)
@@ -838,9 +871,9 @@ class Conquest(commands.Cog):
     @commands.command(name="deposit", help=main.lang["command_deposit_help"], description=main.lang["command_deposit_description"], usage='<amount>')
     async def conquest_deposit(self, ctx, number: int):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if await quConquest.find_member(ctx.author.id):
-            settlement_id = await quConquest.get_settlement_id(ctx.author.id)
-            cdata = await quConquest.get_settlement('id', settlement_id)
+        if await self.quConquest.find_member(ctx.author.id):
+            settlement_id = await self.quConquest.get_settlement_id(ctx.author.id)
+            cdata = await self.quConquest.get_settlement('id', settlement_id)
             author_info = await qulib.user_get(ctx.author.id)
             json_data = await qulib.data_get()
             if number > 0:
@@ -850,7 +883,7 @@ class Conquest(commands.Cog):
                     author_info['currency'] -= number
                     cdata['treasury'] += number
                     await qulib.user_set(ctx.author.id, author_info)
-                    await quConquest.update_settlement("id", settlement_id, cdata)
+                    await self.quConquest.update_settlement("id", settlement_id, cdata)
                     await ctx.send(embed = discord.Embed(title=lang["conquest_deposit_success"].format(number, json_data['Conquest']['gold_icon']), color=self.embed_color))
         else:
             await ctx.send(lang["conquest_not_part_of"], delete_after=15)
@@ -859,17 +892,17 @@ class Conquest(commands.Cog):
     @commands.command(name='rename', help=main.lang["command_srename_help"], description=main.lang["command_srename_description"], usage='<new name>')
     async def conquest_settlement_rename(self, ctx, *, name: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if len(name) <= self.sname_limit:
+        if len(name) <= self.sname_limit  and len(name) > 3:
             if all(x.isalnum() or x.isspace() for x in name):
-                if await quConquest.find_member(ctx.author.id):
-                    settlementid = await quConquest.get_settlement_id(ctx.author.id)
-                    cdata = await quConquest.get_settlement('id', settlementid)
+                if await self.quConquest.find_member(ctx.author.id):
+                    settlementid = await self.quConquest.get_settlement_id(ctx.author.id)
+                    cdata = await self.quConquest.get_settlement('id', settlementid)
                     if ctx.author.id == cdata["leaderid"]:
                         json_data = await qulib.data_get()
                         if cdata['treasury'] >= self.rename_price:
                             cdata['name'] = name
                             cdata['treasury'] -= self.rename_price
-                            await quConquest.update_settlement("id", settlementid, cdata)
+                            await self.quConquest.update_settlement("id", settlementid, cdata)
                             await ctx.send(embed = discord.Embed(title=lang["conquest_rename_success"].format(name, self.rename_price, json_data['Conquest']['gold_icon']), color = self.embed_color))
                         else:
                             await ctx.send(lang["conquest_rename_no_funds"].format(self.rename_price, json_data['Conquest']['gold_icon']), delete_after=15)

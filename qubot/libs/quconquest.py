@@ -3,20 +3,21 @@ from libs.qulib import string_generator
 from main import bot_path
 import sqlite3
 import discord
-import random
-import string
-import json
+import enum
 import os
+
+class SettlementAccess(enum.IntEnum):
+    Public = 1
+    Private = 2
 
 class quConquest(object):
 
-    @staticmethod
-    def database_init():
+    def __init__(self):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("CREATE TABLE IF NOT EXISTS conquest(settlement_id INTEGER PRIMARY KEY ,invite_string BLOB,\
                     date_created BLOB,founderid BLOB,leaderid BLOB,name BLOB,treasury INTEGER,tech_attack INTEGER,\
                     tech_defence INTEGER, size INTEGER, tech_tree BLOB,\
-                    type TEXT,entry_fee INTEGER, wins INTEGER, losses INTEGER, experience INTEGER)")
+                    type INTEGER,entry_fee INTEGER, wins INTEGER, losses INTEGER, experience INTEGER)")
             cursor.execute("CREATE TABLE IF NOT EXISTS members(userid INTEGER PRIMARY KEY, settlement_id INTEGER)")
             cursor.execute("CREATE TABLE IF NOT EXISTS resources(settlement_id INTEGER PRIMARY KEY, cloth INTEGER, wood INTEGER, stone INTEGER, food INTEGER)")
             cursor.execute("CREATE TABLE IF NOT EXISTS buildings(id INTEGER PRIMARY KEY, name BLOB, mltplr_cloth INTEGER, mltplr_food INTEGER, mltplr_stone INTEGER, mltplr_wood INTEGER, mltplr_gold INTEGER)")
@@ -46,8 +47,8 @@ class quConquest(object):
     async def level_converter(item: str):
         return int(item) if item != "X" else 10
 
-    @staticmethod
-    async def get_settlement(get_string:str, input_data):
+    @classmethod
+    async def get_settlement(self, get_string:str, input_data):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             if get_string == 'user':
                 cursor.execute("SELECT * FROM conquest WHERE leaderid=?", (input_data,))
@@ -71,16 +72,16 @@ class quConquest(object):
                                 entry_fee=db_output[12], wins=db_output[13], losses=db_output[14], experience=db_output[15])
                 return return_dict
 
-    @staticmethod
-    async def create_settlement(input_data, dict_input):
+    @classmethod
+    async def create_settlement(self, input_data, dict_input):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO conquest(founderid, leaderid, treasury, entry_fee, invite_string, date_created, tech_attack, tech_defence, name, tech_tree, type, size, wins, losses, experience) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                 [input_data, input_data, dict_input["entry_fee"], dict_input["entry_fee"], dict_input["invite_string"],
                                 dict_input["date_created"], '0', '0', dict_input["name"], '0000000000', dict_input["type"], '1', 0, 0, 0])
             return cursor.lastrowid
 
-    @staticmethod
-    async def update_settlement(get_string:str, input_data, dict_input):
+    @classmethod
+    async def update_settlement(self, get_string:str, input_data, dict_input):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             if get_string == 'user':
                 cursor.execute("UPDATE conquest SET founderid=?, leaderid=?, treasury=?, entry_fee=?, invite_string=?, date_created=?, tech_attack=?, tech_defence=?, name=?, tech_tree=?, type=?, size=?, wins=?, losses=?, experience=? WHERE leaderid=?",
@@ -99,31 +100,38 @@ class quConquest(object):
                                 dict_input["size"], dict_input["wins"], dict_input["losses"], dict_input["experience"], input_data])
         return None
 
-    @staticmethod
-    async def delete_settlement(input_id: str):
+    @classmethod
+    async def delete_settlement(self, input_id: str):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("DELETE FROM conquest WHERE settlement_id=?", (input_id,))
 
-    @staticmethod
-    async def get_leaderboard():
+    @classmethod
+    async def get_leaderboard(self):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
-            cursor.execute("SELECT settlement_id, name, experience FROM conquest ORDER BY experience DESC")
-            db_output = cursor.fetchall()
-            return list(db_output) if db_output != None else None
+            cursor.execute("SELECT settlement_id, name, experience, DENSE_RANK() OVER (ORDER BY experience DESC) as rank FROM conquest")
+            output = cursor.fetchall()
+            return output
 
-    @staticmethod
-    async def add_member(user_id: str, settlement_id: int):
+    @classmethod
+    async def get_rank(self, user_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
+            cursor.execute("SELECT rank FROM (SELECT settlement_id, DENSE_RANK() OVER (ORDER BY experience DESC) as rank FROM conquest) as cq INNER JOIN members as m ON m.settlement_id = cq.settlement_id WHERE m.userid=?", (user_id,))
+            output = cursor.fetchone()
+            return output[0] if output else None
+
+    @classmethod
+    async def add_member(self, user_id: str, settlement_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user_id, None))
             cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (settlement_id, user_id))
 
-    @staticmethod
-    async def remove_member(user_id: str):
+    @classmethod
+    async def remove_member(self, user_id: str):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (None, user_id))
 
-    @staticmethod
-    async def find_member(user_id: str, settlement_id: int = None):
+    @classmethod
+    async def find_member(self, user_id: str, settlement_id: int = None):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user_id, None))
             if settlement_id:
@@ -137,16 +145,16 @@ class quConquest(object):
             else:
                 return True if None not in {db_output, db_output[0]} else False
 
-    @staticmethod
-    async def get_settlement_id(user_id: str):
+    @classmethod
+    async def get_settlement_id(self, user_id: str):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user_id, None))
             cursor.execute("SELECT settlement_id FROM members WHERE userid=?", (user_id,))
             db_output = cursor.fetchone()
             return db_output[0] if db_output != None else None
 
-    @staticmethod
-    async def generate_new_code(user_id: str):
+    @classmethod
+    async def generate_new_code(self, user_id: str):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             new_code = string_generator(15)
             cursor.execute("SELECT invite_string FROM conquest WHERE invite_string=?", (new_code,))
@@ -158,8 +166,8 @@ class quConquest(object):
             cursor.execute("UPDATE conquest SET invite_string=? WHERE leaderid=?", (new_code, user_id,))
             return True if cursor.rowcount > 0 else False
     
-    @staticmethod
-    async def get_unique_code():
+    @classmethod
+    async def get_unique_code(self):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             new_code = string_generator(15)
             cursor.execute("SELECT invite_string FROM conquest WHERE invite_string=?", (new_code,))
@@ -170,15 +178,15 @@ class quConquest(object):
 
             return new_code
 
-    @staticmethod
-    async def get_code(user_id: str):
+    @classmethod
+    async def get_code(self, user_id: str):
        with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("SELECT invite_string FROM conquest WHERE leaderid=?", (user_id,))
             db_output = cursor.fetchone()
             return db_output[0] if db_output != None else None
 
-    @staticmethod
-    async def get_resources(settlement_id: int):
+    @classmethod
+    async def get_resources(self, settlement_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO resources(settlement_id, cloth, wood, stone, food) VALUES(?, ?, ?, ?, ?)", (settlement_id, 0, 0, 0, 0,))
             cursor.execute("SELECT * FROM resources WHERE settlement_id=?", (settlement_id,))
@@ -190,15 +198,15 @@ class quConquest(object):
                 return_dict = dict(settlement_id=db_output[0], cloth=db_output[1], wood=db_output[2], stone=db_output[3], food=db_output[4])
                 return return_dict
     
-    @staticmethod
-    async def update_resources(settlement_id: int, dict_input):
+    @classmethod
+    async def update_resources(self, settlement_id: int, dict_input):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("UPDATE resources SET cloth=?, wood=?, stone=?, food=? WHERE settlement_id=?",
                         (dict_input["cloth"], dict_input["wood"], dict_input["stone"], dict_input["food"], settlement_id,))
             return True if cursor.rowcount > 0 else False
 
-    @staticmethod
-    async def send_resource_dailies():
+    @classmethod
+    async def send_resource_dailies(self):
         conn = sqlite3.connect(os.path.join(bot_path, 'databases', 'conquest.db'))
         cursor = conn.cursor()
         cursor_update = conn.cursor()
@@ -215,8 +223,8 @@ class quConquest(object):
         conn.commit()
         conn.close()
 
-    @staticmethod
-    async def get_resource_production_rate(building_id: int, settlement_id: int):
+    @classmethod
+    async def get_resource_production_rate(self, building_id: int, settlement_id: int):
         if 5 <= building_id <= 8:
             with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
                 cursor.execute("SELECT tech_tree FROM conquest WHERE settlement_id=?", (settlement_id,))
@@ -229,8 +237,8 @@ class quConquest(object):
 
     # Settlement Buildings
 
-    @staticmethod
-    async def get_building(building_id: int):
+    @classmethod
+    async def get_building(self, building_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("SELECT * FROM buildings WHERE id=?", (building_id,))
             db_output = cursor.fetchone()
@@ -241,23 +249,23 @@ class quConquest(object):
                 return_dict = dict(id=db_output[0], name=db_output[1], cloth=db_output[2], food=db_output[3], stone=db_output[4], wood=db_output[5], gold=db_output[6])
                 return return_dict
 
-    @staticmethod
-    async def get_buildings():
+    @classmethod
+    async def get_buildings(self):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.row_factory = sqlite3.Row
             cursor.execute("SELECT * FROM buildings")
             db_output = [dict(row) for row in cursor.fetchall()]
             return db_output
 
-    @staticmethod
-    async def get_building_names():
+    @classmethod
+    async def get_building_names(self):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("SELECT id, name name FROM buildings")
             output = cursor.fetchall()
             return {x[1].lower(): x[0] for x in output} if output else None
 
-    @staticmethod
-    async def upgrade_building(settlement_id: int , building_id: int):
+    @classmethod
+    async def upgrade_building(self, settlement_id: int , building_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("SELECT tech_attack, tech_defence, tech_tree FROM conquest WHERE settlement_id=?", (settlement_id,))
             tech_points = cursor.fetchone()
