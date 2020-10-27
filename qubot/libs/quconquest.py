@@ -58,6 +58,8 @@ class quConquest(object):
                 cursor.execute("SELECT * FROM conquest WHERE invite_string=?", (input_data,))
             elif get_string == 'id':
                 cursor.execute("SELECT * FROM conquest WHERE settlement_id=?", (input_data,))
+            elif get_string == 'member':
+                cursor.execute("SELECT c.* FROM conquest as c INNER JOIN members as m ON c.settlement_id = m.settlement_id WHERE m.userid=?", (input_data,))
             else:
                 return None
 

@@ -76,7 +76,7 @@ class Settings(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
-    @settings_command.command(cls=ExtendedGroup, name='reset', description=main.lang["command_settings_reset_description"], permissions=['Administrator'])
+    @settings_command.command(cls=ExtendedCommand, name='reset', description=main.lang["command_settings_reset_description"], permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def settings_reset(self, ctx):

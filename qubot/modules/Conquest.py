@@ -6,6 +6,7 @@ from main import config, bot_path
 import libs.qulib as qulib
 from libs.prefixhandler import PrefixHandler
 import libs.quconquest as quconquest
+from libs.quconquest import SettlementAccess
 import configparser
 import textwrap
 import asyncio
@@ -131,7 +132,7 @@ class Conquest(commands.Cog):
                             if user_data["currency"] < entry_fee:
                                 await ctx.send(lang["conquest_insufficient_funds"], delete_after=15)
                             else:
-                                access_dict = {'public': quconquest.SettlementAccess.Public, 'private': quconquest.SettlementAccess.Private}
+                                access_dict = {'public': SettlementAccess.Public, 'private': SettlementAccess.Private}
                                 dict_input = {}
                                 dict_input["entry_fee"] = entry_fee
                                 dict_input["invite_string"] = await self.quConquest.get_unique_code()
@@ -287,7 +288,7 @@ class Conquest(commands.Cog):
                 if cdata:
                     if await self.quConquest.find_member(user.id):
                         await ctx.send(lang["conquest_join_part_of"], delete_after=15)
-                    elif cdata["type"] == quconquest.SettlementAccess.Private:
+                    elif cdata["type"] == SettlementAccess.Private:
                         await ctx.send(lang["conquest_join_private_msg"], delete_after=15)
                     elif int(user_info["currency"]) < int(cdata["entry_fee"]):
                         await ctx.send(lang["conquest_join_min_entry"].format(cdata["entry_fee"]), delete_after=15)
@@ -684,7 +685,7 @@ class Conquest(commands.Cog):
             json_data = await qulib.data_get()
             buildings = await self.quConquest.get_buildings()
             embed = discord.Embed(title=lang["conquest_buildings_title"], color=self.embed_color)
-            embed.set_footer(text=lang["conquest_buildings_footer"].format(cdata['name']))
+            embed.set_footer(text=lang["conquest_settlement_footer"].format(cdata['name']))
             th_level = await self.quConquest.level_converter(cdata["tech_tree"][0])
             for i in range(len(buildings)):
                 level = await self.quConquest.level_converter(cdata["tech_tree"][i])
@@ -914,6 +915,24 @@ class Conquest(commands.Cog):
                 await ctx.send(lang["conquest_invalid_settlement_name"], delete_after=15)
         else:
             await ctx.send(lang["conquest_sname_too_long"].format(self.sname_limit), delete_after=15)
+
+    @commands.cooldown(5, 600, commands.BucketType.user)
+    @commands.command(name='sconvert', help=main.lang["command_sconvert_help"], description=main.lang["command_sconvert_description"], ignore_extra=True)
+    async def settlement_convert(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if await self.quConquest.find_member(ctx.author.id):
+            cdata = await self.quConquest.get_settlement('member', ctx.author.id)
+            if cdata:
+                if cdata['leaderid'] == ctx.author.id:
+                    cdata['type'] = SettlementAccess.Private if cdata['type'] == SettlementAccess.Public else SettlementAccess.Public
+                    await self.quConquest.update_settlement("id", cdata['settlement_id'], cdata)
+                    embed = discord.Embed(title=lang["conquest_convert_success"].format(SettlementAccess(cdata['type']).name.lower()), color = self.embed_color)
+                    embed.set_footer(text=lang["conquest_settlement_footer"].format(cdata['name']))
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send(lang["conquest_not_leader"], delete_after=15)
+        else:
+            await ctx.send(lang["conquest_not_part_of"], delete_after=15)
 
 def setup(bot):
     bot.add_cog(Conquest(bot))

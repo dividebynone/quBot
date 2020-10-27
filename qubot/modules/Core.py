@@ -1,4 +1,4 @@
-from discord.ext import commands
+from discord.ext import commands, tasks
 from main import bot_starttime, config, bot_path
 from main import modules as loaded_modules
 from main import logger
@@ -9,6 +9,7 @@ from libs.commandscontroller import CommandController, CogController
 from datetime import datetime
 from libs.qulib import ExtendedCommand, ExtendedGroup
 import asyncio
+import typing
 import math
 import discord
 import json
@@ -35,11 +36,16 @@ class Core(commands.Cog):
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
+        self.botstats_iter = 0
+
         self.left = '⬅️'
         self.right = '➡️'
         self.pagination_timeout = '⏹️'
 
         print(f'Module {self.__class__.__name__} loaded')
+
+    def cog_unload(self):
+        self.botstats_loop.cancel() # pylint: disable=no-member
 
     def predicate(self, message, l, r):
         def check(reaction, user):
@@ -66,6 +72,20 @@ class Core(commands.Cog):
                 raise commands.DisabledCommand("Failed attempt to use command from a disabled module.")
         else:
             return True
+
+    @tasks.loop(seconds=30, reconnect=True)
+    async def botstats_loop(self):
+        guild_count = len(self.bot.guilds)
+        shard_count = len(self.bot.shards)
+        botstat_list = [
+            f"{main.prefix}h | qubot.xyz | {main.lang['version_brief_string']} {main.version}",
+            f"{qulib.plural(guild_count, main.lang['server_string'], main.lang['servers_string'])} | {qulib.plural(shard_count, main.lang['shard_string'], main.lang['shards_string'])}",
+            f"{main.lang['core_activity_help'].format(main.prefix)} | {main.lang['version_brief_string']} {main.version}",
+            f"{main.lang['core_activity_help'].format(main.prefix)} | qubot.xyz"
+            ]
+        activity = discord.Activity(type=discord.ActivityType.playing, name = botstat_list[self.botstats_iter])
+        await self.bot.change_presence(activity=activity, shard_id=None)
+        self.botstats_iter = (self.botstats_iter + 1) if (self.botstats_iter + 1) < len(botstat_list) else 0
 
     @commands.command(cls=ExtendedCommand, name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
@@ -419,17 +439,38 @@ class Core(commands.Cog):
             status_dict = {'online': discord.Status.online, 'offline': discord.Status.offline, 'idle': discord.Status.idle, 'dnd': discord.Status.dnd, 'invisible': discord.Status.invisible}
             await ctx.bot.change_presence(status=status_dict.get(input_status, discord.Status.online), shard_id=None)
     
-    @commands.command(cls=ExtendedCommand, name='setactivity', help=main.lang["command_setactivity_help"], description=main.lang["command_setactivity_description"], usage="<activity>", hidden=True, permissions=['Bot Owner'])
+    @commands.group(cls=ExtendedGroup, name='setactivity', invoke_without_command=True, help=main.lang["command_setactivity_help"], description=main.lang["command_setactivity_description"], usage="<activity> <text>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
-    async def setactivity(self, ctx, input_activity:str = None, *, input_string:str = None):
-        input_activity = input_activity.lower()
-        if input_activity:
-            if input_activity in ('playing', 'listening', 'watching'):
-                type_dict= {'playing': 0, 'listening': 2, 'watching': 3}
-                activity = discord.Activity(type=type_dict.get(input_activity, None), name = input_string)
-                await ctx.bot.change_presence(activity=activity, shard_id=None)
-        else:
-            await ctx.bot.change_presence(activity=None, shard_id=None)
+    async def setactivity(self, ctx, input_activity: str = None, *, text: str = None):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if input_activity and text:
+                input_activity = input_activity.lower()
+                if input_activity in ('playing', 'listening', 'watching'):
+                    type_dict= {'playing': 0, 'listening': 2, 'watching': 3}
+                    activity = discord.Activity(type=type_dict.get(input_activity, None), name = text)
+                    await ctx.bot.change_presence(activity=activity, shard_id=None)
+                    await ctx.send(embed = discord.Embed(title=lang["core_setactivity"].format(f'{input_activity} {text}'), color=self.embed_color))
+            else:
+                self.botstats_loop.cancel() # pylint: disable=no-member
+                await ctx.bot.change_presence(activity=None, shard_id=None)
+                await ctx.send(embed = discord.Embed(title=lang["core_setactivity_reset"], color=self.embed_color))
+
+    @setactivity.group(cls=ExtendedGroup, name='stats', invoke_without_command=True, description=main.lang["command_setactivity_stats_description"], aliases=['stat', 'rotation'], hidden=True, permissions=['Bot Owner'])
+    @commands.is_owner()
+    async def setactivity_stats(self, ctx):
+        if not ctx.invoked_subcommand:
+            self.botstats_loop.start() # pylint: disable=no-member
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            await ctx.send(embed = discord.Embed(title=lang["core_setactivity_stats"], color=self.embed_color))
+
+    @setactivity_stats.command(cls=ExtendedCommand, name='stop', description=main.lang["command_setactivity_stats_reset_description"], aliases=['disable', 'clear', 'd', 'off'], permissions=['Bot Owner'])
+    @commands.is_owner()
+    async def setactivity_stats_disable(self, ctx):
+        self.botstats_loop.cancel() # pylint: disable=no-member
+        await ctx.bot.change_presence(activity=None, shard_id=None)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await ctx.send(embed = discord.Embed(title=lang["core_setactivity_stats_reset"], color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name='restart', description=main.lang["command_restart_description"], hidden=True, ignore_extra=True, permissions=['Bot Owner'])
     @commands.is_owner()
