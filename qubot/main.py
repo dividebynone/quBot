@@ -318,6 +318,13 @@ json_lang_en = {
     "core_setactivity_stats_reset": "Stopped the automatic bot activity rotation",
     "command_setactivity_stats_description": "Starts an automatic bot activity rotation.",
     "command_setactivity_stats_reset_description": "Stops the automatic bot activity rotation.",
+    "conquest_invalid_settlement_id": "No settlement found with that ID. Please check for input errors and try again",
+    "conquest_rename_force": "The target settlement (ID: {}) was successfully renamed to: *{}*",
+    "command_srename_force_description": "Force renames the target settlement to the provided input.",
+    "conquest_dels_confirmation_title": "Deleting a settlement",
+    "conquest_dels_confirmation_description": "Type `yes` or `no` to confirm your decision. As a result, settlement with `ID {}` will be deleted.",
+    "conquest_dels_success": "Successfully deleted settlement with matching ID {}",
+    "command_delsettlement_description": "Deletes the settlement that matches the provided identifier.",
 
 
     "bot_guild_join_description": "My name is {} and I am a multi-purpose bot that can offer a great variety of features from an extensive moderation toolkit to a global economy, dictionaries, fun, utility commands and a unique strategy game called Conquest.\n\nCreate the experience you want. My capabilities include but are not limited to the following available configurations: disabling select commands and modules, setting a custom bot prefix and language for your discord server.\n\nFeel free to explore around by using any of the following bits of information below:\n**Help Command:** `{}help`\n**Commands:** https://qubot.xyz/commands\n**Support Server:** https://discord.gg/TGnfsH2",

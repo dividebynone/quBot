@@ -103,9 +103,24 @@ class quConquest(object):
         return None
 
     @classmethod
-    async def delete_settlement(self, input_id: str):
+    async def delete_settlement(self, settlement_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
-            cursor.execute("DELETE FROM conquest WHERE settlement_id=?", (input_id,))
+            cursor.execute("DELETE FROM conquest WHERE settlement_id=?", (settlement_id,))
+            cursor.execute("DELETE FROM members WHERE settlement_id=?", (settlement_id,))
+
+    @classmethod
+    def delete_data(self):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
+            cursor.execute("DELETE FROM conquest")
+            cursor.execute("DELETE FROM members")
+            cursor.execute("DELETE FROM resources")
+
+    @classmethod
+    async def is_settlement(self, settlement_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
+            cursor.execute("SELECT settlement_id FROM conquest WHERE settlement_id=?", (settlement_id,))
+            output = cursor.fetchone()
+            return True if output else False
 
     @classmethod
     async def get_leaderboard(self):
@@ -122,18 +137,18 @@ class quConquest(object):
             return output[0] if output else None
 
     @classmethod
-    async def add_member(self, user_id: str, settlement_id: int):
+    async def add_member(self, user_id: int, settlement_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user_id, None))
             cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (settlement_id, user_id))
 
     @classmethod
-    async def remove_member(self, user_id: str):
+    async def remove_member(self, user_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
-            cursor.execute("UPDATE members SET settlement_id=? WHERE userid=?", (None, user_id))
+            cursor.execute("DELETE FROM members WHERE userid=?", (user_id,))
 
     @classmethod
-    async def find_member(self, user_id: str, settlement_id: int = None):
+    async def find_member(self, user_id: int, settlement_id: int = None):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user_id, None))
             if settlement_id:
@@ -148,7 +163,7 @@ class quConquest(object):
                 return True if None not in {db_output, db_output[0]} else False
 
     @classmethod
-    async def get_settlement_id(self, user_id: str):
+    async def get_settlement_id(self, user_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO members(userid, settlement_id) VALUES(?, ?)", (user_id, None))
             cursor.execute("SELECT settlement_id FROM members WHERE userid=?", (user_id,))
@@ -156,7 +171,7 @@ class quConquest(object):
             return db_output[0] if db_output != None else None
 
     @classmethod
-    async def generate_new_code(self, user_id: str):
+    async def generate_new_code(self, user_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             new_code = string_generator(15)
             cursor.execute("SELECT invite_string FROM conquest WHERE invite_string=?", (new_code,))
@@ -181,7 +196,7 @@ class quConquest(object):
             return new_code
 
     @classmethod
-    async def get_code(self, user_id: str):
+    async def get_code(self, user_id: int):
        with sqlconnect(os.path.join(bot_path, 'databases', 'conquest.db')) as cursor:
             cursor.execute("SELECT invite_string FROM conquest WHERE leaderid=?", (user_id,))
             db_output = cursor.fetchone()

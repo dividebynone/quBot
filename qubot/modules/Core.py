@@ -87,6 +87,10 @@ class Core(commands.Cog):
         await self.bot.change_presence(activity=activity, shard_id=None)
         self.botstats_iter = (self.botstats_iter + 1) if (self.botstats_iter + 1) < len(botstat_list) else 0
 
+    @tasks.loop(hours=24.0, reconnect=True)
+    async def export_stats(self):
+        pass
+
     @commands.command(cls=ExtendedCommand, name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def module_load(self, ctx, *, input_module: str):

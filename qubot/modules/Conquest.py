@@ -4,6 +4,7 @@ from datetime import datetime
 import datetime as dt
 from main import config, bot_path
 import libs.qulib as qulib
+from libs.qulib import ExtendedCommand, ExtendedGroup
 from libs.prefixhandler import PrefixHandler
 import libs.quconquest as quconquest
 from libs.quconquest import SettlementAccess
@@ -503,7 +504,6 @@ class Conquest(commands.Cog):
                                     await self.quConquest.update_settlement('id', cdata['settlement_id'], cdata)          
                             else:
                                 await self.quConquest.delete_settlement(cdata['settlement_id'])
-                            await self.quConquest.remove_member(user.id)
                             await ctx.send(embed = discord.Embed(title=lang["conquest_leave_success"], color = self.embed_color))  
                         else:
                             await ctx.send(lang["wait_for_cancelled"], delete_after=15)
@@ -881,26 +881,45 @@ class Conquest(commands.Cog):
             await ctx.send(lang["conquest_not_part_of"], delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
-    @commands.command(name='rename', help=main.lang["command_srename_help"], description=main.lang["command_srename_description"], usage='<new name>')
-    async def conquest_settlement_rename(self, ctx, *, name: str):
+    @commands.group(name='srename', invoke_without_command=True, help=main.lang["command_srename_help"], description=main.lang["command_srename_description"], usage='<new name>')
+    async def settlement_rename(self, ctx, *, name: str):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if len(name) <= self.sname_limit  and len(name) > 3:
+                if all(x.isalnum() or x.isspace() for x in name):
+                    if await self.quConquest.find_member(ctx.author.id):
+                        cdata = await self.quConquest.get_settlement('member', ctx.author.id)
+                        if ctx.author.id == cdata["leaderid"]:
+                            json_data = await qulib.data_get()
+                            if cdata['treasury'] >= self.rename_price:
+                                cdata['name'] = name
+                                cdata['treasury'] -= self.rename_price
+                                await self.quConquest.update_settlement("id", cdata['settlement_id'], cdata)
+                                await ctx.send(embed = discord.Embed(title=lang["conquest_rename_success"].format(name, self.rename_price, json_data['Conquest']['gold_icon']), color = self.embed_color))
+                            else:
+                                await ctx.send(lang["conquest_rename_no_funds"].format(self.rename_price, json_data['Conquest']['gold_icon']), delete_after=15)
+                        else:
+                            await ctx.send(lang["conquest_not_leader"], delete_after=15)
+                    else:
+                        await ctx.send(lang["conquest_not_part_of"], delete_after=15)
+                else:
+                    await ctx.send(lang["conquest_invalid_settlement_name"], delete_after=15)
+            else:
+                await ctx.send(lang["conquest_sname_too_long"].format(self.sname_limit), delete_after=15)
+
+    @settlement_rename.command(cls=ExtendedCommand, name='force', description=main.lang["command_srename_force_description"], hidden=True, permissions=['Bot Owner'])
+    @commands.is_owner()
+    async def settlement_rename_force(self, ctx, settlement_id: int, *, name: str):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if len(name) <= self.sname_limit  and len(name) > 3:
             if all(x.isalnum() or x.isspace() for x in name):
-                if await self.quConquest.find_member(ctx.author.id):
-                    cdata = await self.quConquest.get_settlement('member', ctx.author.id)
-                    if ctx.author.id == cdata["leaderid"]:
-                        json_data = await qulib.data_get()
-                        if cdata['treasury'] >= self.rename_price:
-                            cdata['name'] = name
-                            cdata['treasury'] -= self.rename_price
-                            await self.quConquest.update_settlement("id", cdata['settlement_id'], cdata)
-                            await ctx.send(embed = discord.Embed(title=lang["conquest_rename_success"].format(name, self.rename_price, json_data['Conquest']['gold_icon']), color = self.embed_color))
-                        else:
-                            await ctx.send(lang["conquest_rename_no_funds"].format(self.rename_price, json_data['Conquest']['gold_icon']), delete_after=15)
-                    else:
-                        await ctx.send(lang["conquest_not_leader"], delete_after=15)
+                cdata = await self.quConquest.get_settlement('id', settlement_id)
+                if cdata:
+                    cdata['name'] = name
+                    await self.quConquest.update_settlement('id', cdata['settlement_id'], cdata)
+                    await ctx.send(embed = discord.Embed(title=lang["conquest_rename_force"].format(cdata['settlement_id'], name), color = self.embed_color))
                 else:
-                    await ctx.send(lang["conquest_not_part_of"], delete_after=15)
+                    await ctx.send(lang["conquest_invalid_settlement_id"], delete_after=15)
             else:
                 await ctx.send(lang["conquest_invalid_settlement_name"], delete_after=15)
         else:
@@ -923,6 +942,25 @@ class Conquest(commands.Cog):
                     await ctx.send(lang["conquest_not_leader"], delete_after=15)
         else:
             await ctx.send(lang["conquest_not_part_of"], delete_after=15)
+
+    @commands.command(cls=ExtendedCommand, name='delsettlement', description=main.lang["command_delsettlement_description"], hidden=True, permissions=['Bot Owner'])
+    @commands.is_owner()
+    async def settlement_delete(self, ctx, settlement_id: int):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if await self.quConquest.is_settlement(settlement_id):
+            await ctx.send(embed = discord.Embed(title=lang["conquest_dels_confirmation_title"], description=lang["conquest_dels_confirmation_description"].format(settlement_id), 
+                           color = self.embed_color))
+            try:
+                msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
+                if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
+                    await self.quConquest.delete_settlement(settlement_id)
+                    await ctx.send(embed = discord.Embed(title=lang["conquest_dels_success"].format(settlement_id), color = self.embed_color))  
+                else:
+                    await ctx.send(lang["wait_for_cancelled"], delete_after=15)
+            except asyncio.TimeoutError:
+                await ctx.send(lang["wait_for_timeout"], delete_after=15)
+        else:
+            await ctx.send(lang["conquest_invalid_settlement_id"], delete_after=15)
 
 def setup(bot):
     bot.add_cog(Conquest(bot))
