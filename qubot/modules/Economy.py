@@ -9,6 +9,7 @@ from main import config
 import main
 import configparser
 import discord
+import asyncio
 import random
 import os
 
@@ -83,10 +84,10 @@ class Economy(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.send(embed = discord.Embed(title=lang["economy_currency_return_msg"].format(user, user_info['currency'], self.currency_symbol), color=self.embed_color))
 
-    @commands.command(cls=ExtendedCommand, name="adjust", description=main.lang["command_adjust_description"], usage="<user> <amount>", permissions=['Bot Owner'])
+    @commands.command(cls=ExtendedCommand, name="adjust", description=main.lang["command_adjust_description"], usage="<amount> <user>", permissions=['Bot Owner'])
     @commands.is_owner()
     @commands.guild_only()
-    async def adjust(self, ctx, user: discord.User, value: int):
+    async def adjust(self, ctx, value: int, *, user: discord.User):
         await ctx.message.delete()
         user_info = await user_get(user.id)
         user_info['currency'] += value
@@ -98,9 +99,9 @@ class Economy(commands.Cog):
             embed = discord.Embed(title=lang["economy_adjust_subtract_msg"].format(user, abs(value), self.currency_symbol), color=self.embed_color)
         await ctx.send(embed=embed)
 
-    @commands.command(name="give", description=main.lang["command_give_description"], usage="<user> <amount>")
+    @commands.command(name="give", description=main.lang["command_give_description"], usage="<amount> <user>")
     @commands.guild_only()
-    async def give(self, ctx, user: discord.User, number: int):
+    async def give(self, ctx, number: int, *, user: discord.User):
         author = ctx.author
         author_info = await user_get(author.id)
         user_info = await user_get(user.id)
@@ -127,6 +128,7 @@ class Economy(commands.Cog):
             if user_info['currency'] <= 0 or number > user_info['currency']:
                 embed = discord.Embed(title=lang["economy_insufficient_funds"], color=self.embed_color)
             else:
+                random.seed()
                 number_gen = random.randrange(0, 100)
                 multiplier = 1
                 if number_gen < 60:
@@ -191,5 +193,46 @@ class Economy(commands.Cog):
             message = await ctx.channel.fetch_message(message_id)
             await ctx.channel.delete_messages([message])
 
+    @commands.command(name='duel', description=main.lang["command_duel_description"], usage="<amount> <user>")
+    @commands.guild_only()
+    async def economy_duel(self, ctx, number: int, *, user: discord.User):
+        if number > 0:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if ctx.author.id != user.id:
+                author_info = await user_get(ctx.author.id)
+                target_info = await user_get(user.id)
+                if number <= author_info['currency']:
+                    if number <= target_info['currency']:
+                        await ctx.send(embed = discord.Embed(title=lang["economy_duel_confirm_title"], 
+                                description=lang["economy_duel_confirm_description"].format("\U0001F94A", user.mention, ctx.author.mention, number, self.currency_symbol), 
+                                color = self.embed_color))
+                        try:
+                            msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == user, timeout=120.0)
+                            if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
+                                random.seed()
+                                result = random.randint(0, 1)
+                                if result == 0:
+                                    # Opponent wins
+                                    author_info['currency'] -= number
+                                    target_info['currency'] += number
+                                    embed = discord.Embed(description=lang["economy_duel_result"].format("\U0001F3C6", user.mention, number, self.currency_symbol), color = self.embed_color)
+                                else:
+                                    # Author wins
+                                    author_info['currency'] += number
+                                    target_info['currency'] -= number
+                                    embed = discord.Embed(description=lang["economy_duel_result"].format("\U0001F3C6", ctx.author.mention, number, self.currency_symbol), color = self.embed_color)
+                                await user_set(ctx.author.id, author_info)
+                                await user_set(user.id, target_info)
+                                await ctx.send(embed=embed)
+                            else:
+                                await ctx.send(lang["economy_duel_cancel"].format(ctx.author.mention, str(user)))
+                        except asyncio.TimeoutError:
+                            await ctx.send(lang["economy_duel_timeout"].format(ctx.author.mention))
+                    else:
+                        await ctx.send(lang["economy_duel_target_no_funds"].format(ctx.author.mention))
+                else:
+                    await ctx.send(lang["economy_duel_author_no_funds"].format(ctx.author.mention))
+            else:
+                await ctx.send(lang["economy_duel_duel_self"].format(ctx.author.mention))
 def setup(bot):
     bot.add_cog(Economy(bot))

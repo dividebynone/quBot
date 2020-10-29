@@ -42,10 +42,13 @@ class Core(commands.Cog):
         self.right = '➡️'
         self.pagination_timeout = '⏹️'
 
+        self.export_stats.start() # pylint: disable=no-member
+
         print(f'Module {self.__class__.__name__} loaded')
 
     def cog_unload(self):
         self.botstats_loop.cancel() # pylint: disable=no-member
+        self.export_stats.cancel() # pylint: disable=no-member
 
     def predicate(self, message, l, r):
         def check(reaction, user):
@@ -89,7 +92,35 @@ class Core(commands.Cog):
 
     @tasks.loop(hours=24.0, reconnect=True)
     async def export_stats(self):
-        pass
+        # Loading JSON data
+        if not os.path.exists(os.path.join(bot_path, 'exports', 'stats.json')):
+            with open(os.path.join(bot_path, 'exports', 'stats.json'), 'w') as json_file: 
+                json.dump({}, json_file)
+            json_file.close()
+           
+        with open(os.path.join(bot_path, 'exports', 'stats.json'), 'r') as json_file:
+            json_data = json.load(json_file)
+        json_file.close()
+
+        # Adding data to JSON file
+        date = datetime.utcnow().date()
+        if str(date) not in json_data:
+            process = psutil.Process(os.getpid())
+            users = 0
+            for guild in self.bot.guilds:
+                users += guild.member_count
+
+            json_data[str(date)] = {
+                'guilds': len(self.bot.guilds),
+                'users': users,
+                'shards': len(self.bot.latencies),
+                'memory': "%.4f" % (process.memory_info().rss / 1000000),
+            }
+
+        # Saving JSON data
+        with open(os.path.join(bot_path, 'exports', 'stats.json'), 'w') as json_file: 
+            json.dump(json_data, json_file, indent=4, ensure_ascii=True, sort_keys=True, separators=(',', ': '))
+        json_file.close()
 
     @commands.command(cls=ExtendedCommand, name='load', help=main.lang["command_module_help"], description=main.lang["command_load_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()

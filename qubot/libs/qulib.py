@@ -183,38 +183,6 @@ def humanize_time(lang, time, accuracy=3, past=False):
         return lang["now_string"]
     else:
         return structured.format(humanize_join(output, lang["and_string"]))
-    # then = now - delta
-    # diff = now - then
-
-    # if diff.days < 0:
-    #     return None
-
-    # humanized_seconds = plural(delta.seconds, lang["second_string"], lang["seconds_string"])
-    # humanized_minutes = plural(delta.minutes, lang["minute_string"], lang["minutes_string"])
-    # humanized_hours = plural(delta.hours, lang["hour_string"], lang["hours_string"])
-    # print(f"{time} - {diff.days}")
-    # if diff.days == 0:
-    #     if diff.seconds < 60:
-    #         return structured.format(humanized_seconds)
-    #     if diff.seconds < 3600:
-    #         return structured.format(f'{humanized_minutes} {lang["and_string"]} {humanized_seconds}')
-    #     if diff.seconds < 86400:
-    #         return structured.format(f'{humanized_hours}, {humanized_minutes} {lang["and_string"]} {humanized_seconds}')
-
-    # humanized_days = plural(delta.days, lang["day_string"], lang["days_string"])
-    # if diff.days < 7:
-    #     return structured.format(f'{humanized_days}, {humanized_hours} {lang["and_string"]} {humanized_minutes}')
-    
-    # humanized_weeks = plural(delta.weeks, lang["week_string"], lang["weeks_string"])
-    # if diff.days < 31:
-    #     return structured.format(f'{humanized_weeks}, {humanized_days} {lang["and_string"]} {humanized_hours}')
-
-    # humanized_months = plural(delta.months, lang["month_string"], lang["months_string"])
-    # if diff.days < 366:
-    #     return structured.format(f'{humanized_months}, {humanized_weeks} {lang["and_string"]} {humanized_days}')
-
-    # humanized_years = plural(delta.years, lang["year_string"], lang["years_string"])
-    # return structured.format(f'{humanized_years}, {humanized_months} {lang["and_string"]} {humanized_weeks}')
 
 # Extended Command
 
