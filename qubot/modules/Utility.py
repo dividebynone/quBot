@@ -2,7 +2,7 @@ from discord.ext import commands
 from main import bot_starttime
 from main import modules as loaded_modules
 from datetime import datetime
-from libs.qulib import ExtendedCommand
+from libs.qulib import ExtendedCommand, ExtendedGroup
 import libs.qulib as qulib
 import main
 import discord
@@ -13,7 +13,7 @@ class Utility(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.embed_color =  0xb405e3
+        self.embed_color =  0xaa6cba
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -23,6 +23,13 @@ class Utility(commands.Cog):
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
         print(f'Module {self.__class__.__name__} loaded')
+
+    # Method used internally to shorten the user list if it exceeds a set number of lines
+    def slice_userlist(self, istring: str, lines: int, langset):
+        if istring.count('\n') > lines:
+            other_count = istring.count('\n') - lines
+            istring = '\n'.join(istring.split('\n')[:lines]) + "\n(+ {} {})".format(other_count, langset["others_string"] if other_count > 1 else langset["other_string"])
+        return istring
 
     @commands.command(name='avatar', help=main.lang["command_avatar_help"], description=main.lang["command_avatar_description"], usage="<user>")
     async def avatar(self, ctx, *, user: discord.User = None):
@@ -96,13 +103,68 @@ class Utility(commands.Cog):
         random.seed()
         ball_answer = random.randrange(1,21)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang[f"utility_8ball_{ball_answer}"], color=self.embed_color))
+        await ctx.send(embed = discord.Embed(description=f'\U0001F3B1 {lang[f"utility_8ball_{ball_answer}"]}', color=self.embed_color))
 
     @commands.command(name='choose', description=main.lang["command_choose_description"], usage="item 1; item 2; item 3...", aliases=['pick'])
     async def choose_random_items(self, ctx, *, choices: str):
         items = choices.split(';')
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["utility_choose_msg"].format(secrets.choice(items).lstrip()), color=self.embed_color))
+        await ctx.send(embed = discord.Embed(description=lang["utility_choose_msg"].format("\U0001F3B2", secrets.choice(items).lstrip()), color=self.embed_color))
+
+    @commands.cooldown(5, 30, commands.BucketType.user)
+    @commands.group(cls=ExtendedGroup, name='massnick', invoke_without_command=True, description=main.lang["command_massnick_description"], usage="<user(s)> <nickname>", aliases=['mnick'], permissions=['Administrator'])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def mass_nickname(self, ctx, members: commands.Greedy[discord.Member], *, nickname: str):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            if members:
+                output = ""
+                for member in members:
+                    try:
+                        await member.edit(nick=nickname)
+                        output += f'{str(member)} ({member.mention})\n'
+                    except discord.Forbidden:
+                        pass
+                await ctx.message.delete()
+
+                output = self.slice_userlist(output, 20, lang)
+                if len(output.strip()) > 0:
+                    embed = discord.Embed(title=lang["utility_massnick_embed_title"], description=lang["utility_massnick_embed_desc"].format(nickname), timestamp=datetime.utcnow(), color=self.embed_color)
+                    embed.add_field(name=lang["users_string"], value=output or lang["empty_string"], inline=True)
+                    embed.set_footer(text=lang["utility_massnick_embed_footer"].format(str(ctx.author)))
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send(lang["utility_massnick_empty"].format(ctx.author.mention), delete_after=15)
+            else:
+                await ctx.send(lang["utility_massnick_not_found"].format(ctx.author.mention), delete_after=15)
+
+    @commands.cooldown(5, 30, commands.BucketType.user)
+    @mass_nickname.command(cls=ExtendedCommand, name='reset', description=main.lang["command_massnick_reset_description"], usage="<user(s)>", aliases=['remove'], permissions=['Administrator'])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def mass_nickname_reset(self, ctx, members: commands.Greedy[discord.Member]):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if members:
+            output = ""
+            for member in members:
+                try:
+                    await member.edit(nick=None)
+                    output += f'{str(member)} ({member.mention})\n'
+                except discord.Forbidden:
+                    pass
+            await ctx.message.delete()
+
+            output = self.slice_userlist(output, 20, lang)
+            if len(output.strip()) > 0:
+                embed = discord.Embed(title=lang["utility_massnick_reset_embed_title"], description=lang["utility_massnick_reset_embed_desc"], timestamp=datetime.utcnow(), color=self.embed_color)
+                embed.add_field(name=lang["users_string"], value=output or lang["empty_string"], inline=True)
+                embed.set_footer(text=lang["utility_massnick_reset_embed_footer"].format(str(ctx.author)))
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send(lang["utility_massnick_empty"].format(ctx.author.mention), delete_after=15)
+        else:
+            await ctx.send(lang["utility_massnick_not_found"].format(ctx.author.mention), delete_after=15)
 
 def setup(bot):
     bot.add_cog(Utility(bot))

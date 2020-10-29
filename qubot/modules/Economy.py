@@ -234,5 +234,6 @@ class Economy(commands.Cog):
                     await ctx.send(lang["economy_duel_author_no_funds"].format(ctx.author.mention))
             else:
                 await ctx.send(lang["economy_duel_duel_self"].format(ctx.author.mention))
+
 def setup(bot):
     bot.add_cog(Economy(bot))
