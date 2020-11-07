@@ -45,7 +45,7 @@ class Voting(commands.Cog):
 
         with open(os.path.join(bot_path, 'config.ini'), 'r', encoding="utf_8") as config_file:
             config.read_file(config_file)
-            self.daily_amount = int(config.get('Economy', 'DailyAmount'))
+            self.vote_reward = int(int(config.get('Economy', 'DailyAmount')) / 2)
             self.currency_symbol = config.get('Economy', 'CurrencySymbol')
         config_file.close()
 
@@ -111,7 +111,7 @@ class Voting(commands.Cog):
             user = self.bot.get_user(int(data['user']))
             if user is not None:
                 isWeekend = bool(data['isWeekend'])
-                reward = self.daily_amount if isWeekend else int(self.daily_amount/2)
+                reward = int(self.vote_reward * 2) if isWeekend else self.vote_reward
 
                 voting_info, vote_multiplier = await self.vote_handler(user.id, reward)
                 if voting_info:
@@ -128,9 +128,9 @@ class Voting(commands.Cog):
                     data = await request.json()
                     user = self.bot.get_user(int(data['id']))
                     if user is not None:
-                        voting_info, vote_multiplier = await self.vote_handler(user.id, self.daily_amount)
+                        voting_info, vote_multiplier = await self.vote_handler(user.id, self.vote_reward)
                         if voting_info:
-                            await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.daily_amount * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+                            await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
                             return web.Response()
                 else:
                     return web.Response(status=401)
@@ -164,15 +164,15 @@ class Voting(commands.Cog):
     async def vote_command(self, ctx):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.send(embed = discord.Embed(title=lang["voting_vote_embed_title"], description=lang["voting_vote_embed_description"].format(self.daily_amount, self.currency_symbol), color = self.embed_color))
+            await ctx.send(embed = discord.Embed(title=lang["voting_vote_embed_title"], description=lang["voting_vote_embed_description"].format(self.vote_reward, self.currency_symbol), color = self.embed_color))
 
     @vote_command.command(cls=ExtendedCommand, name='test', description=main.lang["command_vote_test_description"], hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def vote_test(self, ctx):
-        voting_info, vote_multiplier = await self.vote_handler(ctx.author.id, self.daily_amount)
+        voting_info, vote_multiplier = await self.vote_handler(ctx.author.id, self.vote_reward)
         if voting_info:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.author.send(embed = discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.daily_amount * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+            await ctx.author.send(embed = discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
 
     async def vote_handler(self, user_id: int, vote_amount: int):
         try:

@@ -674,7 +674,7 @@
     "version_string": "Version",
     "voting_user_vote_embed_description": "Thank you for supporting this bot on **{}**!\nAs a reward, you were given **{}** {} **(Combo: {})**\n\n*Your combo resets if you don't vote within 48 hours of your last vote*",
     "voting_user_vote_embed_title": "Thank you for voting!",
-    "voting_vote_embed_description": "Voting is one of the ways you can directly support me and my creator. We are grateful to every single one of you doing so.\n\n1) **Discordbotlist.com:** [Click here](https://discordbotlist.com/bots/qubot/upvote) (24 hour cooldown)\n\n**Voting will reward the following:**\n\u2022 **Discordbotlist.com** - {} {}",
+    "voting_vote_embed_description": "Voting is one of the ways you can directly support me and my creator. We are grateful to every single one of you doing so.\n\n1) **Discordbotlist.com:** [Click here](https://discordbotlist.com/bots/qubot/upvote) (12 hour cooldown)\n\n**Voting will reward the following:**\n\u2022 **Discordbotlist.com** - {} {}",
     "voting_vote_embed_title": "Voting",
     "wait_for_cancelled": "The confirmation was cancelled by the user.",
     "wait_for_timeout": "Failed to respond to the command within the given time limit.",
