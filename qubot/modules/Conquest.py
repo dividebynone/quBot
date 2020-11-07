@@ -30,10 +30,10 @@ class Conquest(commands.Cog):
         self.rename_price = 500
         self.sname_limit = 50
 
-        self.daily_cloth_price = rand_generator.randint(5,40)
-        self.daily_wood_price = rand_generator.randint(5,40)
-        self.daily_stone_price = rand_generator.randint(5,40)
-        self.daily_food_price = rand_generator.randint(5,40)
+        self.daily_cloth_price = rand_generator.randint(15,25)
+        self.daily_wood_price = rand_generator.randint(15,25)
+        self.daily_stone_price = rand_generator.randint(15,25)
+        self.daily_food_price = rand_generator.randint(15,25)
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
