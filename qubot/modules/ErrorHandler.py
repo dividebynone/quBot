@@ -4,11 +4,12 @@ import main
 import discord
 import asyncio
 
+
 class ErrorHandler(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.module_embed_color =  0xc10000
+        self.module_embed_color = 0xc10000
         print(f'Module {self.__class__.__name__} loaded')
 
         # Module configuration
@@ -29,10 +30,10 @@ class ErrorHandler(commands.Cog):
 
         if isinstance(error, ignored):
             return
-        
+
         # elif isinstance(error, commands.DisabledCommand):
         #     embed = discord.Embed(title=main.lang["errorhandler_dcmd"].format(ctx.command), color=self.module_embed_color)
-        
+
         elif isinstance(error, commands.CommandOnCooldown):
             embed = discord.Embed(title=main.lang["errorhandler_cooldown"].format(ctx.command, "%.1f" % error.retry_after), color=self.module_embed_color)
 
@@ -44,6 +45,7 @@ class ErrorHandler(commands.Cog):
 
         if embed:
             await ctx.send(embed=embed, delete_after=15)
+
 
 def setup(bot):
     bot.add_cog(ErrorHandler(bot))

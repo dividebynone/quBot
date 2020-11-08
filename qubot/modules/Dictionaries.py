@@ -1,17 +1,15 @@
 from discord.ext import commands
-from main import bot_starttime
-from main import modules as loaded_modules
 from libs.qudict import quDict
 import libs.qulib as qulib
 import main
 import discord
-import random
+
 
 class Dictionaries(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.embed_color =  0x80e093
+        self.embed_color = 0x80e093
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -72,6 +70,7 @@ class Dictionaries(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send(lang["dictionaries_word_not_found"])
+
 
 def setup(bot):
     bot.add_cog(Dictionaries(bot))

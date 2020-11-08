@@ -1,12 +1,15 @@
 from bs4 import BeautifulSoup
-import requests, re
+import requests
+import re
+
 
 async def get_soup_object(url):
-	    return BeautifulSoup(requests.get(url).text, features="html.parser")
+    return BeautifulSoup(requests.get(url).text, features="html.parser")
+
 
 class quDict(object):
 
-    @staticmethod #Modified version of PyDictionary meaning method (Will be used until I find a better dictionary to scape definitions from)
+    @staticmethod  # Modified version of PyDictionary meaning method (Will be used until I find a better dictionary to scape definitions from)
     async def get_top_meanings(input: str, limit_per: int = 3):
         input = input.replace(" ", "+")
         try:
@@ -66,9 +69,9 @@ class quDict(object):
             result = []
             for item in data:
                 definition = item["definition"]
-                for ch in ['[',']']:
+                for ch in ['[', ']']:
                     if ch in definition:
-                        definition = definition.replace(ch,"**")
+                        definition = definition.replace(ch, "**")
                 result.append(definition)
             return result
         except Exception as ex:

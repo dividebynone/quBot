@@ -2,11 +2,13 @@ from setuptools import setup
 import json
 import os
 
+
 def data_get():
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qubot', 'data','data.json'), 'r') as json_file:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qubot', 'data', 'data.json'), 'r') as json_file:
         json_data = json.load(json_file)
     json_file.close()
     return json_data
+
 
 requirements = []
 with open('requirements.txt') as reqs_file:
@@ -24,7 +26,7 @@ required_extras = {
     ]
 }
 
-json_data = data_get() #TODO: Refactor version retrieval
+json_data = data_get()  # TODO: Refactor version retrieval
 version = json_data["appVersion"]
 
 setup(name='quBot',
@@ -34,16 +36,15 @@ setup(name='quBot',
       long_description=readme,
       long_description_content_type="text/markdown",
       version=version,
-      license='MIT',
+      license='GPL-3.0 License',
       include_package_data=True,
       install_requires=requirements,
       extras_require=required_extras,
-      python_requires='>=3.7.3',
+      python_requires='>=3.8.2',
       classifiers=[
-        'License :: OSI Approved :: MIT License',
-        'Intended Audience :: Developers',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.7',
-      ]
-)
+                  'License :: OSI Approved :: MIT License',
+                  'Intended Audience :: Developers',
+                  'Natural Language :: English',
+                  'Operating System :: OS Independent',
+                  'Programming Language :: Python :: 3.7',
+      ])

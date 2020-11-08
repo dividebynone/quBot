@@ -1,6 +1,5 @@
 from discord.ext import commands
 from main import bot_starttime
-from main import modules as loaded_modules
 from datetime import datetime
 from libs.qulib import ExtendedCommand, ExtendedGroup
 import libs.qulib as qulib
@@ -9,11 +8,12 @@ import discord
 import secrets
 import random
 
+
 class Utility(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.embed_color =  0xaa6cba
+        self.embed_color = 0xaa6cba
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -43,13 +43,13 @@ class Utility(commands.Cog):
     async def roll(self, ctx, number: int = 100):
         random.seed()
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["utility_roll_msg"].format(random.randrange(number + 1)), color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["utility_roll_msg"].format(random.randrange(number + 1)), color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name='uptime', description=main.lang["command_uptime_description"], ignore_extra=True, permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     async def uptime(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["utility_uptime_msg"].format(qulib.humanize_time(lang, bot_starttime)), color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["utility_uptime_msg"].format(qulib.humanize_time(lang, bot_starttime)), color=self.embed_color))
 
     @commands.command(name='userinfo', help=main.lang["command_uinfo_help"], description=main.lang["command_uinfo_description"], usage="<user>", aliases=['uinfo'])
     @commands.guild_only()
@@ -60,7 +60,7 @@ class Utility(commands.Cog):
         user_created_at = user.created_at.strftime("%d %b %Y %H:%M:%S")
         user_joined_at = user.joined_at.strftime("%d %b %Y %H:%M:%S")
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=f'{user}', color = self.embed_color)
+        embed = discord.Embed(title=f'{user}', color=self.embed_color)
         embed.set_thumbnail(url="{}".format(user.avatar_url))
         embed.add_field(name=lang["utility_uinfo_id"], value=user.id, inline=True)
         embed.add_field(name=lang["utility_uinfo_nickname"], value=user.nick, inline=True)
@@ -82,11 +82,11 @@ class Utility(commands.Cog):
                 shards_guild_counter += 1
                 total_guild_users += guild.member_count
                 if guild.shard_id == shard[0]:
-                    current_shard_latency = "%.4f" % float(shard[1]*1000)
+                    current_shard_latency = "%.4f" % float(shard[1] * 1000)
 
         app_info = await self.bot.application_info()
 
-        embed = discord.Embed(title=lang["utility_binfo_title"] ,color = self.embed_color)
+        embed = discord.Embed(title=lang["utility_binfo_title"], color=self.embed_color)
         embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
         embed.add_field(name=lang["utility_binfo_bname"], value=app_info.name, inline=True)
         embed.add_field(name=lang["owner_string"], value=str(app_info.owner), inline=True)
@@ -101,15 +101,15 @@ class Utility(commands.Cog):
     @commands.command(name='8ball', description=main.lang["command_8ball_description"], usage="<question>", aliases=['8b'])
     async def eight_ball(self, ctx, *, string: str):
         random.seed()
-        ball_answer = random.randrange(1,21)
+        ball_answer = random.randrange(1, 21)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(description=f'\U0001F3B1 {lang[f"utility_8ball_{ball_answer}"]}', color=self.embed_color))
+        await ctx.send(embed=discord.Embed(description=f'\U0001F3B1 {lang[f"utility_8ball_{ball_answer}"]}', color=self.embed_color))
 
     @commands.command(name='choose', description=main.lang["command_choose_description"], usage="item 1; item 2; item 3...", aliases=['pick'])
     async def choose_random_items(self, ctx, *, choices: str):
         items = choices.split(';')
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(description=lang["utility_choose_msg"].format("\U0001F3B2", secrets.choice(items).lstrip()), color=self.embed_color))
+        await ctx.send(embed=discord.Embed(description=lang["utility_choose_msg"].format("\U0001F3B2", secrets.choice(items).lstrip()), color=self.embed_color))
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.group(cls=ExtendedGroup, name='massnick', invoke_without_command=True, description=main.lang["command_massnick_description"], usage="<user(s)> <nickname>", aliases=['mnick'], permissions=['Administrator'])
@@ -165,6 +165,7 @@ class Utility(commands.Cog):
                 await ctx.send(lang["utility_massnick_empty"].format(ctx.author.mention), delete_after=15)
         else:
             await ctx.send(lang["utility_massnick_not_found"].format(ctx.author.mention), delete_after=15)
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))

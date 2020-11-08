@@ -5,21 +5,22 @@ import libs.localizations as localizations
 import configparser
 import discord
 import logging
-import sqlite3
 import json
 import sys
 import os
 
-#-----------------------------------#
+# ----------------------------------- #
 # Utility functions
 
+
 def is_venv():
-    return (hasattr(sys, 'real_prefix') or
-            (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
+    return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+
 
 def makefolders(root_path, folders_list):
     for folder in folders_list:
         os.makedirs(os.path.join(root_path, folder), exist_ok=True)
+
 
 def safe_cast(value, to_type, default=None):
     try:
@@ -27,12 +28,11 @@ def safe_cast(value, to_type, default=None):
     except (ValueError, TypeError):
         return default
 
-#-----------------------------------#
+# ----------------------------------- #
 # Path checks and initalization
 
-bot_path = os.path.dirname(os.path.realpath(__file__))
 
-#TODO: Move directory creation outside of main script file
+bot_path = os.path.dirname(os.path.realpath(__file__))
 
 subfolders = {'databases', 'data', 'data/localization', 'data/images', 'logs', 'libs', 'modules'}
 makefolders(bot_path, subfolders)
@@ -40,7 +40,7 @@ makefolders(bot_path, subfolders)
 open(os.path.join(bot_path, 'libs', '__init__.py'), 'a').close()
 open(os.path.join(bot_path, 'modules', '__init__.py'), 'a').close()
 
-#-----------------------------------#
+# ----------------------------------- #
 # Main config file initialization
 
 if not os.path.isfile(os.path.join(bot_path, 'config.ini')):
@@ -73,10 +73,11 @@ else:
         log_days_delete = config.get('Logging', 'LogsAutoDeleteDays')
         config_file.close()
 
-#-----------------------------------#
+# ----------------------------------- #
 # Logging initialization
 
-logging_dict = {'CRITICAL': 50, 'ERROR': 40, 'WARNING': 30, 'INFO': 20, 'DEBUG':10}
+
+logging_dict = {'CRITICAL': 50, 'ERROR': 40, 'WARNING': 30, 'INFO': 20, 'DEBUG': 10}
 date_today = datetime.today().replace(microsecond=0)
 date_today = date_today.strftime("%d-%m-%Y-%Hh-%Mm-%Ss")
 logger = logging.getLogger('discord')
@@ -90,8 +91,8 @@ log_handler = logging.FileHandler(filename=os.path.join(bot_path, f'logs/log-{da
 log_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(log_handler)
 
-#-----------------------------------#
-#JSON files initialization/writing/loading
+# ----------------------------------- #
+# JSON files initialization/writing/loading
 
 with open(os.path.join(bot_path, f'data/localization/language_{languagecode}.json'), 'r', encoding="utf_8") as json_file:
     lang = json.load(json_file)
@@ -103,8 +104,9 @@ json_file.close()
 
 version = json_data["appVersion"]
 
-#-----------------------------------#
-#Localization
+# ----------------------------------- #
+# Localization
+
 
 def get_lang(guild_id: int):
     localization = localizations.Localizations()
@@ -114,13 +116,14 @@ def get_lang(guild_id: int):
     json_file.close()
     return return_dict
 
-#-----------------------------------#
-#Creating modules.mdls to store loaded modules
+# ----------------------------------- #
+# Creating modules.mdls to store loaded modules
+
 
 if not os.path.isfile(os.path.join(bot_path, 'data', 'modules.mdls')):
     with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'w') as modules_file:
         print("[modules.mdls] file not found. Creating a new file")
-        #The core module is added upon file creation
+        # The core module is added upon file creation
         modules_file.write("Core\n")
         modules_file.close()
 
@@ -132,8 +135,9 @@ module_directory_list = [os.path.splitext(i)[0] for i in os.listdir(os.path.join
 modules = [x for x in modules_list if x in module_directory_list]
 modules = [f'modules.{x}' for x in modules]
 
-#-----------------------------------#
-#Deleting old logs. All logs older than a week will be deleted by default
+# ----------------------------------- #
+# Deleting old logs. All logs older than a week will be deleted by default
+
 
 def old_logs_delete(days_int: int = 7):
     datetime_seconds = (datetime.now() - timedelta(days=days_int)).timestamp()
@@ -146,30 +150,34 @@ def old_logs_delete(days_int: int = 7):
             print(f'The system has deleted [{file_}]: The file was either marked for autodeletion or empty.')
     os.chdir(bot_path)
 
-#-----------------------------------#
-#Bot Server Prefixes
+# ----------------------------------- #
+# Bot Server Prefixes
+
 
 def get_prefix(bot, message):
     prefixes = prefixhandler.PrefixHandler()
     return_prefix = prefixes.get_prefix(message.guild.id, prefix) if message.guild else prefix
     return commands.when_mentioned_or(return_prefix)(bot, message)
 
-#-----------------------------------#
-#Bot initialization
+# ----------------------------------- #
+# Bot initialization
+
 
 intents = discord.Intents.default()
 intents.guilds = True
 intents.members = True
-bot = commands.AutoShardedBot(command_prefix = get_prefix, intents=intents)
+bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents)
 bot_starttime = datetime.today().replace(microsecond=0)
 
-#-----------------------------------#
-#Bot startup events
+# ----------------------------------- #
+# Bot startup events
+
 
 @bot.event
 async def on_shard_ready(shard_id):
     print(f'Shard {shard_id} ready.')
- 
+
+
 @bot.event
 async def on_ready():
     print("The bot has sucessfully established a connection with Discord API. Booting up...")
@@ -178,17 +186,18 @@ async def on_ready():
         server_count += 1
     print("Bot is currently in {} servers".format(server_count))
 
-#-----------------------------------#
+# ----------------------------------- #
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
 
     old_logs_delete(int(log_days_delete))
 
-    #virtualenv check
+    # Checking if the application is running in a virtual environment
     if is_venv():
         print('This bot is currently running inside a virtual environment.')
 
-    #Loading bot modules
+    # Loading bot modules
     for module in modules:
         try:
             bot.load_extension(module)
@@ -202,16 +211,6 @@ if __name__=="__main__":
                 print("Retrying to load {}".format(module))
                 bot.load_extension(module)
 
-    #Run
+    # Run
     print("Bot starting up in directory {}".format(bot_path))
     bot.run(tokenid)
-    
-
-
-
-        
-
-
-
-
-

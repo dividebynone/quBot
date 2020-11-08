@@ -7,17 +7,17 @@ import datetime as dt
 import libs.qulib as qulib
 from main import config
 import main
-import configparser
 import discord
 import asyncio
 import random
 import os
 
+
 class Economy(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.embed_color =  0x28b463
+        self.embed_color = 0x28b463
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -36,7 +36,7 @@ class Economy(commands.Cog):
                 config.set('Economy', 'CurrencySymbol', '💵')
             if 'DailyAmount' not in config['Economy']:
                 config.set('Economy', 'DailyAmount', '100')
-        
+
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
             config.write(config_file)
         config_file.close()
@@ -62,27 +62,27 @@ class Economy(commands.Cog):
             daily = datetime.strptime(author_info['daily_time'], '%Y-%m-%d %H:%M:%S')
             daily_active = daily + dt.timedelta(days=1)
             if time_on_command < daily_active:
-                await ctx.send(embed = discord.Embed(title=lang["economy_daily_claimed_title"], 
-                               description=lang["economy_daily_claimed_description"].format(f'**{qulib.humanize_time(lang, daily_active)}**'), 
+                await ctx.send(embed=discord.Embed(title=lang["economy_daily_claimed_title"],
+                               description=lang["economy_daily_claimed_description"].format(f'**{qulib.humanize_time(lang, daily_active)}**'),
                                color=self.embed_color))
-                return 
+                return
         if user.id is ctx.author.id:
             author_info['currency'] += self.daily_amount
             embed = discord.Embed(title=lang["economy_daily_received"].format(user, self.daily_amount, self.currency_symbol), color=self.embed_color)
         else:
-            user_info['currency'] += self.daily_amount         
+            user_info['currency'] += self.daily_amount
             await user_set(user.id, user_info)
             embed = discord.Embed(title=lang["economy_daily_gifted"].format(ctx.author, self.daily_amount, self.currency_symbol, user), color=self.embed_color)
         author_info['daily_time'] = time_on_command
         await user_set(ctx.author.id, author_info)
         await ctx.send(embed=embed)
-    
-    @commands.command(name="currency", help=main.lang["command_currency_help"], description=main.lang["command_currency_description"], usage="{user}", aliases=['$', 'money','cash','balance'])
+
+    @commands.command(name="currency", help=main.lang["command_currency_help"], description=main.lang["command_currency_description"], usage="{user}", aliases=['$', 'money', 'cash', 'balance'])
     async def currency(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         user_info = await user_get(user.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["economy_currency_return_msg"].format(user, user_info['currency'], self.currency_symbol), color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["economy_currency_return_msg"].format(user, user_info['currency'], self.currency_symbol), color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name="adjust", description=main.lang["command_adjust_description"], usage="<amount> <user>", permissions=['Bot Owner'])
     @commands.is_owner()
@@ -138,11 +138,11 @@ class Economy(commands.Cog):
                     embed = discord.Embed(title=lang["economy_betroll_msg"].format(number_gen, number, self.currency_symbol), color=self.embed_color)
                 elif number_gen < 100:
                     multiplier = 4
-                    embed = discord.Embed(title=lang["economy_betroll_msg"].format(number_gen, multiplier*number, self.currency_symbol), color=self.embed_color)
+                    embed = discord.Embed(title=lang["economy_betroll_msg"].format(number_gen, multiplier * number, self.currency_symbol), color=self.embed_color)
                 else:
                     multiplier = 10
-                    embed = discord.Embed(title=lang["economy_betroll_jackpot"].format(number_gen, multiplier*number, self.currency_symbol), color=self.embed_color)
-                user_info['currency'] += multiplier*number
+                    embed = discord.Embed(title=lang["economy_betroll_jackpot"].format(number_gen, multiplier * number, self.currency_symbol), color=self.embed_color)
+                user_info['currency'] += multiplier * number
                 await user_set(user.id, user_info)
             await ctx.send(embed=embed)
 
@@ -203,9 +203,9 @@ class Economy(commands.Cog):
                 target_info = await user_get(user.id)
                 if number <= author_info['currency']:
                     if number <= target_info['currency']:
-                        await ctx.send(embed = discord.Embed(title=lang["economy_duel_confirm_title"], 
-                                description=lang["economy_duel_confirm_description"].format("\U0001F94A", user.mention, ctx.author.mention, number, self.currency_symbol), 
-                                color = self.embed_color))
+                        await ctx.send(embed=discord.Embed(title=lang["economy_duel_confirm_title"],
+                                       description=lang["economy_duel_confirm_description"].format("\U0001F94A", user.mention, ctx.author.mention, number, self.currency_symbol),
+                                       color=self.embed_color))
                         try:
                             msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == user, timeout=120.0)
                             if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
@@ -215,12 +215,12 @@ class Economy(commands.Cog):
                                     # Opponent wins
                                     author_info['currency'] -= number
                                     target_info['currency'] += number
-                                    embed = discord.Embed(description=lang["economy_duel_result"].format("\U0001F3C6", user.mention, number, self.currency_symbol), color = self.embed_color)
+                                    embed = discord.Embed(description=lang["economy_duel_result"].format("\U0001F3C6", user.mention, number, self.currency_symbol), color=self.embed_color)
                                 else:
                                     # Author wins
                                     author_info['currency'] += number
                                     target_info['currency'] -= number
-                                    embed = discord.Embed(description=lang["economy_duel_result"].format("\U0001F3C6", ctx.author.mention, number, self.currency_symbol), color = self.embed_color)
+                                    embed = discord.Embed(description=lang["economy_duel_result"].format("\U0001F3C6", ctx.author.mention, number, self.currency_symbol), color=self.embed_color)
                                 await user_set(ctx.author.id, author_info)
                                 await user_set(user.id, target_info)
                                 await ctx.send(embed=embed)
@@ -234,6 +234,7 @@ class Economy(commands.Cog):
                     await ctx.send(lang["economy_duel_author_no_funds"].format(ctx.author.mention))
             else:
                 await ctx.send(lang["economy_duel_duel_self"].format(ctx.author.mention))
+
 
 def setup(bot):
     bot.add_cog(Economy(bot))

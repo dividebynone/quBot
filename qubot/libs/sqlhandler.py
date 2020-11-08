@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class sqlconnect(object):
     def __init__(self, path):
         self.path = path

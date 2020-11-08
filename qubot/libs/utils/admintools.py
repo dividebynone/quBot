@@ -3,6 +3,7 @@ from main import bot_path
 import enum
 import os
 
+
 class Reports(object):
 
     def __init__(self):
@@ -24,7 +25,8 @@ class Reports(object):
     @classmethod
     async def disable(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("DELETE FROM reports WHERE guild_id=?",(guild_id,))
+            cursor.execute("DELETE FROM reports WHERE guild_id=?", (guild_id,))
+
 
 class Warnings(object):
 
@@ -35,37 +37,38 @@ class Warnings(object):
     @classmethod
     async def add_warning(self, user_id: int, warning: str, warned_by: int, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("INSERT INTO warnings (user_id, warning, warned_by, guild_id) VALUES(?, ?, ?, ?)", (user_id, warning, warned_by,guild_id,))
+            cursor.execute("INSERT INTO warnings (user_id, warning, warned_by, guild_id) VALUES(?, ?, ?, ?)", (user_id, warning, warned_by, guild_id,))
 
     @classmethod
     async def get_warnings(self, guild_id: int, user_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT warning, warned_by FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
+            cursor.execute("SELECT warning, warned_by FROM warnings WHERE guild_id=? AND user_id=?", (guild_id, user_id,))
             output = cursor.fetchall()
             return output
 
     @classmethod
     async def get_warning_count(self, guild_id: int, user_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT COUNT(ALL warning) FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
+            cursor.execute("SELECT COUNT(ALL warning) FROM warnings WHERE guild_id=? AND user_id=?", (guild_id, user_id,))
             output = cursor.fetchone()
             return int(output[0]) if output else 0
 
     @classmethod
     async def reset_warnings(self, guild_id: int, user_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("DELETE FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
+            cursor.execute("DELETE FROM warnings WHERE guild_id=? AND user_id=?", (guild_id, user_id,))
 
     @classmethod
     async def delete_warning(self, guild_id: int, user_id: int, index: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT rowid FROM warnings WHERE guild_id=? AND user_id=?",(guild_id, user_id,))
+            cursor.execute("SELECT rowid FROM warnings WHERE guild_id=? AND user_id=?", (guild_id, user_id,))
             output = cursor.fetchall()
             if output and (index + 1) <= len(output):
                 rowid = int(output[index][0])
-                cursor.execute("DELETE FROM warnings WHERE rowid=? AND guild_id=? AND user_id=?",(rowid, guild_id, user_id,))
+                cursor.execute("DELETE FROM warnings WHERE rowid=? AND guild_id=? AND user_id=?", (rowid, guild_id, user_id,))
             else:
-                raise IndexError       
+                raise IndexError
+
 
 class AutoWarningActions(object):
 
@@ -116,6 +119,7 @@ class AutoWarningActions(object):
             output = cursor.fetchone()
             return output
 
+
 class MuteRole(object):
 
     def __init__(self):
@@ -134,6 +138,7 @@ class MuteRole(object):
             output = cursor.fetchone()
             return output[0] if output else None
 
+
 class BlacklistedUsers(object):
     def __init__(self):
         with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
@@ -147,24 +152,26 @@ class BlacklistedUsers(object):
     @classmethod
     def is_blacklisted(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
-            cursor.execute("SELECT user_id FROM blacklisted_users WHERE user_id=? AND guild_id=?",(user_id, guild_id,))
+            cursor.execute("SELECT user_id FROM blacklisted_users WHERE user_id=? AND guild_id=?", (user_id, guild_id,))
             output = cursor.fetchone()
             return True if output else False
 
     @classmethod
     async def remove_blacklist(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
-            cursor.execute("DELETE FROM blacklisted_users WHERE user_id=? AND guild_id=?",(user_id, guild_id,))
+            cursor.execute("DELETE FROM blacklisted_users WHERE user_id=? AND guild_id=?", (user_id, guild_id,))
 
     @classmethod
     async def remove_blacklist_guild(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'users.db')) as cursor:
-            cursor.execute("DELETE FROM blacklisted_users WHERE guild_id=?",(guild_id,))
+            cursor.execute("DELETE FROM blacklisted_users WHERE guild_id=?", (guild_id,))
+
 
 class ModerationAction(enum.IntEnum):
     TextMute = 1
     VoiceMute = 2
     Ban = 3
+
 
 class TemporaryActions(object):
     def __init__(self):
@@ -180,38 +187,38 @@ class TemporaryActions(object):
     @classmethod
     async def clear_action(self, user_id: int, guild_id: int, action: ModerationAction):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("DELETE FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(action)))
+            cursor.execute("DELETE FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?", (user_id, guild_id, int(action)))
 
     @classmethod
     def is_textmuted(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(ModerationAction.TextMute)))
+            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?", (user_id, guild_id, int(ModerationAction.TextMute)))
             output = cursor.fetchone()
             return True if output else False
 
     @classmethod
     def is_voicemuted(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(ModerationAction.VoiceMute)))
+            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?", (user_id, guild_id, int(ModerationAction.VoiceMute)))
             output = cursor.fetchone()
             return True if output else False
-    
+
     @classmethod
     def is_banned(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?",(user_id, guild_id,int(ModerationAction.Ban)))
+            cursor.execute("SELECT user_id FROM temporary_actions WHERE user_id=? AND guild_id=? AND action=?", (user_id, guild_id, int(ModerationAction.Ban)))
             output = cursor.fetchone()
             return True if output else False
 
     @classmethod
     async def get_expired_actions(self, unix_time):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("SELECT user_id, guild_id, action FROM temporary_actions WHERE expires <= ?",(unix_time,))
+            cursor.execute("SELECT user_id, guild_id, action FROM temporary_actions WHERE expires <= ?", (unix_time,))
             output = cursor.fetchall()
 
             output_dict = {}
 
-            for user_id, guild_id, action in output: 
+            for user_id, guild_id, action in output:
                 output_dict.setdefault(guild_id, []).append((user_id, action))
 
             return output_dict
@@ -219,12 +226,13 @@ class TemporaryActions(object):
     @classmethod
     async def clear_expired_actions(self, unix_time):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("DELETE FROM temporary_actions WHERE expires <= ?",(unix_time,))
+            cursor.execute("DELETE FROM temporary_actions WHERE expires <= ?", (unix_time,))
 
     @classmethod
     async def wipe_guild_data(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("DELETE FROM temporary_actions WHERE guild_id=?",(guild_id,))
+            cursor.execute("DELETE FROM temporary_actions WHERE guild_id=?", (guild_id,))
+
 
 class ModlogSetup(object):
     def __init__(self):
@@ -246,4 +254,4 @@ class ModlogSetup(object):
     @classmethod
     async def wipe_data(self, guild_id: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
-            cursor.execute("DELETE FROM modlog WHERE guild_id=?",(guild_id,))
+            cursor.execute("DELETE FROM modlog WHERE guild_id=?", (guild_id,))

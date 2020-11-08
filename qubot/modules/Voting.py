@@ -11,9 +11,10 @@ import requests
 import discord
 import main
 import time
-import dbl
+import dbl  # noqa: F401
 import ssl
 import os
+
 
 class Voting(commands.Cog):
     """Handles interactions with the top.gg API"""
@@ -38,7 +39,7 @@ class Voting(commands.Cog):
                 config.set('Economy', 'CurrencySymbol', '💵')
             if 'DailyAmount' not in config['Economy']:
                 config.set('Economy', 'DailyAmount', '100')
-        
+
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
             config.write(config_file)
         config_file.close()
@@ -72,9 +73,9 @@ class Voting(commands.Cog):
                 config_file.close()
 
         # self.dblpy = dbl.DBLClient(self.bot, self.token, webhook_path='/dblwebhook', webhook_auth=self.webhook_auth, webhook_port=5000, autopost=True) # Autopost will post your guild count every 30 minutes
-        
+
         self.bot.loop.create_task(self.webhook())
-        self.dbl_update_stats.start() # pylint: disable=no-member
+        self.dbl_update_stats.start()  # pylint: disable=no-member
 
         print(f'Module {self.__class__.__name__} loaded')
 
@@ -115,7 +116,7 @@ class Voting(commands.Cog):
 
                 voting_info, vote_multiplier = await self.vote_handler(user.id, reward)
                 if voting_info:
-                    await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("top.gg", int(reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+                    await user.send(embed=discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("top.gg", int(reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color=self.embed_color))
         except Exception:
             pass
 
@@ -130,7 +131,9 @@ class Voting(commands.Cog):
                     if user is not None:
                         voting_info, vote_multiplier = await self.vote_handler(user.id, self.vote_reward)
                         if voting_info:
-                            await user.send(embed = discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+                            await user.send(embed=discord.Embed(title=main.lang["voting_user_vote_embed_title"],
+                                                                description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']),
+                                                                color=self.embed_color))
                             return web.Response()
                 else:
                     return web.Response(status=401)
@@ -140,13 +143,13 @@ class Voting(commands.Cog):
         web_app = web.Application(loop=self.bot.loop)
 
         cors = aiohttp_cors.setup(web_app, defaults={
-                "https://discordbotlist.com": aiohttp_cors.ResourceOptions (
-                    allow_credentials=True,
-                    expose_headers="*",
-                    allow_headers=("Accept", "Authorization", "Content-Type", "X-DBL-Signature", "Origin", "X-Requested-With",),
-                    max_age=3600,
-                )
-            })
+            "https://discordbotlist.com": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers=("Accept", "Authorization", "Content-Type", "X-DBL-Signature", "Origin", "X-Requested-With",),
+                max_age=3600,
+            )
+        })
 
         resource = cors.add(web_app.router.add_resource("/discordbotlist"))
         cors.add(resource.add_route("POST", webhook_handler))
@@ -164,7 +167,7 @@ class Voting(commands.Cog):
     async def vote_command(self, ctx):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.send(embed = discord.Embed(title=lang["voting_vote_embed_title"], description=lang["voting_vote_embed_description"].format(self.vote_reward, self.currency_symbol), color = self.embed_color))
+            await ctx.send(embed=discord.Embed(title=lang["voting_vote_embed_title"], description=lang["voting_vote_embed_description"].format(self.vote_reward, self.currency_symbol), color=self.embed_color))
 
     @vote_command.command(cls=ExtendedCommand, name='test', description=main.lang["command_vote_test_description"], hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
@@ -172,7 +175,7 @@ class Voting(commands.Cog):
         voting_info, vote_multiplier = await self.vote_handler(ctx.author.id, self.vote_reward)
         if voting_info:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.author.send(embed = discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color = self.embed_color))
+            await ctx.author.send(embed=discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color=self.embed_color))
 
     async def vote_handler(self, user_id: int, vote_amount: int):
         try:
@@ -203,6 +206,7 @@ class Voting(commands.Cog):
             return None
         except Exception:
             raise
+
 
 def setup(bot):
     bot.add_cog(Voting(bot))

@@ -2,6 +2,7 @@ from libs.sqlhandler import sqlconnect
 import main
 import os
 
+
 class GiveawayHandler(object):
 
     def __init__(self):
@@ -24,7 +25,7 @@ class GiveawayHandler(object):
                 return db_output[0] if db_output else None
             else:
                 return None
-    
+
     @classmethod
     async def get_giveaway_list(self):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:

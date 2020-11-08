@@ -3,11 +3,12 @@ import libs.qulib as qulib
 import main
 import discord
 
+
 class HelpFormatter(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.module_embed_color =  0x8aeb59
+        self.module_embed_color = 0x8aeb59
         bot.remove_command('help')
 
         # Module configuration
@@ -20,7 +21,7 @@ class HelpFormatter(commands.Cog):
         print(f'Module {self.__class__.__name__} loaded')
 
     @commands.command(name='help', aliases=['h'])
-    async def help(self, ctx, command = None, *, subcommand = None):
+    async def help(self, ctx, command=None, *, subcommand=None):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if command:
             cmds_list = [x.name for x in self.bot.commands]
@@ -29,7 +30,7 @@ class HelpFormatter(commands.Cog):
             if command.lower() in cmds_list or command.lower() in aliases_list:
                 command = self.bot.get_command(command)
                 if not (command.description or command.help):
-                     embed = discord.Embed(title=lang["helpformatter_nohelp_parameter"], color=self.module_embed_color)
+                    embed = discord.Embed(title=lang["helpformatter_nohelp_parameter"], color=self.module_embed_color)
                 else:
                     if subcommand:
                         subcommands = [x for x in self.bot.walk_commands() if x.name not in cmds_list]
@@ -59,6 +60,7 @@ class HelpFormatter(commands.Cog):
             app_info = await self.bot.application_info()
             embed = discord.Embed(title=lang["helpformatter_help"], description=lang["helpformatter_help_description"].format(main.prefix, main.prefix, main.prefix, main.prefix, app_info.id), color=self.module_embed_color)
         await ctx.author.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(HelpFormatter(bot))

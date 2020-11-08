@@ -1,6 +1,5 @@
 from discord.ext import commands
 from main import bot_path
-from main import modules as loaded_modules
 from libs.qulib import ExtendedCommand, ExtendedGroup
 import libs.commandscontroller as ccontroller
 import libs.prefixhandler as prefixhandler
@@ -14,11 +13,12 @@ import discord
 import main
 import os
 
+
 class Settings(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.embed_color =  0x91becc
+        self.embed_color = 0x91becc
 
         self.Localization = localizations.Localizations()
         self.PrefixHandler = prefixhandler.PrefixHandler()
@@ -42,18 +42,18 @@ class Settings(commands.Cog):
     async def settings_command(self, ctx):
         if not ctx.invoked_subcommand:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            #Localization
+            # Localization
             lang_code = self.Localization.get_language(ctx.guild.id, main.languagecode).replace('-', "_")
             l = Locale.parse(lang_code)
 
-            embed = discord.Embed(description=lang["settings_info_description"].format(ctx.guild.name), color = self.embed_color)
+            embed = discord.Embed(description=lang["settings_info_description"].format(ctx.guild.name), color=self.embed_color)
             embed.set_author(name=lang["settings_info_header"].format(ctx.guild.name), icon_url=str(ctx.guild.icon_url))
             embed.add_field(name=f'**{lang["prefix_string"]}**', value=f"{self.PrefixHandler.get_prefix(ctx.guild.id, main.prefix)}", inline=True)
             embed.add_field(name=f'**{lang["language_string"]}**', value=f"{l.get_language_name(lang_code)}", inline=True)
             embed.add_field(name=f'**{lang["guild_status_string"]}**', value=lang["guild_status_standard"], inline=True)
 
             if 'Automation' in self.bot.cogs.keys() and not self.CogController.is_disabled('Automation', ctx.guild.id):
-                #Automation Settings
+                # Automation Settings
                 greetings_channel_id = await self.Toggles.get_greetings_channel(ctx.guild.id)
                 greetings_channel = (await self.bot.fetch_channel(greetings_channel_id)).mention if greetings_channel_id else lang["settings_greetings_default"]
                 goodbye_channel_id = await self.Toggles.get_bye_channel(ctx.guild.id)
@@ -61,13 +61,13 @@ class Settings(commands.Cog):
 
                 embed.add_field(name=f'**{lang["greetings_channel_string"]}**', value=(greetings_channel or lang["empty_string"]), inline=True)
                 embed.add_field(name=f'**{lang["goodbye_channel_string"]}**', value=(goodbye_channel or lang["empty_string"]), inline=True)
-            
+
             if 'Moderation' in self.bot.cogs.keys() and not self.CogController.is_disabled('Moderation', ctx.guild.id):
-                #Moderation Settings
+                # Moderation Settings
                 modlog_channel_id = await self.Modlog.get_channel(ctx.guild.id)
                 modlog_channel = (await self.bot.fetch_channel(modlog_channel_id)).mention if modlog_channel_id else lang["settings_modlog_default"]
                 embed.add_field(name=f'**{lang["modlog_channel_string"]}**', value=(modlog_channel or lang["empty_string"]), inline=True)
-            
+
             disabled_cogs = await self.CogController.disabled_cogs(ctx.guild.id)
             embed.add_field(name=f'**{lang["disabled_modules_string"]}**', value=f"```{', '.join(disabled_cogs) if disabled_cogs else lang['settings_disabled_modules_default']}```", inline=False)
             disabled_commands = await self.CommandController.disabled_commands(ctx.guild.id)
@@ -81,18 +81,18 @@ class Settings(commands.Cog):
     @commands.guild_only()
     async def settings_reset(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        embed = discord.Embed(title=lang["settings_reset_confirmation_title"], description=lang["settings_reset_confirmation_description"], color = self.embed_color)
+        embed = discord.Embed(title=lang["settings_reset_confirmation_title"], description=lang["settings_reset_confirmation_description"], color=self.embed_color)
         embed.set_footer(text=lang["settings_reset_confirmation_footer"])
-        await ctx.send(embed = embed)
+        await ctx.send(embed=embed)
         try:
             msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
             if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
-                self.PrefixHandler.remove_guild(ctx.guild.id) # PrefixHandler takes care of language data removal as well since its tied to the same table
+                self.PrefixHandler.remove_guild(ctx.guild.id)  # PrefixHandler takes care of language data removal as well since its tied to the same table
                 await self.CommandController.remove_disabled_commands(ctx.guild.id)
                 await self.CogController.remove_disabled_cogs(ctx.guild.id)
                 await self.Toggles.wipe_guild_data(ctx.guild.id)
                 await self.Modlog.wipe_data(ctx.guild.id)
-                await ctx.send(embed = discord.Embed(title=lang["settings_reset_success_title"], description=lang["settings_reset_success_description"], color = self.embed_color))
+                await ctx.send(embed=discord.Embed(title=lang["settings_reset_success_title"], description=lang["settings_reset_success_description"], color=self.embed_color))
             else:
                 await ctx.send(lang["wait_for_cancelled"], delete_after=15)
         except asyncio.TimeoutError:
@@ -124,7 +124,7 @@ class Settings(commands.Cog):
         if lang_code in lang_list:
             if lang_code != self.Localization.get_language(ctx.guild.id, main.languagecode):
                 self.Localization.set_language(ctx.guild.id, lang_code)
-                await ctx.send(embed = discord.Embed(title=lang["settings_langset_success"].format(lang_code), color=self.embed_color))
+                await ctx.send(embed=discord.Embed(title=lang["settings_langset_success"].format(lang_code), color=self.embed_color))
             else:
                 await ctx.send(lang["settings_langset_same"], delete_after=15)
         else:
@@ -142,7 +142,7 @@ class Settings(commands.Cog):
                 await ctx.send(lang["settings_prefix_length_limit"].format(main.max_prefix_length), delete_after=15)
             else:
                 self.PrefixHandler.set_prefix(ctx.guild.id, new_prefix)
-                await ctx.send(embed = discord.Embed(title=lang["settings_prefix_success"].format(new_prefix), color=self.embed_color))
+                await ctx.send(embed=discord.Embed(title=lang["settings_prefix_success"].format(new_prefix), color=self.embed_color))
 
     @prefix.command(cls=ExtendedCommand, name='reset', description=main.lang["command_prefix_reset_description"], ignore_extra=True, permissions=['Administrator'])
     @commands.guild_only()
@@ -157,6 +157,7 @@ class Settings(commands.Cog):
     async def prefix_show(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.send(embed=discord.Embed(title=lang["settings_prefix_info"].format(self.PrefixHandler.get_prefix(ctx.guild.id, main.prefix)), color=self.embed_color))
+
 
 def setup(bot):
     bot.add_cog(Settings(bot))

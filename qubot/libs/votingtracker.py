@@ -2,6 +2,7 @@ from libs.sqlhandler import sqlconnect
 import main
 import os
 
+
 class VotingTracker(object):
 
     def __init__(self):
@@ -12,7 +13,7 @@ class VotingTracker(object):
     async def get_user(self, user_id: int):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO voting (user_id) VALUES(?)", (user_id,))
-            cursor.execute("SELECT IFNULL(combo, 0), last_voted FROM voting WHERE user_id=?",(user_id,))
+            cursor.execute("SELECT IFNULL(combo, 0), last_voted FROM voting WHERE user_id=?", (user_id,))
             output = cursor.fetchone()
             return dict(combo=output[0], last_voted=output[1]) if output else None
 

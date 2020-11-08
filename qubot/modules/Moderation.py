@@ -1,10 +1,9 @@
-from main import config, bot_starttime, bot_path
 from datetime import datetime, timedelta, timezone
 from discord.ext import tasks, commands
 import libs.utils.admintools as admintools
 from libs.qulib import ExtendedCommand, ExtendedGroup
+from main import config, bot_path
 import libs.qulib as qulib
-import configparser
 import discord
 import asyncio
 import typing
@@ -13,6 +12,7 @@ import math
 import time
 import re
 import os
+
 
 # User converter used for banned user retrieval
 # Usage: Use instead of discord.User where retrieval of a banned user is required.
@@ -30,12 +30,13 @@ class BannedUser(commands.UserConverter):
             raise commands.BadArgument("Failed to convert user input to User Object. User was not found in the guild's banned user list.")
         return ban_entry.user
 
+
 # Standard time converter - Converts a string into a seconds-based time interval
 # Usage: Converts string input of a time interval into seconds
 class TimePeriod(commands.Converter):
-    
+
     def __init__(self):
-        self.time_units = {'m':'minutes', 'h':'hours', 'd':'days', 'w':'weeks'}
+        self.time_units = {'m': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks'}
 
     async def convert(self, ctx, argument):
         time_in_seconds = int(timedelta(**{self.time_units.get(m.group('unit').lower(), 'minutes'): int(m.group('val')) for m in re.finditer(r'(?P<val>\d+)(\s?)(?P<unit>[mhdw]?)', argument, flags=re.I)}).total_seconds())
@@ -44,15 +45,17 @@ class TimePeriod(commands.Converter):
             raise commands.BadArgument("Failed to convert user input to a valid time frame.")
         return time_in_seconds
 
+
 # Short time converter - Same functionality as TimePeriod but is used for small time intervals
 class SmallTimePeriod(commands.Converter):
-    
+
     def __init__(self):
-        self.time_units = {'s': 'seconds', 'm':'minutes', 'h':'hours'}
+        self.time_units = {'s': 'seconds', 'm': 'minutes', 'h': 'hours'}
 
     async def convert(self, ctx, argument):
         time_in_seconds = int(timedelta(**{self.time_units.get(m.group('unit').lower(), 'seconds'): int(m.group('val')) for m in re.finditer(r'(?P<val>\d+)(\s?)(?P<unit>[mhdw]?)', argument, flags=re.I)}).total_seconds())
         return time_in_seconds
+
 
 # Cog (Moderation) - Collection of commands and assets used for chat moderation
 class Moderation(commands.Cog):
@@ -67,7 +70,7 @@ class Moderation(commands.Cog):
         self.LEFT = '⬅️'
         self.RIGHT = '➡️'
         self.PAGINATION_TIMEOUT = '⏹️'
-        
+
         # Module configuration
         self.module_name = str(self.__class__.__name__)
         self.is_restricted_module = False
@@ -82,7 +85,7 @@ class Moderation(commands.Cog):
         self.BlacklistedUsers = admintools.BlacklistedUsers()
         self.TemporaryActions = admintools.TemporaryActions()
         self.Modlog = admintools.ModlogSetup()
-        
+
         # Setting up configuration environment (config.ini)
         self.config_section = 'Moderation'
 
@@ -95,7 +98,7 @@ class Moderation(commands.Cog):
             config.set(self.config_section, 'MaxMessageLength', '1500')
         if 'PurgeMessageLimit' not in config[self.config_section]:
             config.set(self.config_section, 'PurgeMessageLimit', '1000')
-        
+
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
             config.write(config_file)
         config_file.close()
@@ -108,12 +111,12 @@ class Moderation(commands.Cog):
         config_file.close()
 
         # Starting module-related tasks
-        self.temporary_actions.start() # pylint: disable=no-member
+        self.temporary_actions.start()  # pylint: disable=no-member
 
         print(f'Module {self.__class__.__name__} loaded')
 
     def cog_unload(self):
-        self.temporary_actions.cancel() # pylint: disable=no-member
+        self.temporary_actions.cancel()  # pylint: disable=no-member
 
     def predicate(self, message, l, r):
         def check(reaction, user):
@@ -156,11 +159,11 @@ class Moderation(commands.Cog):
         mute_role = await self.MuteRole.get_mute_role(guild.id)
         role = discord.utils.get(guild.roles, name='Muted')
         if not role:
-            role = await guild.create_role(name="Muted", permissions=discord.Permissions(send_messages = False), reason="Created mute role to support bot moderation functionality.")
+            role = await guild.create_role(name="Muted", permissions=discord.Permissions(send_messages=False), reason="Created mute role to support bot moderation functionality.")
         if mute_role == None or mute_role != role.id:
             await self.update_mute_role(role, guild)
             await self.MuteRole.set_mute_role(guild.id, role.id)
-        
+
         return role
 
     # Method used internally to update the mute role for the target guild
@@ -171,7 +174,7 @@ class Moderation(commands.Cog):
                 channel_overwrite = channel.overwrites_for(role)
                 channel_overwrite.send_messages = False
                 channel_overwrite.add_reactions = False
-                
+
                 await channel.set_permissions(role, overwrite=channel_overwrite)
 
     # Method used internally to shorten the user list if it exceeds a set number of lines
@@ -210,7 +213,7 @@ class Moderation(commands.Cog):
 
             def is_embed(message):
                 return len(message.embeds) > 0
-            
+
             def is_attachment(message):
                 return len(message.attachments) > 0
 
@@ -286,7 +289,7 @@ class Moderation(commands.Cog):
                 await ctx.send(lang["moderation_kick_empty"].format(ctx.author.mention), delete_after=15)
         else:
             await ctx.send(lang["moderation_kick_not_found"], delete_after=15)
-    
+
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
@@ -471,17 +474,17 @@ class Moderation(commands.Cog):
                 if time_period == 0:
                     embed = discord.Embed(title=lang["moderation_slowmode_disabled"], color=self.embed_color)
                 else:
-                    hours = int(time_period/3600)
+                    hours = int(time_period / 3600)
                     hour_string = lang["hours_string"] if hours != 1 else lang["hour_string"]
-                    minutes = int((time_period/60)%60)
+                    minutes = int((time_period / 60) % 60)
                     minutes_string = lang["minutes_string"] if minutes != 1 else lang["minute_string"]
-                    seconds = int(time_period%60)
+                    seconds = int(time_period % 60)
                     seconds_string = lang["seconds_string"] if seconds != 1 else lang["second_string"]
                     formatted_time_string = f"{f'{hours} {hour_string} ' if hours != 0 else ''}{f'{minutes} {minutes_string} ' if minutes != 0 else ''}{f'{seconds} {seconds_string}' if seconds != 0 else ''}"
 
                     embed = discord.Embed(title=lang["moderation_slowmode_enabled"].format(formatted_time_string), color=self.embed_color)
             else:
-                embed = discord.Embed(title=lang["moderation_slowmode_max"].format(int(self.MAX_SLOWMODE/3600)), color=self.embed_color)
+                embed = discord.Embed(title=lang["moderation_slowmode_max"].format(int(self.MAX_SLOWMODE / 3600)), color=self.embed_color)
             await ctx.send(embed=embed, delete_after=15)
 
     @commands.cooldown(5, 30, commands.BucketType.user)
@@ -491,7 +494,7 @@ class Moderation(commands.Cog):
     async def slowmode_disable(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ctx.channel.edit(slowmode_delay=0)
-        await ctx.send(embed = discord.Embed(title=lang["moderation_slowmode_disabled"], color=self.embed_color), delete_after=15)
+        await ctx.send(embed=discord.Embed(title=lang["moderation_slowmode_disabled"], color=self.embed_color), delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.user)
     @commands.has_permissions(send_messages=True)
@@ -524,7 +527,7 @@ class Moderation(commands.Cog):
         try:
             channel = await self.bot.fetch_channel(channel.id)
             await self.Reports.set_channel(ctx.guild.id, channel.id)
-            await ctx.send(embed = discord.Embed(title=lang["moderation_report_setchannel"].format(str(channel)), color=self.embed_color))
+            await ctx.send(embed=discord.Embed(title=lang["moderation_report_setchannel"].format(str(channel)), color=self.embed_color))
         except discord.Forbidden:
             await ctx.send(lang["moderation_channel_forbidden"].format(ctx.author.mention), delete_after=15)
 
@@ -537,9 +540,9 @@ class Moderation(commands.Cog):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if channel_id:
             await self.Reports.disable(ctx.guild.id)
-            await ctx.send(embed = discord.Embed(title=lang["moderation_report_disable_success"], color=self.embed_color))
+            await ctx.send(embed=discord.Embed(title=lang["moderation_report_disable_success"], color=self.embed_color))
         else:
-            await ctx.send(lang["moderation_report_disable_disabled"], delete_after=15)       
+            await ctx.send(lang["moderation_report_disable_disabled"], delete_after=15)
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
@@ -560,22 +563,22 @@ class Moderation(commands.Cog):
                         dm_embed.add_field(name=lang["warning_string"], value=warning, inline=False)
                         dm_embed.set_footer(text=lang["moderation_warn_dm_footer"].format(str(ctx.guild)))
                         await member.send(embed=dm_embed)
-                        
+
                         output += f'{str(member)} ({member.mention})\n'
                         member_warnings = member_warnings + 1
 
                         actions = await self.AutoActions.get_actions(ctx.guild.id)
                         if actions:
-                            #Automatic Ban (Takes priority over kick if they both trigger on the same number) - Warnings are reset upon automatic ban
+                            # Automatic Ban (Takes priority over kick if they both trigger on the same number) - Warnings are reset upon automatic ban
                             if actions[2] != None and member_warnings >= actions[2]:
                                 await self.Warnings.reset_warnings(ctx.guild.id, member.id)
                                 await ctx.guild.ban(member, reason=lang["moderation_autoaction_ban"])
                                 return
-                            #Automatic Kick
+                            # Automatic Kick
                             if actions[1] != None and member_warnings >= actions[1]:
                                 await ctx.guild.kick(member, reason=lang["moderation_autoaction_kick"])
                                 return
-                            #Automatic Mute
+                            # Automatic Mute
                             if actions[0] != None and member_warnings >= actions[0]:
                                 async with ctx.channel.typing():
                                     role = await self.get_mute_role(ctx.guild)
@@ -602,7 +605,7 @@ class Moderation(commands.Cog):
                 raise commands.BadArgument("Failed to warn user. Message author matches one of the target users.")
         else:
             await ctx.send(lang["moderation_warn_not_found"], delete_after=15)
- 
+
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(kick_members=True, ban_members=True)
     @commands.guild_only()
@@ -614,7 +617,7 @@ class Moderation(commands.Cog):
             await ctx.message.delete()
 
             if len(warnings) > 0:
-                last_index = math.floor(len(warnings)/5)
+                last_index = math.floor(len(warnings) / 5)
                 if len(warnings) % 5 == 0:
                     last_index -= 1
                 if page and page >= 1:
@@ -622,13 +625,13 @@ class Moderation(commands.Cog):
                 else:
                     page = 0
                 index = page
-                
+
                 msg = None
                 action = ctx.send
                 try:
                     while True:
                         embed = discord.Embed(title=lang["moderation_warnings_embed_title"].format(str(member)), color=self.embed_color)
-                        for warning in warnings[(index*5):(index*5 + 5)]:
+                        for warning in warnings[(index * 5):(index * 5 + 5)]:
                             warned_by = self.bot.get_user(warning[1])
                             embed.add_field(name=f'{lang["warning_string"]}: **{warning[0]}**', value=lang["moderation_warnings_embed_issuedby"].format(warned_by), inline=False)
 
@@ -698,7 +701,7 @@ class Moderation(commands.Cog):
                 action = await self.get_modlog_channel(ctx)
                 await action.send(embed=embed)
             except IndexError:
-                await ctx.send(lang["moderation_warnings_outofrange"], delete_after=15)         
+                await ctx.send(lang["moderation_warnings_outofrange"], delete_after=15)
 
     @commands.cooldown(10, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
@@ -725,7 +728,7 @@ class Moderation(commands.Cog):
         if action.lower() in ('mute', 'kick', 'ban'):
             await self.AutoActions.disable_autoaction(ctx.guild.id, action)
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.send(embed = discord.Embed(title=lang["moderation_autoaction_disable"].format(action.lower()), color=self.embed_color))
+            await ctx.send(embed=discord.Embed(title=lang["moderation_autoaction_disable"].format(action.lower()), color=self.embed_color))
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
@@ -734,7 +737,7 @@ class Moderation(commands.Cog):
     async def blacklist(self, ctx, members: commands.Greedy[discord.Member]):
         if not ctx.invoked_subcommand:
             await self.blacklist_add(ctx, members)
-    
+
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -750,7 +753,6 @@ class Moderation(commands.Cog):
                     blacklisted_users += f'{str(member)} ({member.mention})\n'
             await ctx.message.delete()
 
-
             blacklisted_users = self.slice_userlist(blacklisted_users, 20, lang)
             if len(blacklisted_users.strip()) > 0:
                 embed = discord.Embed(title=lang["moderation_blacklist_embed_title"], description=lang["moderation_blacklist_embed_description"], timestamp=datetime.utcnow(), color=self.embed_color)
@@ -762,7 +764,7 @@ class Moderation(commands.Cog):
                 await ctx.send(lang["moderation_blacklist_empty"].format(ctx.author.mention), delete_after=15)
         else:
             await ctx.send(lang["moderation_blacklist_self"].format(ctx.author.mention), delete_after=15)
-        
+
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -777,7 +779,6 @@ class Moderation(commands.Cog):
                     await self.BlacklistedUsers.remove_blacklist(member.id, ctx.guild.id)
                     discharged_users += f'{str(member)} ({member.mention})\n'
             await ctx.message.delete()
-
 
             discharged_users = self.slice_userlist(discharged_users, 20, lang)
             if len(discharged_users.strip()) > 0:
@@ -801,18 +802,18 @@ class Moderation(commands.Cog):
             try:
                 channel = await self.bot.fetch_channel(channel.id)
                 await self.Modlog.set_channel(ctx.guild.id, channel.id)
-                await ctx.send(embed = discord.Embed(title=lang["moderation_modlog_embed_title"], description=lang["moderation_modlog_embed_description"].format(channel.mention), color=self.embed_color))
+                await ctx.send(embed=discord.Embed(title=lang["moderation_modlog_embed_title"], description=lang["moderation_modlog_embed_description"].format(channel.mention), color=self.embed_color))
             except discord.Forbidden:
                 await ctx.send(lang["moderation_channel_forbidden"].format(ctx.author.mention), delete_after=15)
 
     @commands.cooldown(5, 30, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
-    @commands.guild_only()  
+    @commands.guild_only()
     @modlog.command(cls=ExtendedCommand, name='default', description=main.lang["command_modlog_default_description"], permissions=['Administrator'])
     async def modlog_default(self, ctx):
         await self.Modlog.wipe_data(ctx.guild.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["moderation_modlog_default_embed_title"], description=lang["moderation_modlog_default_embed_description"], color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["moderation_modlog_default_embed_title"], description=lang["moderation_modlog_default_embed_description"], color=self.embed_color))
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.guild_only()
@@ -839,6 +840,7 @@ class Moderation(commands.Cog):
                 except discord.NotFound:
                     await self.Modlog.wipe_data(ctx.guild.id)
         return ctx
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))

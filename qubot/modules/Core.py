@@ -1,5 +1,5 @@
 from discord.ext import commands, tasks
-from main import bot_starttime, config, bot_path
+from main import bot_path
 from main import modules as loaded_modules
 from main import logger
 import libs.qulib as qulib
@@ -9,7 +9,6 @@ from libs.commandscontroller import CommandController, CogController
 from datetime import datetime
 from libs.qulib import ExtendedCommand, ExtendedGroup
 import asyncio
-import typing
 import math
 import discord
 import json
@@ -18,11 +17,12 @@ import sys
 import psutil
 import main
 
+
 class Core(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.embed_color =  0x91becc
+        self.embed_color = 0x91becc
 
         self.BlacklistedUsers = BlacklistedUsers()
         self.CommandController = CommandController()
@@ -42,13 +42,13 @@ class Core(commands.Cog):
         self.right = '➡️'
         self.pagination_timeout = '⏹️'
 
-        self.export_stats.start() # pylint: disable=no-member
+        self.export_stats.start()  # pylint: disable=no-member
 
         print(f'Module {self.__class__.__name__} loaded')
 
     def cog_unload(self):
-        self.botstats_loop.cancel() # pylint: disable=no-member
-        self.export_stats.cancel() # pylint: disable=no-member
+        self.botstats_loop.cancel()  # pylint: disable=no-member
+        self.export_stats.cancel()  # pylint: disable=no-member
 
     def predicate(self, message, l, r):
         def check(reaction, user):
@@ -85,8 +85,8 @@ class Core(commands.Cog):
             f"{qulib.plural(guild_count, main.lang['server_string'], main.lang['servers_string'])} | {qulib.plural(shard_count, main.lang['shard_string'], main.lang['shards_string'])}",
             f"{main.lang['core_activity_help'].format(main.prefix)} | {main.lang['version_brief_string']} {main.version}",
             f"{main.lang['core_activity_help'].format(main.prefix)} | qubot.xyz"
-            ]
-        activity = discord.Activity(type=discord.ActivityType.playing, name = botstat_list[self.botstats_iter])
+        ]
+        activity = discord.Activity(type=discord.ActivityType.playing, name=botstat_list[self.botstats_iter])
         await self.bot.change_presence(activity=activity, shard_id=None)
         self.botstats_iter = (self.botstats_iter + 1) if (self.botstats_iter + 1) < len(botstat_list) else 0
 
@@ -94,10 +94,10 @@ class Core(commands.Cog):
     async def export_stats(self):
         # Loading JSON data
         if not os.path.exists(os.path.join(bot_path, 'exports', 'stats.json')):
-            with open(os.path.join(bot_path, 'exports', 'stats.json'), 'w') as json_file: 
+            with open(os.path.join(bot_path, 'exports', 'stats.json'), 'w') as json_file:
                 json.dump({}, json_file)
             json_file.close()
-           
+
         with open(os.path.join(bot_path, 'exports', 'stats.json'), 'r') as json_file:
             json_data = json.load(json_file)
         json_file.close()
@@ -118,7 +118,7 @@ class Core(commands.Cog):
             }
 
         # Saving JSON data
-        with open(os.path.join(bot_path, 'exports', 'stats.json'), 'w') as json_file: 
+        with open(os.path.join(bot_path, 'exports', 'stats.json'), 'w') as json_file:
             json.dump(json_data, json_file, indent=4, ensure_ascii=True, sort_keys=True, separators=(',', ': '))
         json_file.close()
 
@@ -139,7 +139,7 @@ class Core(commands.Cog):
                 embed = discord.Embed(title=lang["core_module_load_success"].format(input_module), color=self.embed_color)
                 loaded_modules.append(input_module_path)
                 with open(os.path.join(bot_path, 'data', 'modules.mdls'), 'a') as modules_file:
-                        modules_file.write(f'{input_module}\n')             
+                    modules_file.write(f'{input_module}\n')
         await ctx.send(embed=embed, delete_after=15)
 
     @commands.command(cls=ExtendedCommand, name='unload', help=main.lang["command_module_help"], description=main.lang["command_unload_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
@@ -184,7 +184,7 @@ class Core(commands.Cog):
             else:
                 embed = discord.Embed(title=lang["core_module_reload_success"].format(input_module), color=self.embed_color)
         await ctx.send(embed=embed, delete_after=15)
-    
+
     @commands.group(name='modules', invoke_without_command=True, description=main.lang["command_modules_description"], aliases=['mdls'])
     async def modules(self, ctx):
         if not ctx.invoked_subcommand:
@@ -195,7 +195,7 @@ class Core(commands.Cog):
                 if i not in modules_config.setdefault("hidden_modules", []):
                     modules_list += f'\u2022 {i}\n'
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.author.send(embed = discord.Embed(title=lang["core_modules_list"],description=modules_list, color=self.embed_color))
+            await ctx.author.send(embed=discord.Embed(title=lang["core_modules_list"], description=modules_list, color=self.embed_color))
 
     @commands.cooldown(10, 60, commands.BucketType.guild)
     @modules.command(cls=ExtendedCommand, name='enable', description=main.lang["command_modules_enable_description"], usage="<module>", aliases=['e'], permissions=['Administrator'])
@@ -260,7 +260,7 @@ class Core(commands.Cog):
         else:
             embed = discord.Embed(title=lang["core_module_disable_not_found"], color=self.embed_color)
         await ctx.send(embed=embed, delete_after=30)
-        
+
     @modules.command(cls=ExtendedCommand, name='hide', description=main.lang["command_modules_hide_description"], usage="<module>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def hide(self, ctx, *, input_module: str):
@@ -294,7 +294,7 @@ class Core(commands.Cog):
         else:
             embed = discord.Embed(title=lang["core_module_unhide_fail"], color=self.embed_color)
         await ctx.author.send(embed=embed)
-    
+
     @commands.group(name='commands', invoke_without_command=True, description=main.lang["command_cmds_description"], usage="<module>", aliases=['cmds'])
     async def cmds_list(self, ctx, *, input_module: str = None):
         if not ctx.invoked_subcommand:
@@ -310,16 +310,16 @@ class Core(commands.Cog):
                             cmds_list.append(command)
 
                     index = start_index = 0
-                    last_index = math.floor(len(cmds_list)/10)
+                    last_index = math.floor(len(cmds_list) / 10)
                     if len(cmds_list) % 10 == 0:
                         last_index -= 1
-                      
+
                     msg = None
                     action = ctx.author.send
                     try:
                         while True:
                             embed = discord.Embed(title=lang["core_cmds_embed_title"].format(input_module), color=self.embed_color)
-                            for command in cmds_list[(index*10):(index*10 + 10)]:
+                            for command in cmds_list[(index * 10):(index * 10 + 10)]:
                                 embed.add_field(name=f'{main.prefix}{command.qualified_name} {command.signature}', value=command.description or lang["empty_string"], inline=False)
                             if start_index != last_index:
                                 embed.set_footer(text=f"{lang['page_string']} {index+1}/{last_index+1}")
@@ -348,20 +348,21 @@ class Core(commands.Cog):
                 else:
                     await ctx.author.send(lang["core_cmds_list_not_found"].format(input_module), delete_after=15)
             else:
-                await ctx.author.send(lang["core_cmds_list_marg"], delete_after=15)     
+                await ctx.author.send(lang["core_cmds_list_marg"], delete_after=15)
 
     @commands.cooldown(10, 30, commands.BucketType.guild)
     @cmds_list.command(cls=ExtendedCommand, name='enable', description=main.lang["command_command_enable_description"], usage='<command>', aliases=['e'], permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def commands_enable(self, ctx, *, command:str):
+    async def commands_enable(self, ctx, *, command: str):
         cmds_list = [x.name for x in self.bot.commands]
         aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
         aliases_list = [item for sublist in aliases_list for item in sublist]
-        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: 
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list:
             cmds_list.remove(str(ctx.command.root_parent).strip())
             if len(ctx.command.root_parent.aliases) > 0:
-                for alias in ctx.command.root_parent.aliases: aliases_list.remove(alias.strip())    
+                for alias in ctx.command.root_parent.aliases:
+                    aliases_list.remove(alias.strip())
 
         if command.lower() in cmds_list or command.lower() in aliases_list:
             command_obj = self.bot.get_command(command)
@@ -379,14 +380,15 @@ class Core(commands.Cog):
     @cmds_list.command(cls=ExtendedCommand, name='disable', description=main.lang["command_command_disable_description"], usage='<command>', aliases=['d'], permissions=['Administrator'])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def commands_disable(self, ctx, *, command:str):
+    async def commands_disable(self, ctx, *, command: str):
         cmds_list = [x.name for x in self.bot.commands]
         aliases_list = [x.aliases for x in self.bot.commands if len(x.aliases) > 0]
         aliases_list = [item for sublist in aliases_list for item in sublist]
-        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list: # Removes command from list to prevent from it disabling its own command
+        if ctx.command.root_parent and str(ctx.command.root_parent).strip() in cmds_list:  # Removes command from list to prevent from it disabling its own command
             cmds_list.remove(str(ctx.command.root_parent).strip())
             if len(ctx.command.root_parent.aliases) > 0:
-                for alias in ctx.command.root_parent.aliases: aliases_list.remove(alias.strip())    
+                for alias in ctx.command.root_parent.aliases:
+                    aliases_list.remove(alias.strip())
 
         if command.lower() in cmds_list or command.lower() in aliases_list:
             command_obj = self.bot.get_command(command)
@@ -409,34 +411,34 @@ class Core(commands.Cog):
     async def userid(self, ctx, *, user: discord.User = None):
         user = user or ctx.author
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.author.send(embed = discord.Embed(title=lang["core_userid_msg"].format(user.name,user.id), color=self.embed_color))
-    
+        await ctx.author.send(embed=discord.Embed(title=lang["core_userid_msg"].format(user.name, user.id), color=self.embed_color))
+
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.command(name='serverid', description=main.lang["command_serverid_description"], aliases=['sid'], hidden=True, ignore_extra=True)
     @commands.guild_only()
     async def serverid(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.author.send(embed = discord.Embed(title=lang["core_serverid_msg"].format(ctx.guild.name,ctx.guild.id), color=self.embed_color))
+        await ctx.author.send(embed=discord.Embed(title=lang["core_serverid_msg"].format(ctx.guild.name, ctx.guild.id), color=self.embed_color))
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.command(name='channelid', description=main.lang["command_channelid_description"], aliases=['cid'], hidden=True, ignore_extra=True)
     @commands.guild_only()
     async def channelid(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.author.send(embed = discord.Embed(title=lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.embed_color))
+        await ctx.author.send(embed=discord.Embed(title=lang["core_channelid_msg"].format(ctx.guild.name, ctx.channel.name, ctx.channel.id), color=self.embed_color))
 
     @commands.cooldown(10, 30, commands.BucketType.user)
     @commands.command(name='roleid', description=main.lang["command_roleid_description"], aliases=['rid'], usage="<role>", hidden=True)
     @commands.guild_only()
     async def roleid(self, ctx, *, role: discord.Role):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.author.send(embed = discord.Embed(title=lang["core_roleid_msg"].format(ctx.guild.name, role.name, role.id), color=self.embed_color))
-    
+        await ctx.author.send(embed=discord.Embed(title=lang["core_roleid_msg"].format(ctx.guild.name, role.name, role.id), color=self.embed_color))
+
     @commands.command(cls=ExtendedCommand, name='remove', description=main.lang["command_remove_description"], hidden=True, ignore_extra=True, permissions=['Kick Members'])
     @commands.has_permissions(kick_members=True)
     async def remove(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["core_remove_msg"], color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["core_remove_msg"], color=self.embed_color))
         await ctx.guild.leave()
 
     @commands.command(cls=ExtendedCommand, name='latencies', description=main.lang["command_latencies_description"], hidden=True, ignore_extra=True, permissions=['Bot Owner'])
@@ -449,7 +451,7 @@ class Core(commands.Cog):
             guild_list = (g for g in self.bot.guilds if g.shard_id is shard[0])
             for _ in guild_list:
                 shards_guild_counter += 1
-            latency_ms = "%.4f" % float(shard[1]*1000)
+            latency_ms = "%.4f" % float(shard[1] * 1000)
 
             def latency_status(latency):
                 if float(latency) < 200:
@@ -459,13 +461,13 @@ class Core(commands.Cog):
                 return u"\U0001F7E5"
 
             string_output += lang["core_latencies"].format(shard[0], shards_guild_counter, latency_ms, latency_status(latency_ms))
-        await ctx.author.send(embed = discord.Embed(title=lang["core_latencies_msg"], description=string_output, color=self.embed_color))
+        await ctx.author.send(embed=discord.Embed(title=lang["core_latencies_msg"], description=string_output, color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name='setname', description=main.lang["command_setname_description"], usage="<name>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def setname(self, ctx, *, input_name: str):
         await self.bot.user.edit(username=input_name)
-    
+
     @commands.command(cls=ExtendedCommand, name='setstatus', help=main.lang["command_setstatus_help"], description=main.lang["command_setstatus_description"], usage="<status>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def setstatus(self, ctx, input_status: str):
@@ -473,7 +475,7 @@ class Core(commands.Cog):
         if input_status in ('online', 'offline', 'idle', 'dnd', 'invisible'):
             status_dict = {'online': discord.Status.online, 'offline': discord.Status.offline, 'idle': discord.Status.idle, 'dnd': discord.Status.dnd, 'invisible': discord.Status.invisible}
             await ctx.bot.change_presence(status=status_dict.get(input_status, discord.Status.online), shard_id=None)
-    
+
     @commands.group(cls=ExtendedGroup, name='setactivity', invoke_without_command=True, help=main.lang["command_setactivity_help"], description=main.lang["command_setactivity_description"], usage="<activity> <text>", hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def setactivity(self, ctx, input_activity: str = None, *, text: str = None):
@@ -482,36 +484,36 @@ class Core(commands.Cog):
             if input_activity and text:
                 input_activity = input_activity.lower()
                 if input_activity in ('playing', 'listening', 'watching'):
-                    type_dict= {'playing': 0, 'listening': 2, 'watching': 3}
-                    activity = discord.Activity(type=type_dict.get(input_activity, None), name = text)
+                    type_dict = {'playing': 0, 'listening': 2, 'watching': 3}
+                    activity = discord.Activity(type=type_dict.get(input_activity, None), name=text)
                     await ctx.bot.change_presence(activity=activity, shard_id=None)
-                    await ctx.send(embed = discord.Embed(title=lang["core_setactivity"].format(f'{input_activity} {text}'), color=self.embed_color))
+                    await ctx.send(embed=discord.Embed(title=lang["core_setactivity"].format(f'{input_activity} {text}'), color=self.embed_color))
             else:
-                self.botstats_loop.cancel() # pylint: disable=no-member
+                self.botstats_loop.cancel()  # pylint: disable=no-member
                 await ctx.bot.change_presence(activity=None, shard_id=None)
-                await ctx.send(embed = discord.Embed(title=lang["core_setactivity_reset"], color=self.embed_color))
+                await ctx.send(embed=discord.Embed(title=lang["core_setactivity_reset"], color=self.embed_color))
 
     @setactivity.group(cls=ExtendedGroup, name='stats', invoke_without_command=True, description=main.lang["command_setactivity_stats_description"], aliases=['stat', 'rotation'], hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def setactivity_stats(self, ctx):
         if not ctx.invoked_subcommand:
-            self.botstats_loop.start() # pylint: disable=no-member
+            self.botstats_loop.start()  # pylint: disable=no-member
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.send(embed = discord.Embed(title=lang["core_setactivity_stats"], color=self.embed_color))
+            await ctx.send(embed=discord.Embed(title=lang["core_setactivity_stats"], color=self.embed_color))
 
     @setactivity_stats.command(cls=ExtendedCommand, name='stop', description=main.lang["command_setactivity_stats_reset_description"], aliases=['disable', 'clear', 'd', 'off'], permissions=['Bot Owner'])
     @commands.is_owner()
     async def setactivity_stats_disable(self, ctx):
-        self.botstats_loop.cancel() # pylint: disable=no-member
+        self.botstats_loop.cancel()  # pylint: disable=no-member
         await ctx.bot.change_presence(activity=None, shard_id=None)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["core_setactivity_stats_reset"], color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["core_setactivity_stats_reset"], color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name='restart', description=main.lang["command_restart_description"], hidden=True, ignore_extra=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def restart(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["core_restart"], color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["core_restart"], color=self.embed_color))
         try:
             process = psutil.Process(os.getpid())
             for handler in process.open_files() + process.connections():
@@ -524,7 +526,7 @@ class Core(commands.Cog):
     @commands.is_owner()
     async def shutdown(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed = discord.Embed(title=lang["core_shutdown"], color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["core_shutdown"], color=self.embed_color))
         await self.bot.http.close()
         await self.bot.close()
 
@@ -573,16 +575,17 @@ class Core(commands.Cog):
         if not channel:
             channel = discord.utils.find(lambda c: guild.me.permissions_in(c).send_messages == True, guild.text_channels)
         if channel:
-            embed = discord.Embed(title=lang["bot_guild_join_title"], description=lang["bot_guild_join_description"].format(app_info.name, guild_prefix), color = self.embed_color)
+            embed = discord.Embed(title=lang["bot_guild_join_title"], description=lang["bot_guild_join_description"].format(app_info.name, guild_prefix), color=self.embed_color)
             embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
             await channel.send(embed=embed)
 
     @commands.Cog.listener()
     @commands.guild_only()
     async def on_guild_remove(self, guild):
-        PrefixHandler.remove_guild(guild.id) # PrefixHandler takes care of language data removal as well since its tied to the same table
+        PrefixHandler.remove_guild(guild.id)  # PrefixHandler takes care of language data removal as well since its tied to the same table
         await CommandController.remove_disabled_commands(guild.id)
         await CogController.remove_disabled_cogs(guild.id)
+
 
 def setup(bot):
     bot.add_cog(Core(bot))
