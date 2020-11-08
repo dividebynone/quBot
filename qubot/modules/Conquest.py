@@ -231,11 +231,12 @@ class Conquest(commands.Cog):
                     image.paste(access_icon, (482, 408), mask=access_icon)
 
                     # Sending image
-                    buffer_output = io.BytesIO()                # Create buffer
-                    image.save(buffer_output, format='PNG')
+                    image = image.convert('RGB')
+                    buffer_output = io.BytesIO()  # Create buffer
+                    image.save(buffer_output, optimize=True, quality=95, format='JPEG')
                     buffer_output.seek(0)
 
-                    await ctx.send(file=discord.File(buffer_output, f'settlement-{cdata["settlement_id"]}.png'))
+                    await ctx.send(file=discord.File(buffer_output, f'settlement-{cdata["settlement_id"]}.jpg'))
         else:
             await ctx.send(lang["conquest_sinfo_part_of"].format(ctx.author.mention), delete_after=15)
 
@@ -342,89 +343,93 @@ class Conquest(commands.Cog):
             if cdata_defence:
                 cdata_offence = await self.quConquest.get_settlement('user', attack_user.id)
                 if cdata_offence:
-                    attack_score = (cdata_offence["size"] + (cdata_offence["tech_attack"] / 4)) / (cdata_defence["size"] + (cdata_defence["tech_defence"] / 4))
-                    attack_score_calculated = (50 * attack_score) * 100 if attack_score <= 1 else (50 + 8.35 * attack_score) * 100
-                    if attack_score_calculated > 10000:
-                        attack_score_calculated = 10000
-                    result = rand_generator.randint(0, 10000)
-                    experience = math.ceil((10000 - result) / 10)
-                    result_loot = math.ceil(cdata_defence["treasury"] / 20)
-                    win_percentage = "%.2f" % float(attack_score_calculated / 100)
+                    if cdata_offence["settlement_id"] != cdata_defence["settlement_id"]:
+                        attack_score = (cdata_offence["size"] + (cdata_offence["tech_attack"] / 4)) / (cdata_defence["size"] + (cdata_defence["tech_defence"] / 4))
+                        attack_score_calculated = (50 * attack_score) * 100 if attack_score <= 1 else (50 + 8.35 * attack_score) * 100
+                        if attack_score_calculated > 10000:
+                            attack_score_calculated = 10000
+                        result = rand_generator.randint(0, 10000)
+                        experience = math.ceil((10000 - result) / 10)
+                        result_loot = math.ceil(cdata_defence["treasury"] / 20)
+                        win_percentage = "%.2f" % float(attack_score_calculated / 100)
 
-                    if result <= attack_score_calculated:
-                        result_text = lang["conquest_attack_result_victory"]
-                        outcome_string = "win"
-                        cdata_offence["experience"] += experience
-                        cdata_offence["wins"] += 1
-                        cdata_offence["treasury"] += result_loot
-                        cdata_defence["treasury"] -= result_loot
-                        cdata_defence["losses"] += 1
+                        if result <= attack_score_calculated:
+                            result_text = lang["conquest_attack_result_victory"]
+                            outcome_string = "win"
+                            cdata_offence["experience"] += experience
+                            cdata_offence["wins"] += 1
+                            cdata_offence["treasury"] += result_loot
+                            cdata_defence["treasury"] -= result_loot
+                            cdata_defence["losses"] += 1
+                        else:
+                            result_text = lang["conquest_attack_result_defeat"]
+                            outcome_string = "defeat"
+                            cdata_defence["experience"] += math.ceil(experience / 10)
+                            cdata_defence["wins"] += 1
+                            cdata_offence["losses"] += 1
+                            experience = 0
+                            result_loot = 0
+
+                        image = self.attack_image.copy().convert("RGBA")
+                        draw = ImageDraw.Draw(image)
+
+                        settlement_level_offence = cdata_offence['tech_tree'][0] if cdata_offence['tech_tree'][0] != "X" else 10
+                        settlement_level_defence = cdata_defence['tech_tree'][0] if cdata_defence['tech_tree'][0] != "X" else 10
+
+                        # Text
+                        result_w, result_h = self.title_font.getsize(result_text)
+                        draw.text(((520 + (210 - result_w) / 2), (468 + (30 - result_h) / 2)), result_text, fill=(255, 255, 255, 255), font=self.title_font)
+
+                        win_percent_w, win_percent_h = self.medium_font.getsize(f'{win_percentage} %')
+                        draw.text(((775 + (115 - win_percent_w) / 2), (468 + (30 - win_percent_h) / 2)), f'{win_percentage} %', fill=(255, 255, 255, 255), font=self.medium_font)
+
+                        roll_w, roll_h = self.title_font.getsize(str(result))
+                        draw.text(((575 + (300 - roll_w) / 2), (545 + (30 - roll_h) / 2)), str(result), fill=(255, 255, 255, 255), font=self.title_font)
+
+                        gold_title_w, gold_title_h = self.title_font.getsize(lang["conquest_pillaged_gold"])
+                        draw.text(((620 + (300 - gold_title_w) / 2), (596 + (30 - gold_title_h) / 2)), lang["conquest_pillaged_gold"], fill=(255, 255, 255, 255), font=self.title_font)
+                        gold_w, gold_h = self.title_font.getsize(f'{result_loot} G')
+                        draw.text(((620 + (300 - gold_w) / 2), (631 + (30 - gold_h) / 2)), f'{result_loot} G', fill=(255, 255, 255, 255), font=self.title_font)
+
+                        exp_w, exp_h = self.title_font.getsize(f'{experience} {lang["exp_string"]}')
+                        draw.text(((575 + (300 - exp_w) / 2), (685 + (30 - exp_h) / 2)), f'{experience} {lang["exp_string"]}', fill=(255, 255, 255, 255), font=self.title_font)
+
+                        # Level
+                        level_color_offence = (255, 255, 255, 255) if settlement_level_offence != 10 else (216, 62, 62, 255)
+                        level_color_defence = (255, 255, 255, 255) if settlement_level_defence != 10 else (216, 62, 62, 255)
+                        level_w_offence, level_h_offence = self.level_font.getsize(str(settlement_level_offence))
+                        level_w_defence, level_h_defence = self.level_font.getsize(str(settlement_level_defence))
+                        draw.text(((70 + (85 - level_w_offence) / 2), (60 + (30 - level_h_offence) / 2)), str(settlement_level_offence), fill=level_color_offence, font=self.level_font)
+                        draw.text(((1237 + (85 - level_w_defence) / 2), (60 + (30 - level_h_defence) / 2)), str(settlement_level_defence), fill=level_color_defence, font=self.level_font)
+
+                        # Settlement Building
+                        settlement_building_offence = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', f'settlement-level-{settlement_level_offence}.png'))
+                        settlement_building_defence = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', f'settlement-level-{settlement_level_defence}.png'))
+                        image.paste(settlement_building_offence, (0, 0), mask=settlement_building_offence)
+                        image.paste(settlement_building_defence, (950, 0), mask=settlement_building_defence)
+
+                        # Trees
+                        settlement_overlay = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', 'settlement-overlay.png'))
+                        image.paste(settlement_overlay, (0, 0), mask=settlement_overlay)
+                        image.paste(settlement_overlay, (950, 0), mask=settlement_overlay)
+
+                        # Sending image
+                        image = image.convert('RGB')
+                        buffer_output = io.BytesIO()  # Create buffer
+                        image.save(buffer_output, optimize=True, quality=95, format='JPEG')
+                        buffer_output.seek(0)
+
+                        result_string = lang[f"conquest_{outcome_string}_string_{math.ceil(result / 2000)}"].format(cdata_defence["name"])
+                        embed = discord.Embed(title=f'{cdata_offence["name"]} **VS** {cdata_defence["name"]}', description=f'Result: **{result_text}**', colour=self.embed_color)
+                        embed.add_field(name="Summary", value=result_string)
+                        embed.set_image(url=f'attachment://attack-{cdata_offence["settlement_id"]}-{cdata_defence["settlement_id"]}.jpg')
+                        await ctx.send(file=discord.File(buffer_output, f'attack-{cdata_offence["settlement_id"]}-{cdata_defence["settlement_id"]}.jpg'), embed=embed)
+
+                        await self.quConquest.update_settlement('invite', cdata_offence["invite_string"], cdata_offence)
+                        await self.quConquest.update_settlement('invite', cdata_defence["invite_string"], cdata_defence)
+                        return
                     else:
-                        result_text = lang["conquest_attack_result_defeat"]
-                        outcome_string = "defeat"
-                        cdata_defence["experience"] += math.ceil(experience / 10)
-                        cdata_defence["wins"] += 1
-                        cdata_offence["losses"] += 1
-                        experience = 0
-                        result_loot = 0
-
-                    image = self.attack_image.copy().convert("RGBA")
-                    draw = ImageDraw.Draw(image)
-
-                    settlement_level_offence = cdata_offence['tech_tree'][0] if cdata_offence['tech_tree'][0] != "X" else 10
-                    settlement_level_defence = cdata_defence['tech_tree'][0] if cdata_defence['tech_tree'][0] != "X" else 10
-
-                    # Text
-                    result_w, result_h = self.title_font.getsize(result_text)
-                    draw.text(((520 + (210 - result_w) / 2), (468 + (30 - result_h) / 2)), result_text, fill=(255, 255, 255, 255), font=self.title_font)
-
-                    win_percent_w, win_percent_h = self.medium_font.getsize(f'{win_percentage} %')
-                    draw.text(((775 + (115 - win_percent_w) / 2), (468 + (30 - win_percent_h) / 2)), f'{win_percentage} %', fill=(255, 255, 255, 255), font=self.medium_font)
-
-                    roll_w, roll_h = self.title_font.getsize(str(result))
-                    draw.text(((575 + (300 - roll_w) / 2), (545 + (30 - roll_h) / 2)), str(result), fill=(255, 255, 255, 255), font=self.title_font)
-
-                    gold_title_w, gold_title_h = self.title_font.getsize(lang["conquest_pillaged_gold"])
-                    draw.text(((620 + (300 - gold_title_w) / 2), (596 + (30 - gold_title_h) / 2)), lang["conquest_pillaged_gold"], fill=(255, 255, 255, 255), font=self.title_font)
-                    gold_w, gold_h = self.title_font.getsize(f'{result_loot} G')
-                    draw.text(((620 + (300 - gold_w) / 2), (631 + (30 - gold_h) / 2)), f'{result_loot} G', fill=(255, 255, 255, 255), font=self.title_font)
-
-                    exp_w, exp_h = self.title_font.getsize(f'{experience} {lang["exp_string"]}')
-                    draw.text(((575 + (300 - exp_w) / 2), (685 + (30 - exp_h) / 2)), f'{experience} {lang["exp_string"]}', fill=(255, 255, 255, 255), font=self.title_font)
-
-                    # Level
-                    level_color_offence = (255, 255, 255, 255) if settlement_level_offence != 10 else (216, 62, 62, 255)
-                    level_color_defence = (255, 255, 255, 255) if settlement_level_defence != 10 else (216, 62, 62, 255)
-                    level_w_offence, level_h_offence = self.level_font.getsize(str(settlement_level_offence))
-                    level_w_defence, level_h_defence = self.level_font.getsize(str(settlement_level_defence))
-                    draw.text(((70 + (85 - level_w_offence) / 2), (60 + (30 - level_h_offence) / 2)), str(settlement_level_offence), fill=level_color_offence, font=self.level_font)
-                    draw.text(((1237 + (85 - level_w_defence) / 2), (60 + (30 - level_h_defence) / 2)), str(settlement_level_defence), fill=level_color_defence, font=self.level_font)
-
-                    # Settlement Building
-                    settlement_building_offence = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', f'settlement-level-{settlement_level_offence}.png'))
-                    settlement_building_defence = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', f'settlement-level-{settlement_level_defence}.png'))
-                    image.paste(settlement_building_offence, (0, 0), mask=settlement_building_offence)
-                    image.paste(settlement_building_defence, (950, 0), mask=settlement_building_defence)
-
-                    # Trees
-                    settlement_overlay = Image.open(os.path.join(main.bot_path, 'data', 'images', 'conquest', 'settlement-overlay.png'))
-                    image.paste(settlement_overlay, (0, 0), mask=settlement_overlay)
-                    image.paste(settlement_overlay, (950, 0), mask=settlement_overlay)
-
-                    # Sending image
-                    buffer_output = io.BytesIO()  # Create buffer
-                    image.save(buffer_output, format='PNG')
-                    buffer_output.seek(0)
-
-                    result_string = lang[f"conquest_{outcome_string}_string_{math.ceil(result/2000)}"].format(cdata_defence["name"])
-                    embed = discord.Embed(title=f'{cdata_offence["name"]} **VS** {cdata_defence["name"]}', description=f'Result: **{result_text}**', colour=self.embed_color)
-                    embed.add_field(name="Summary", value=result_string)
-                    embed.set_image(url=f'attachment://attack-{cdata_offence["settlement_id"]}-{cdata_defence["settlement_id"]}.png')
-                    await ctx.send(file=discord.File(buffer_output, f'attack-{cdata_offence["settlement_id"]}-{cdata_defence["settlement_id"]}.png'), embed=embed)
-
-                    await self.quConquest.update_settlement('invite', cdata_offence["invite_string"], cdata_offence)
-                    await self.quConquest.update_settlement('invite', cdata_defence["invite_string"], cdata_defence)
-                    return
+                        await ctx.send(lang["conquest_attack_enemy_self"], delete_after=15)
                 else:
                     await ctx.send(lang["conquest_attack_you_no"], delete_after=15)
             else:
@@ -493,7 +498,7 @@ class Conquest(commands.Cog):
                     await ctx.send(lang["conquest_leave_leader"], delete_after=15)
                 else:
                     await ctx.send(embed=discord.Embed(title=lang["conquest_leave_confirmation_title"],
-                                   description=(lang["conquest_leave_confirmation_description"] + f'\n\n**{lang["conquest_leave_single"]}**' if cdata["size"] == 1 else ''),
+                                   description=(lang["conquest_leave_confirmation_description"] + (f'\n\n**{lang["conquest_leave_single"]}**' if cdata["size"] == 1 else '')),
                                    color=self.embed_color))
                     try:
                         msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
@@ -501,6 +506,7 @@ class Conquest(commands.Cog):
                             if cdata["size"] > 1:
                                 cdata["size"] -= 1
                                 await self.quConquest.update_settlement('id', cdata['settlement_id'], cdata)
+                                await self.quConquest.remove_member(user.id)
                             else:
                                 await self.quConquest.delete_settlement(cdata['settlement_id'])
                             await ctx.send(embed=discord.Embed(title=lang["conquest_leave_success"], color=self.embed_color))

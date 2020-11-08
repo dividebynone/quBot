@@ -221,6 +221,7 @@
     "conquest_attack_args": "No target user was specified.",
     "conquest_attack_enemy_no": "The settlement you're trying to attack does not exist!",
     "conquest_attack_enemy_part_of": "The person you're trying to attack does not seem to be part of any settlements.",
+    "conquest_attack_enemy_self": "You cannot attack this user because they are part of your settlement.",
     "conquest_attack_result_defeat": "Defeat",
     "conquest_attack_result_victory": "Victory",
     "conquest_attack_self": "You can't attack your own settlement.",

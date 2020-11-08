@@ -197,11 +197,12 @@ class Profiles(commands.Cog):
             image.paste(avatar_image, (20, 20), mask=mask)
 
             # Sending image
-            buffer_output = io.BytesIO()                # Create buffer
-            image.save(buffer_output, format='PNG')
+            image = image.convert('RGB')
+            buffer_output = io.BytesIO()  # Create buffer
+            image.save(buffer_output, optimize=True, quality=95, format='JPEG')
             buffer_output.seek(0)
 
-            await ctx.send(file=discord.File(buffer_output, 'profile.png'))
+            await ctx.send(file=discord.File(buffer_output, 'profile.jpg'))
 
     @commands.cooldown(3, 60, commands.BucketType.member)
     @commands.command(name='bio', help=main.lang["command_bio_help"], description=main.lang["command_bio_description"], usage="<text>")
@@ -393,8 +394,7 @@ class Profiles(commands.Cog):
     async def background_unequip(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         await ProfilesHandler.equip_background(ctx.author.id, ctx.guild.id, None)
-        embed = discord.Embed(title=lang["profiles_unequip_message"].format(str(ctx.author)), color=self.embed_color)
-        await ctx.send(embed=embed)
+        await ctx.send(embed=discord.Embed(title=lang["profiles_unequip_message"].format(str(ctx.author)), color=self.embed_color))
 
     @commands.cooldown(5, 60, commands.BucketType.member)
     @commands.guild_only()
