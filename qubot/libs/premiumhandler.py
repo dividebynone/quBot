@@ -4,11 +4,18 @@ import main
 import os
 
 
+class PremiumOnlyException(commands.CheckFailure):
+    pass
+
+
 # Custom Premium Only Check
 def premium_only():
     async def predicate(ctx):
         handler = PremiumHandler()
-        return await handler.is_premium(ctx.author.id)
+        if await handler.is_premium(ctx.author.id):
+            return True
+        else:
+            raise PremiumOnlyException(f"Failed to execute the command '{ctx.command.qualified_name}'. User does not have premium access.")
     return commands.check(predicate)
 
 

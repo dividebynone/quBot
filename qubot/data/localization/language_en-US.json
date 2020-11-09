@@ -440,6 +440,7 @@
     "errorhandler_dcmd": "This command ({}) is currently disabled.",
     "errorhandler_missing_perms": "The bot is missing the following permissions to execute this command: {}",
     "errorhandler_nsfw_channel_required": "This command ({}) can only be used in NSFW channels.",
+    "errorhandler_premium_only": "This command is only available to premium users.",
     "exp_string": "EXP",
     "goodbye_channel_string": "Goodbye Channel",
     "greetings_channel_string": "Greetings Channel",

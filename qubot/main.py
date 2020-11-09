@@ -122,6 +122,7 @@ json_lang_en = {
     "premium_add_failed": "Uh oh, I ran into some issues when trying to manually add premium time to this person.",
     "premium_end_success_title": "Ended premium",
     "premium_end_success_desc": "Successfully ended **{}**'s premium access to the bot.\nThey will no longer be able to use premium-only features.",
+    "errorhandler_premium_only": "This command is only available to premium users.",
 
     "and_string": "and",
     "automation_bye_default": "Goodbye, {}. Wishing you all the best.",

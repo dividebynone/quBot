@@ -1,5 +1,6 @@
 from discord.ext import commands
 import libs.qulib as qulib
+from libs.premiumhandler import PremiumOnlyException
 import main
 import discord
 import asyncio
@@ -9,7 +10,7 @@ class ErrorHandler(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.module_embed_color = 0xc10000
+        self.embed_color = 0xc10000
         print(f'Module {self.__class__.__name__} loaded')
 
         # Module configuration
@@ -32,16 +33,19 @@ class ErrorHandler(commands.Cog):
             return
 
         # elif isinstance(error, commands.DisabledCommand):
-        #     embed = discord.Embed(title=main.lang["errorhandler_dcmd"].format(ctx.command), color=self.module_embed_color)
+        #     embed = discord.Embed(title=main.lang["errorhandler_dcmd"].format(ctx.command), color=self.embed_color)
 
         elif isinstance(error, commands.CommandOnCooldown):
-            embed = discord.Embed(title=main.lang["errorhandler_cooldown"].format(ctx.command, "%.1f" % error.retry_after), color=self.module_embed_color)
+            embed = discord.Embed(title=main.lang["errorhandler_cooldown"].format(ctx.command, "%.1f" % error.retry_after), color=self.embed_color)
 
         elif isinstance(error, commands.BotMissingPermissions):
-            embed = discord.Embed(title=main.lang["errorhandler_missing_perms"].format(error.missing_perms), color=self.module_embed_color)
+            embed = discord.Embed(title=main.lang["errorhandler_missing_perms"].format(error.missing_perms), color=self.embed_color)
+
+        elif isinstance(error, PremiumOnlyException):
+            embed = discord.Embed(title=main.lang["errorhandler_premium_only"], color=self.embed_color)
 
         elif isinstance(error, commands.NSFWChannelRequired):
-            embed = discord.Embed(title=main.lang["errorhandler_nsfw_channel_required"].format(ctx.command), color=self.module_embed_color)
+            embed = discord.Embed(title=main.lang["errorhandler_nsfw_channel_required"].format(ctx.command), color=self.embed_color)
 
         if embed:
             await ctx.send(embed=embed, delete_after=15)
