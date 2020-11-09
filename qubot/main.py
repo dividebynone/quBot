@@ -115,6 +115,13 @@ json_lang_en = {
     "moderation_nuke_confirmation_footer": "Please be careful as this action is irreversible",
     "moderation_nuke_confirmation_title": "Nuking a text channel",
     "command_channel_nuke_description": "Nukes the target text channel. As a result, all messages in that channel will be deleted.",
+    "command_premium_add_description": "Manually adds time to the target user's premium access to the bot.",
+    "command_premium_end_description": "Manually ends the target user's premium access to the bot.",
+    "premium_add_success_title": "Added premium",
+    "premium_add_success_desc": "Successfully added premium time to **{}**.\nPremium access expires: **{}**.",
+    "premium_add_failed": "Uh oh, I ran into some issues when trying to manually add premium time to this person.",
+    "premium_end_success_title": "Ended premium",
+    "premium_end_success_desc": "Successfully ended **{}**'s premium access to the bot.\nThey will no longer be able to use premium-only features.",
 
     "and_string": "and",
     "automation_bye_default": "Goodbye, {}. Wishing you all the best.",
