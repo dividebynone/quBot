@@ -633,10 +633,11 @@ class Moderation(commands.Cog):
                 action = ctx.send
                 try:
                     while True:
-                        embed = discord.Embed(title=lang["moderation_warnings_embed_title"].format(str(member)), color=self.embed_color)
+                        embed = discord.Embed(color=self.embed_color)
+                        embed.set_author(name=lang["moderation_warnings_embed_title"].format(str(member)), icon_url=str(member.avatar_url))
                         for warning in warnings[(index * 5):(index * 5 + 5)]:
                             warned_by = self.bot.get_user(warning[1])
-                            embed.add_field(name=f'{lang["warning_string"]}: **{warning[0]}**', value=lang["moderation_warnings_embed_issuedby"].format(warned_by), inline=False)
+                            embed.add_field(name=f'{lang["warning_string"]}: {warning[0]}', value=lang["moderation_warnings_embed_issuedby"].format(warned_by), inline=False)
 
                         if last_index == 0:
                             await ctx.send(embed=embed)
