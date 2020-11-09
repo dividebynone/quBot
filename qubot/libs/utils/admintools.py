@@ -95,6 +95,11 @@ class AutoWarningActions(object):
             await self.set_autoban(guild_id, None)
 
     @classmethod
+    async def clear_autoactions(self, guild_id: int):
+        with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM autoactions WHERE guild_id=?", (guild_id,))
+
+    @classmethod
     async def set_autoban(self, guild_id: int, ban: int):
         with sqlconnect(os.path.join(bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("INSERT OR IGNORE INTO autoactions (guild_id) VALUES(?)", (guild_id,))

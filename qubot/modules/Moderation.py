@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from discord.ext import tasks, commands
 import libs.utils.admintools as admintools
 from libs.qulib import ExtendedCommand, ExtendedGroup
+import libs.prefixhandler as prefixhandler
 from main import config, bot_path
 import libs.qulib as qulib
 import discord
@@ -81,6 +82,7 @@ class Moderation(commands.Cog):
         self.Reports = admintools.Reports()
         self.Warnings = admintools.Warnings()
         self.MuteRole = admintools.MuteRole()
+        self.PrefixHandler = prefixhandler.PrefixHandler()
         self.AutoActions = admintools.AutoWarningActions()
         self.BlacklistedUsers = admintools.BlacklistedUsers()
         self.TemporaryActions = admintools.TemporaryActions()
@@ -191,6 +193,7 @@ class Moderation(commands.Cog):
     async def on_guild_remove(self, guild):
         await self.BlacklistedUsers.remove_blacklist_guild(guild.id)
         await self.TemporaryActions.wipe_guild_data(guild.id)
+        await self.AutoActions.clear_autoactions(guild.id)
         await self.Modlog.wipe_data(guild.id)
 
     # Module commands
@@ -703,6 +706,23 @@ class Moderation(commands.Cog):
             except IndexError:
                 await ctx.send(lang["moderation_warnings_outofrange"], delete_after=15)
 
+    @commands.cooldown(10, 30, commands.BucketType.user)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @warnings.command(cls=ExtendedCommand, name='dashboard', description=main.lang["command_warnings_dashboard_description"], aliases=['settings', 'config'], permissions=['Administrator'])
+    async def warnings_dashboard(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        actions = await self.AutoActions.get_actions(ctx.guild.id)
+
+        embed = discord.Embed(description=lang["moderation_warnings_dashboard_description"].format(ctx.guild.name, f'`{self.PrefixHandler.get_prefix(ctx.guild.id, main.prefix)}warnings auto <action> <number>`'), color=self.embed_color)
+        embed.set_author(name=lang["moderation_warnings_dashboard_header"].format(ctx.guild.name), icon_url=str(ctx.guild.icon_url))
+        action_list = [lang["mute_string"], lang["kick_string"], lang["ban_string"]]
+        for i, action in enumerate(action_list):
+            embed.add_field(name=f'**{action}**',
+                            value=(qulib.plural(actions[i], lang["warning_lower_string"], lang["warnings_lower_string"]) if (actions and actions[i]) else lang["moderation_not_configured"]),
+                            inline=True)
+        await ctx.send(embed=embed)
+
     @commands.cooldown(10, 60, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -715,7 +735,7 @@ class Moderation(commands.Cog):
                     action_lowered = action.lower()
                     if action_lowered in ('mute', 'kick', 'ban'):
                         await self.AutoActions.set_value(ctx.guild.id, action, number)
-                        embed = discord.Embed(title=lang["moderation_autoaction_success"].format(action_lowered, number), color=self.embed_color)
+                        embed = discord.Embed(description=lang["moderation_autoaction_success"].format(action_lowered.upper(), number), color=self.embed_color)
                 else:
                     embed = discord.Embed(title=lang["moderation_autoaction_max"].format(self.max_warnings), color=self.embed_color)
                 await ctx.send(embed=embed)
@@ -729,6 +749,15 @@ class Moderation(commands.Cog):
             await self.AutoActions.disable_autoaction(ctx.guild.id, action)
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             await ctx.send(embed=discord.Embed(title=lang["moderation_autoaction_disable"].format(action.lower()), color=self.embed_color))
+
+    @commands.cooldown(5, 60, commands.BucketType.user)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @warnings_autoaction.command(cls=ExtendedCommand, name='reset', description=main.lang["command_warnings_auto_reset_description"], aliases=['clear'], permissions=['Administrator'])
+    async def warnings_autoaction_reset(self, ctx):
+        await self.AutoActions.clear_autoactions(ctx.guild.id)
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await ctx.send(embed=discord.Embed(title=lang["moderation_autoaction_reset_title"], description=lang["moderation_autoaction_reset_desc"], color=self.embed_color))
 
     @commands.cooldown(5, 30, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
@@ -827,6 +856,28 @@ class Moderation(commands.Cog):
         for member in member_list:
             embed.add_field(name=f'{str(member)} [{lang["id_string"]}: {member.id}]', value=f'> **{lang["joined_string"]}:** {qulib.humanize_time(lang, member.joined_at, past=True)}\n> **{lang["created_string"]}:** {qulib.humanize_time(lang, member.created_at, past=True)}', inline=False)
         await ctx.send(embed=embed)
+
+    @commands.cooldown(5, 60, commands.BucketType.guild)
+    @commands.has_permissions(manage_channels=True)
+    @commands.guild_only()
+    @commands.command(cls=ExtendedCommand, name='nuke', description=main.lang["command_channel_nuke_description"], usage="<channel>", permissions=['Manage Channels'])
+    async def nuke_channel(self, ctx, channel: discord.TextChannel):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        embed = discord.Embed(title=lang["moderation_nuke_confirmation_title"], description=lang["moderation_nuke_confirmation_desc"], color=self.embed_color)
+        embed.set_footer(text=lang["moderation_nuke_confirmation_footer"])
+        await ctx.send(embed=embed)
+
+        try:
+            msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
+            if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
+                new_channel = await channel.clone(reason=lang["moderation_nuke_clone_reason"])
+                await new_channel.edit(position=channel.position)
+                await channel.delete(reason=lang["moderation_nuke_delete_reason"])
+                await ctx.send(embed=discord.Embed(title=lang["moderation_nuke_success_title"], description=lang["moderation_nuke_success_desc"].format(str(channel)), color=self.embed_color))
+            else:
+                await ctx.send(lang["wait_for_cancelled"], delete_after=15)
+        except asyncio.TimeoutError:
+            await ctx.send(lang["wait_for_timeout"], delete_after=15)
 
     async def get_modlog_channel(self, ctx):
         if ctx.guild:

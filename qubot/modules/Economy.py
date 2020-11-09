@@ -82,7 +82,7 @@ class Economy(commands.Cog):
         user = user or ctx.author
         user_info = await user_get(user.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        await ctx.send(embed=discord.Embed(title=lang["economy_currency_return_msg"].format(user, user_info['currency'], self.currency_symbol), color=self.embed_color))
+        await ctx.send(embed=discord.Embed(title=lang["economy_currency_msg"].format(user, user_info['currency'], self.currency_symbol), color=self.embed_color))
 
     @commands.command(cls=ExtendedCommand, name="adjust", description=main.lang["command_adjust_description"], usage="<amount> <user>", permissions=['Bot Owner'])
     @commands.is_owner()
