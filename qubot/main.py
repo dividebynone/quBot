@@ -118,10 +118,11 @@ json_lang_en = {
     "command_premium_add_description": "Manually adds time to the target user's premium access to the bot.",
     "command_premium_end_description": "Manually ends the target user's premium access to the bot.",
     "premium_add_success_title": "Added premium",
-    "premium_add_success_desc": "Successfully added premium time to **{}**.\nPremium access expires: **{}**.",
+    "premium_add_success_desc": "Successfully added premium time to **{}**.\n**Expires:** {}.\n**Tier:** {}",
     "premium_add_failed": "Uh oh, I ran into some issues when trying to manually add premium time to this person.",
     "premium_end_success_title": "Ended premium",
     "premium_end_success_desc": "Successfully ended **{}**'s premium access to the bot.\nThey will no longer be able to use premium-only features.",
+    "premium_tier_not_found": "Failed to add premium to user: Premium tier not recognized.",
     "errorhandler_premium_only": "This command is only available to premium users.",
 
     "and_string": "and",

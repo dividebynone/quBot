@@ -54,20 +54,29 @@ class Premium(commands.Cog):
         if not ctx.invoked_subcommand:
             pass
 
-    @premium_group.command(cls=ExtendedCommand, name='add', description=main.lang["command_premium_add_description"], usage="<user> <period>", hidden=True, permissions=['Bot Owner'])
+    @premium_group.command(cls=ExtendedCommand, name='add', description=main.lang["command_premium_add_description"], usage="<user> <tier> <period>", hidden=True, permissions=['Bot Owner'])
     @commands.guild_only()
     @commands.is_owner()
-    async def premium_add(self, ctx, user: discord.User, period: TimePeriod):
+    async def premium_add(self, ctx, user: discord.User, tier, *, period: TimePeriod):
+        tiers = {
+            "standard": [premiumhandler.PremiumTier.Standard, "Premium"],
+            "premium": [premiumhandler.PremiumTier.Standard, "Premium"],
+            "plus": [premiumhandler.PremiumTier.Plus, "Premium Plus"],
+            "premiumplus": [premiumhandler.PremiumTier.Plus, "Premium Plus"],
+        }
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        user_premium_unix = await self.PremiumHandler.get_expiration(user.id)
-        expiration_unix = int((user_premium_unix if user_premium_unix else datetime.utcnow().timestamp()) + period)
-        expiration_time = datetime.fromtimestamp(expiration_unix, tz=timezone.utc)
-        added = await self.PremiumHandler.update_premium(user.id, expiration_unix)
-        if added:
-            await ctx.send(embed=discord.Embed(title=lang["premium_add_success_title"],
-                           description=lang["premium_add_success_desc"].format(str(user), expiration_time.strftime('%Y/%m/%d at %H:%M UTC')), color=self.embed_color))
+        if tier.lower() in tiers.keys():
+            user_premium_unix = await self.PremiumHandler.get_expiration(user.id)
+            expiration_unix = int((user_premium_unix if user_premium_unix else datetime.utcnow().timestamp()) + period)
+            expiration_time = datetime.fromtimestamp(expiration_unix, tz=timezone.utc)
+            added = await self.PremiumHandler.update_premium(user.id, expiration_unix, tiers[tier][0])
+            if added:
+                await ctx.send(embed=discord.Embed(title=lang["premium_add_success_title"],
+                               description=lang["premium_add_success_desc"].format(str(user), expiration_time.strftime('%Y/%m/%d at %H:%M UTC'), tiers[tier][1]), color=self.embed_color))
+            else:
+                await ctx.send(lang["premium_add_failed"], delete_after=15)
         else:
-            await ctx.send(lang["premium_add_failed"], delete_after=15)
+            await ctx.send(lang["premium_tier_not_found"], delete_after=15)
 
     @premium_group.command(cls=ExtendedCommand, name='end', description=main.lang["command_premium_end_description"], usage="<user>", hidden=True, permissions=['Bot Owner'])
     @commands.guild_only()

@@ -74,10 +74,13 @@ class Voting(commands.Cog):
 
         # self.dblpy = dbl.DBLClient(self.bot, self.token, webhook_path='/dblwebhook', webhook_auth=self.webhook_auth, webhook_port=5000, autopost=True) # Autopost will post your guild count every 30 minutes
 
-        self.bot.loop.create_task(self.webhook())
+        self.webhook_task = self.bot.loop.create_task(self.webhook())
         self.dbl_update_stats.start()  # pylint: disable=no-member
 
         print(f'Module {self.__class__.__name__} loaded')
+
+    def cog_unload(self):
+        self.webhook_task.cancel()  # pylint: disable=no-member
 
     # @tasks.loop(minutes=30.0)
     # async def update_stats(self):

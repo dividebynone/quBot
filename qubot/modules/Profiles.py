@@ -8,6 +8,7 @@ import libs.roundedrectangles  # noqa: F401
 from libs.profileshandler import ProfilesHandler, ProfileBackgrounds, LevelingToggle
 from libs.prefixhandler import PrefixHandler
 from libs.qulib import user_get, user_set, ExtendedCommand, ExtendedGroup
+import libs.premiumhandler as premiumhandler
 import asyncio
 import textwrap
 import math
@@ -44,11 +45,14 @@ class Profiles(commands.Cog):
 
         self.ProfilesHandler = ProfilesHandler()
         self.ProfileBackgrounds = ProfileBackgrounds()
+        self.PremiumHandler = premiumhandler.PremiumHandler()
         self.LevelingToggle = LevelingToggle()
         self.PrefixHandler = PrefixHandler()
         self.bio_char_limit = 150
 
         self.background_image = Image.open(os.path.join(main.bot_path, 'data', 'images', 'profile-background.jpg'))
+        self.premium_badge = Image.open(os.path.join(main.bot_path, 'data', 'images', 'premium-badge.png'))
+        self.premium_plus_badge = Image.open(os.path.join(main.bot_path, 'data', 'images', 'premium-badge-plus.png'))
 
         self.title_font = ImageFont.truetype(os.path.join(main.bot_path, 'data', 'fonts', 'HelveticaNowMedium.ttf'), 30)
         self.medium_font = ImageFont.truetype(os.path.join(main.bot_path, 'data', 'fonts', 'HelveticaNowBold.ttf'), 22)
@@ -196,13 +200,20 @@ class Profiles(commands.Cog):
 
             image.paste(avatar_image, (20, 20), mask=mask)
 
+            # Premium Badge
+            tier = await self.PremiumHandler.get_tier(user.id)
+            if tier == premiumhandler.PremiumTier.Standard:
+                image.paste(self.premium_badge, (20, 110), mask=self.premium_badge)
+            elif tier == premiumhandler.PremiumTier.Plus:
+                image.paste(self.premium_plus_badge, (20, 110), mask=self.premium_plus_badge)
+
             # Sending image
             image = image.convert('RGB')
             buffer_output = io.BytesIO()  # Create buffer
-            image.save(buffer_output, optimize=True, quality=95, format='JPEG')
+            image.save(buffer_output, optimize=True, quality=95, format='PNG')
             buffer_output.seek(0)
 
-            await ctx.send(file=discord.File(buffer_output, 'profile.jpg'))
+            await ctx.send(file=discord.File(buffer_output, 'profile.png'))
 
     @commands.cooldown(3, 60, commands.BucketType.member)
     @commands.command(name='bio', help=main.lang["command_bio_help"], description=main.lang["command_bio_description"], usage="<text>")
