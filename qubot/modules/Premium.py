@@ -8,12 +8,6 @@ import discord
 import main
 import re
 
-from main import bot_path
-from aiohttp import web
-import aiohttp_cors
-import ssl
-import os
-
 
 # Standard time converter - Converts a string into a seconds-based time interval
 # Usage: Converts string input of a time interval into seconds
@@ -51,56 +45,7 @@ class Premium(commands.Cog):
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
-        self.webhook_task = self.bot.loop.create_task(self.webhook())
-
         print(f'Module {self.__class__.__name__} loaded')
-
-    def cog_unload(self):
-        self.webhook_task.cancel()  # pylint: disable=no-member
-
-    async def webhook(self):
-        async def webhook_handler(request):
-            try:
-                req_auth = request.headers.get('Authorization')
-                print(req_auth)
-                # if self.dbl_webhook_auth == req_auth.strip():
-                #     main.logger.info('[Discordbotlist.com] Bot received an upvote!')
-                #     data = await request.json()
-                #     user = self.bot.get_user(int(data['id']))
-                #     if user is not None:
-                #         voting_info, vote_multiplier = await self.vote_handler(user.id, self.vote_reward)
-                #         if voting_info:
-                #             await user.send(embed=discord.Embed(title=main.lang["voting_user_vote_embed_title"],
-                #                                                 description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']),
-                #                                                 color=self.embed_color))
-                #             return web.Response()
-                # else:
-                #     return web.Response(status=401)
-            except Exception:
-                pass
-
-        web_app = web.Application(loop=self.bot.loop)
-
-        cors = aiohttp_cors.setup(web_app, defaults={
-            "https://qubot.xyz": aiohttp_cors.ResourceOptions(
-                allow_credentials=True,
-                expose_headers="*",
-                allow_headers=("Accept", "Authorization", "Content-Type", "X-Patreon-Event", "Origin", "X-Patreon-Signature",),
-                max_age=3600,
-            )
-        })
-
-        resource = cors.add(web_app.router.add_resource("/premium"))
-        cors.add(resource.add_route("POST", webhook_handler))
-
-        web_runner = web.AppRunner(web_app)
-        await web_runner.setup()
-
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        ssl_context.load_cert_chain(os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.crt'), os.path.join(bot_path, 'data', 'ssl', 'qubot.xyz.key'))
-
-        site = web.TCPSite(web_runner, host="0.0.0.0", port=5555, ssl_context=ssl_context)
-        await site.start()
 
     @commands.group(cls=ExtendedGroup, name='premium', hidden=True, permissions=['Bot Owner'])
     @commands.guild_only()
