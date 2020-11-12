@@ -8,11 +8,14 @@ import discord
 import main
 import re
 
+
 from main import bot_path
 from aiohttp import web
 import aiohttp_cors
 import ssl
 import os
+import hmac
+import hashlib
 
 
 # Standard time converter - Converts a string into a seconds-based time interval
@@ -61,21 +64,43 @@ class Premium(commands.Cog):
     async def webhook(self):
         async def webhook_handler(request):
             try:
-                req_auth = request.headers.get('Authorization')
-                print(req_auth)
-                # if self.dbl_webhook_auth == req_auth.strip():
-                #     main.logger.info('[Discordbotlist.com] Bot received an upvote!')
-                #     data = await request.json()
-                #     user = self.bot.get_user(int(data['id']))
-                #     if user is not None:
-                #         voting_info, vote_multiplier = await self.vote_handler(user.id, self.vote_reward)
-                #         if voting_info:
-                #             await user.send(embed=discord.Embed(title=main.lang["voting_user_vote_embed_title"],
-                #                                                 description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']),
-                #                                                 color=self.embed_color))
-                #             return web.Response()
-                # else:
-                #     return web.Response(status=401)
+                message_signature = request.headers.get('X-Patreon-Signature')
+                data = await request.text()
+
+                calculated_signature = hmac.new(b"ONSZFHWDM8Q4w02d97wiFZEPAqF0a5iQLrwpAbH7DacQHcEY9x5Rl2pcGIVVTZ85", data.encode(), hashlib.md5).hexdigest()
+                if calculated_signature == message_signature:
+                    event_type = request.headers.get('X-Patreon-Event')
+                    json_data = await request.json()
+
+                    user_id = None
+                    patreon_tier = None
+                    tiers = {"6232177": premiumhandler.PremiumTier.Standard, "6232178": premiumhandler.PremiumTier.Plus}
+
+                    for snippet in json_data["included"]:
+                        if snippet["type"] == "user":
+                            user_id = int(snippet["attributes"]["social_connections"]["discord"]["user_id"])
+                        elif snippet["type"] in ("reward", "tier"):
+                            tier_id = snippet["id"]
+                            patreon_tier = tiers.get(tier_id, None)
+
+                    if patreon_tier is None:
+                        if "currently_entitled_tiers" in json_data["data"]["relationships"]:
+                            for tier in json_data["data"]["relationships"]["currently_entitled_tiers"]:
+                                if tier["id"] in tiers:
+                                    patreon_tier = tiers.get(tier["id"], None)
+                                    break
+                        else:
+                            patreon_tier = tiers["6232177"]
+
+                    if user_id:
+                        if patreon_tier is not None and event_type in ("members:pledge:create", "members:pledge:update"):
+                            await self.PremiumHandler.add_patreon_premium(user_id, patreon_tier)
+                        elif event_type == "members:pledge:delete":
+                            await self.PremiumHandler.end_premium(user_id)
+
+                    return web.Response()
+                else:
+                    return web.Response(status=401)
             except Exception:
                 pass
 
@@ -85,7 +110,7 @@ class Premium(commands.Cog):
             "https://www.patreon.com": aiohttp_cors.ResourceOptions(
                 allow_credentials=True,
                 expose_headers="*",
-                allow_headers=("Accept", "Authorization", "Content-Type", "X-Patreon-Event", "Origin", "X-Patreon-Signature",),
+                allow_headers=("Accept", "Content-Type", "X-Patreon-Event", "Origin", "X-Patreon-Signature",),
                 max_age=3600,
             )
         })
@@ -124,7 +149,7 @@ class Premium(commands.Cog):
             user_premium_unix = await self.PremiumHandler.get_expiration(user.id)
             expiration_unix = int((user_premium_unix if user_premium_unix else datetime.utcnow().timestamp()) + period)
             expiration_time = datetime.fromtimestamp(expiration_unix, tz=timezone.utc)
-            added = await self.PremiumHandler.update_premium(user.id, expiration_unix, tiers[tier][0])
+            added = await self.PremiumHandler.add_limited_premium(user.id, expiration_unix, tiers[tier][0])
             if added:
                 await ctx.send(embed=discord.Embed(title=lang["premium_add_success_title"],
                                description=lang["premium_add_success_desc"].format(str(user), expiration_time.strftime('%Y/%m/%d at %H:%M UTC'), tiers[tier][1]), color=self.embed_color))
