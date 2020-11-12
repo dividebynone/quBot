@@ -2,6 +2,7 @@ from discord.ext import tasks, commands
 from main import bot_path, config
 import libs.qulib as qulib
 import libs.votingtracker as votingtracker
+import libs.premiumhandler as premiumhandler
 from aiohttp import web
 from datetime import datetime, timedelta, timezone
 from libs.qulib import ExtendedCommand
@@ -24,6 +25,7 @@ class Voting(commands.Cog):
         self.embed_color = 0xffd426
 
         self.VotingTracker = votingtracker.VotingTracker()
+        self.PremiumHandler = premiumhandler.PremiumHandler()
 
         # Module configuration
         self.module_name = str(self.__class__.__name__)
@@ -200,7 +202,15 @@ class Voting(commands.Cog):
                     else:
                         voting_info['combo'] = 0
 
-                user_info['currency'] += int(vote_amount * vote_multiplier)
+                premium_tier = await self.PremiumHandler.get_tier(user_id)
+                premium_multiplier = 1
+                if premium_tier:
+                    if premium_tier == premiumhandler.PremiumTier.Standard:
+                        premium_multiplier = 1.5
+                    elif premium_tier == premiumhandler.PremiumTier.Plus:
+                        premium_multiplier = 2.0
+
+                user_info['currency'] += int(vote_amount * vote_multiplier * premium_multiplier)
                 voting_info['combo'] += 1
                 voting_info['last_voted'] = unix_now
                 await self.VotingTracker.update_user(user_id, voting_info)
