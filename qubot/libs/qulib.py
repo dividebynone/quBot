@@ -131,7 +131,7 @@ def string_generator(size):
 
 def plural(number: int, singular: str, plural: str):
     if number > 0:
-        return f"{number} {singular if number == 1 else plural}"
+        return f"{number:,} {singular if number == 1 else plural}"
     else:
         return ""
 

@@ -162,7 +162,7 @@ class Profiles(commands.Cog):
 
             disabled_leveling = LevelingToggle.is_disabled(ctx.guild.id)
 
-            xp_message = f'{user_experience}/{user_next_lvl_experience} {lang["exp_string"]}' if not disabled_leveling else lang["profile_disabled_exp"]
+            xp_message = f'{user_experience:,}/{user_next_lvl_experience:,} {lang["exp_string"]}' if not disabled_leveling else lang["profile_disabled_exp"]
             xp_w, xp_h = self.body_font.getsize(xp_message)
             draw.text(((175 + (self.levelbar_size[0] - xp_w) / 2), (90 + (self.levelbar_size[1] - xp_h) / 2)), xp_message, fill=(0, 0, 0, 255), font=self.body_font)
 
@@ -240,7 +240,7 @@ class Profiles(commands.Cog):
                 if value.isnumeric():
                     background_info = await ProfileBackgrounds.get_background_info(value)
                     if background_info:
-                        embed = discord.Embed(title=lang['profiles_background_specific_title'], description=f"{background_info['description']}\n\n**{lang['price_string']}:** {background_info['price']} {self.currency_symbol}", color=self.embed_color)
+                        embed = discord.Embed(title=lang['profiles_background_specific_title'], description=f"{background_info['description']}\n\n**{lang['price_string']}:** {background_info['price']:,} {self.currency_symbol}", color=self.embed_color)
                         embed.set_thumbnail(url=background_info['url'])
                         embed.set_footer(text=f"{lang['category_string']}: {background_info['category']}")
                     else:
@@ -260,7 +260,7 @@ class Profiles(commands.Cog):
                             while True:
                                 description = ""
                                 for background in category_info[(index * 5):(index * 5 + 5)]:
-                                    description += f'\u2022 **{background[0]}** - {background[1]}\n\t{f"""**{lang["price_string"]}**: {background[2]} {self.currency_symbol}""" if int(background[0]) not in unlocked_backgrounds else lang["profiles_background_owned"]}\n\n'
+                                    description += f'\u2022 **{background[0]}** - {background[1]}\n\t{f"""**{lang["price_string"]}**: {background[2]:,} {self.currency_symbol}""" if int(background[0]) not in unlocked_backgrounds else lang["profiles_background_owned"]}\n\n'
                                 embed = discord.Embed(title=lang["profiles_background_category_title"].format(value.capitalize()), description=description, color=self.embed_color)
                                 embed.set_footer(text=f"{lang['page_string']} {index+1}/{last_index+1} - {str(ctx.author)}" if start_index != last_index else str(ctx.author))
                                 if start_index == last_index:
@@ -431,7 +431,7 @@ class Profiles(commands.Cog):
                         description = lang["profiles_leaderboard_description"].format(ctx.guild.name, user_rank)
                         for person in leaderboard[(index * 10):(index * 10 + 10)]:
                             user = self.bot.get_user(person[0]) or person[0]
-                            description += f"**#{person[1]} {str(user)}** ({lang['level_string']} {person[2]} : {person[3]} {lang['exp_string']})\n"
+                            description += f"**#{person[1]} {str(user)}** ({lang['level_string']} {person[2]} : {person[3]:,} {lang['exp_string']})\n"
                         embed = discord.Embed(title=lang["profiles_leaderboard_title"], description=description, color=self.embed_color)
                         embed.set_thumbnail(url=str(ctx.guild.icon_url))
                         if last_index == 0:

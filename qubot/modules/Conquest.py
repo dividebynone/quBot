@@ -206,8 +206,8 @@ class Conquest(commands.Cog):
                     population_w, population_h = self.title_font.getsize(str(cdata["size"]))
                     draw.text(((620 + (300 - population_w) / 2), (425 + (30 - population_h) / 2)), str(cdata["size"]), fill=(255, 255, 255, 255), font=self.title_font)
 
-                    gold_w, gold_h = self.title_font.getsize(f'{cdata["treasury"]} {lang["conquest_resources_gold"]}')
-                    draw.text(((575 + (300 - gold_w) / 2), (480 + (30 - gold_h) / 2)), f'{cdata["treasury"]} {lang["conquest_resources_gold"]}', fill=(255, 255, 255, 255), font=self.title_font)
+                    gold_w, gold_h = self.medium_font.getsize(f'{cdata["treasury"]:,} {lang["conquest_resources_gold"]}')
+                    draw.text(((575 + (300 - gold_w) / 2), (482 + (30 - gold_h) / 2)), f'{cdata["treasury"]:,} {lang["conquest_resources_gold"]}', fill=(255, 255, 255, 255), font=self.medium_font)
 
                     draw.text((580, 580), lang["conquest_wins"], fill=(255, 255, 255, 255), font=self.medium_font)
                     draw.text((755, 580), lang["conquest_losses"], fill=(255, 255, 255, 255), font=self.body_font)
@@ -458,7 +458,7 @@ class Conquest(commands.Cog):
                 while True:
                     output = f'{lang["conquest_leaderboard_description"].format(ctx.guild.name)}\n' + f'{lang["conquest_leaderboard_ranked"].format(member_rank)}\n\n' if member_rank else '\n'
                     for item in leaderboard_data[(index * 10):(index * 10 + 10)]:
-                        output += f'**#{item[3]}** {item[1]} [{lang["id_string"]}: {item[0]}] - **{item[2]} {lang["exp_string"]}**\n'
+                        output += f'**#{item[3]}** {item[1]} [{lang["id_string"]}: {item[0]}] - **{item[2]:,} {lang["exp_string"]}**\n'
                     embed = discord.Embed(title=lang["conquest_leaderboard_title"], description=output, color=self.embed_color)
                     if last_index == 0:
                         await ctx.send(embed=embed)
@@ -573,7 +573,7 @@ class Conquest(commands.Cog):
         else:
             await ctx.send(lang["conquest_skick_self"], delete_after=15)
 
-    @commands.command(name='resources', description=main.lang["command_resources_description"], ignore_extra=True)
+    @commands.command(name='resources', description=main.lang["command_resources_description"], aliases=["warehouse"], ignore_extra=True)
     async def conquest_resources(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if await self.quConquest.find_member(ctx.author.id):
@@ -583,17 +583,18 @@ class Conquest(commands.Cog):
                 resources = await self.quConquest.get_resources(settlement_id)
                 if resources:
                     json_data = await qulib.data_get()
-                    embed = discord.Embed(title=lang["conquest_warehouse_title"].format(cdata["name"]), color=self.embed_color)
+                    embed = discord.Embed(title=lang["conquest_warehouse_title"], color=self.embed_color)
                     embed.set_thumbnail(url=json_data['Conquest']['resources_image'])
-                    embed.add_field(name=lang["conquest_resources_gold"], value=f'{cdata["treasury"]} {json_data["Conquest"]["gold_icon"]}', inline=True)
+                    embed.set_footer(text=cdata["name"])
+                    embed.add_field(name=lang["conquest_resources_gold"], value=f'{cdata["treasury"]:,} {json_data["Conquest"]["gold_icon"]}', inline=True)
                     embed.add_field(name=f'{lang["conquest_resources_wood"]} (+{await self.quConquest.get_resource_production_rate(8, settlement_id)}/{lang["day_string"]})',
-                                    value=f'{resources["wood"]} {json_data["Conquest"]["resources_wood"]}', inline=True)
+                                    value=f'{resources["wood"]:,} {json_data["Conquest"]["resources_wood"]}', inline=True)
                     embed.add_field(name=f'{lang["conquest_resources_stone"]} (+{await self.quConquest.get_resource_production_rate(5, settlement_id)}/{lang["day_string"]})',
-                                    value=f'{resources["stone"]} {json_data["Conquest"]["resources_stone"]}', inline=True)
+                                    value=f'{resources["stone"]:,} {json_data["Conquest"]["resources_stone"]}', inline=True)
                     embed.add_field(name=f'{lang["conquest_resources_food"]} (+{await self.quConquest.get_resource_production_rate(6, settlement_id)}/{lang["day_string"]})',
-                                    value=f'{resources["food"]} {json_data["Conquest"]["resources_food"]}', inline=True)
+                                    value=f'{resources["food"]:,} {json_data["Conquest"]["resources_food"]}', inline=True)
                     embed.add_field(name=f'{lang["conquest_resources_cloth"]}  (+{await self.quConquest.get_resource_production_rate(7, settlement_id)}/{lang["day_string"]})',
-                                    value=f'{resources["cloth"]} {json_data["Conquest"]["resources_cloth"]}', inline=True)
+                                    value=f'{resources["cloth"]:,} {json_data["Conquest"]["resources_cloth"]}', inline=True)
             else:
                 embed = discord.Embed(title=lang["conquest_not_leader"], color=self.embed_color)
         else:
@@ -691,11 +692,11 @@ class Conquest(commands.Cog):
                 if level == 10 or (level == 1 and (i + 1) in (3, 9)):
                     embed.add_field(name=f"**{i + 1} ) {buildings[i]['name']}: {lang['level_string']} {level}** *MAX*", value=lang["conquest_max_reached"], inline=False)
                 else:
-                    gold = f"{pow(2, level+1)*buildings[i]['mltplr_gold']} {json_data['Conquest']['gold_icon']}" if buildings[i]['mltplr_gold'] != 0 else ""
-                    wood = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_wood']} {json_data['Conquest']['resources_wood']}" if (buildings[i]['mltplr_wood'] != 0) else ""
-                    stone = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_stone']} {json_data['Conquest']['resources_stone']}" if (buildings[i]['mltplr_stone'] != 0) else ""
-                    food = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_food']} {json_data['Conquest']['resources_food']}" if (buildings[i]['mltplr_food'] != 0) else ""
-                    cloth = f"{pow(level+1, 2)*(level+1)*buildings[i]['mltplr_cloth']} {json_data['Conquest']['resources_cloth']}" if (buildings[i]['mltplr_cloth'] != 0) else ""
+                    gold = f"{(pow(2, level+1)*buildings[i]['mltplr_gold']):,} {json_data['Conquest']['gold_icon']}" if buildings[i]['mltplr_gold'] != 0 else ""
+                    wood = f"{(pow(level+1, 2)*(level+1)*buildings[i]['mltplr_wood']):,} {json_data['Conquest']['resources_wood']}" if (buildings[i]['mltplr_wood'] != 0) else ""
+                    stone = f"{(pow(level+1, 2)*(level+1)*buildings[i]['mltplr_stone']):,} {json_data['Conquest']['resources_stone']}" if (buildings[i]['mltplr_stone'] != 0) else ""
+                    food = f"{(pow(level+1, 2)*(level+1)*buildings[i]['mltplr_food']):,} {json_data['Conquest']['resources_food']}" if (buildings[i]['mltplr_food'] != 0) else ""
+                    cloth = f"{(pow(level+1, 2)*(level+1)*buildings[i]['mltplr_cloth']):,} {json_data['Conquest']['resources_cloth']}" if (buildings[i]['mltplr_cloth'] != 0) else ""
                     if int(level) == 0 and i in (0, 4, 5, 6, 7):
                         wood = stone = food = cloth = ""
                     if i > 0 and ((level + 1) > int(th_level)):
@@ -770,11 +771,11 @@ class Conquest(commands.Cog):
                 building = await self.quConquest.get_building(building_id)
                 description = f"**{lang['conquest_requirements_header']}**\n"
                 for level in range(0, 10):
-                    gold = f"{pow(2, int(level)+1)*building['gold']} {json_data['Conquest']['gold_icon']}" if building['gold'] != 0 else ""
-                    wood = f"{pow(int(level)+1, 2)*(level+1)*building['wood']} {json_data['Conquest']['resources_wood']}" if (building['wood'] != 0) else ""
-                    stone = f"{pow(int(level)+1, 2)*(level+1)*building['stone']} {json_data['Conquest']['resources_stone']}" if (building['stone'] != 0) else ""
-                    food = f"{pow(int(level)+1, 2)*(level+1)*building['food']} {json_data['Conquest']['resources_food']}" if (building['food'] != 0) else ""
-                    cloth = f"{pow(int(level)+1, 2)*(level+1)*building['cloth']} {json_data['Conquest']['resources_cloth']}" if (building['cloth'] != 0) else ""
+                    gold = f"{(pow(2, int(level)+1)*building['gold']):,} {json_data['Conquest']['gold_icon']}" if building['gold'] != 0 else ""
+                    wood = f"{(pow(int(level)+1, 2)*(level+1)*building['wood']):,} {json_data['Conquest']['resources_wood']}" if (building['wood'] != 0) else ""
+                    stone = f"{(pow(int(level)+1, 2)*(level+1)*building['stone']):,} {json_data['Conquest']['resources_stone']}" if (building['stone'] != 0) else ""
+                    food = f"{(pow(int(level)+1, 2)*(level+1)*building['food']):,} {json_data['Conquest']['resources_food']}" if (building['food'] != 0) else ""
+                    cloth = f"{(pow(int(level)+1, 2)*(level+1)*building['cloth']):,} {json_data['Conquest']['resources_cloth']}" if (building['cloth'] != 0) else ""
                     if level == 0 and building_id in (1, 5, 6, 7, 8):
                         wood = stone = food = cloth = ""
                     description += f"**{lang['level_string']} {level} ⮕ {int(level)+1}:** {gold} {wood} {stone} {food} {cloth}\n"
