@@ -119,7 +119,7 @@ class Economy(commands.Cog):
                 if isinstance(amount, str) and amount.lower() == "all":
                     amount = author_info['currency']
                 else:
-                    raise commands.UserInputError(f"Invalid user input provided to the command '{ctx.command.qualified_name}'.")          
+                    raise commands.UserInputError(f"Invalid user input provided to the command '{ctx.command.qualified_name}'.")
 
             author_info['currency'] -= amount
             user_info['currency'] += amount
