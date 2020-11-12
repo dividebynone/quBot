@@ -101,23 +101,33 @@ class Economy(commands.Cog):
 
     @commands.command(name="give", description=main.lang["command_give_description"], usage="<amount> <user>")
     @commands.guild_only()
-    async def give(self, ctx, number: int, *, user: discord.User):
+    async def give(self, ctx, amount, *, user: discord.User):
         author = ctx.author
         author_info = await user_get(author.id)
         user_info = await user_get(user.id)
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        if number > 0:
-            if author_info['currency'] <= 0 or number > author_info['currency']:
-                embed = discord.Embed(title=lang["economy_insufficient_funds"], color=self.embed_color)
-            elif author == user:
-                embed = discord.Embed(title=lang["economy_give_self"], color=self.embed_color)
-            else:
-                embed = discord.Embed(title=lang["economy_give_success"].format(author, user, number, self.currency_symbol), color=self.embed_color)
-                author_info['currency'] -= number
-                user_info['currency'] += number
-                await user_set(author.id, author_info)
-                await user_set(user.id, user_info)
-            await ctx.send(embed=embed)
+        if author != user:
+            try:
+                amount = int(amount)
+                if amount > 0:
+                    if author_info['currency'] <= 0 or amount > author_info['currency']:
+                        await ctx.send(lang["economy_insufficient_funds"], delete_after=15)
+                        return
+                else:
+                    raise commands.UserInputError("This command accepts only positive values.")
+            except ValueError:
+                if isinstance(amount, str) and amount.lower() == "all":
+                    amount = author_info['currency']
+                else:
+                    raise commands.UserInputError(f"Invalid user input provided to the command '{ctx.command.qualified_name}'.")          
+
+            author_info['currency'] -= amount
+            user_info['currency'] += amount
+            await user_set(author.id, author_info)
+            await user_set(user.id, user_info)
+            await ctx.send(embed=discord.Embed(title=lang["economy_give_success"].format(author, user, amount, self.currency_symbol), color=self.embed_color))
+        else:
+            await ctx.send(lang["economy_give_self"], delete_after=15)
 
     @commands.command(name="roulette", description=main.lang["command_betroll_description"], usage="<amount>", aliases=['br', 'betroll', 'broll'])
     async def roulette(self, ctx, number: int):
