@@ -119,9 +119,9 @@ class Voting(commands.Cog):
                 isWeekend = bool(data['isWeekend'])
                 reward = int(self.vote_reward * 2) if isWeekend else self.vote_reward
 
-                voting_info, vote_multiplier = await self.vote_handler(user.id, reward)
+                voting_info, vote_multiplier, premium_multiplier = await self.vote_handler(user.id, reward)
                 if voting_info:
-                    await user.send(embed=discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("top.gg", int(reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color=self.embed_color))
+                    await user.send(embed=discord.Embed(title=main.lang["voting_user_vote_embed_title"], description=main.lang["voting_user_vote_embed_description"].format("top.gg", int(reward * vote_multiplier * premium_multiplier), self.currency_symbol, voting_info['combo']), color=self.embed_color))
         except Exception:
             pass
 
@@ -134,10 +134,10 @@ class Voting(commands.Cog):
                     data = await request.json()
                     user = self.bot.get_user(int(data['id']))
                     if user is not None:
-                        voting_info, vote_multiplier = await self.vote_handler(user.id, self.vote_reward)
+                        voting_info, vote_multiplier, premium_multiplier = await self.vote_handler(user.id, self.vote_reward)
                         if voting_info:
                             await user.send(embed=discord.Embed(title=main.lang["voting_user_vote_embed_title"],
-                                                                description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']),
+                                                                description=main.lang["voting_user_vote_embed_description"].format("discordbotlist.com", int(self.vote_reward * vote_multiplier * premium_multiplier), self.currency_symbol, voting_info['combo']),
                                                                 color=self.embed_color))
                             return web.Response()
                 else:
@@ -177,10 +177,10 @@ class Voting(commands.Cog):
     @vote_command.command(cls=ExtendedCommand, name='test', description=main.lang["command_vote_test_description"], hidden=True, permissions=['Bot Owner'])
     @commands.is_owner()
     async def vote_test(self, ctx):
-        voting_info, vote_multiplier = await self.vote_handler(ctx.author.id, self.vote_reward)
+        voting_info, vote_multiplier, premium_multiplier = await self.vote_handler(ctx.author.id, self.vote_reward)
         if voting_info:
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.author.send(embed=discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.vote_reward * vote_multiplier), self.currency_symbol, voting_info['combo']), color=self.embed_color))
+            await ctx.author.send(embed=discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.vote_reward * vote_multiplier * premium_multiplier), self.currency_symbol, voting_info['combo']), color=self.embed_color))
 
     async def vote_handler(self, user_id: int, vote_amount: int):
         try:
@@ -215,7 +215,7 @@ class Voting(commands.Cog):
                 voting_info['last_voted'] = unix_now
                 await self.VotingTracker.update_user(user_id, voting_info)
                 await qulib.user_set(user_id, user_info)
-                return voting_info, vote_multiplier
+                return voting_info, vote_multiplier, premium_multiplier
             return None
         except Exception:
             raise

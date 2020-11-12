@@ -54,7 +54,7 @@ class Premium(commands.Cog):
 
         # Main Config.ini Configuration
         if 'Premium' not in config.sections():
-            config.add_section('Economy')
+            config.add_section('Premium')
             config.set('Premium', 'WebhookAuth', '<Enter Patreon webhook secret here>')
 
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
