@@ -1,21 +1,19 @@
-from discord.ext import commands
+from discord.ext import tasks, commands
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 from libs.qulib import ExtendedCommand, ExtendedGroup
 import libs.premiumhandler as premiumhandler
+from main import bot_path, config
 import libs.qulib as qulib
-import discord
-import main
-import re
-
-
-from main import bot_path
 from aiohttp import web
 import aiohttp_cors
+import hashlib
+import discord
+import hmac
+import main
 import ssl
 import os
-import hmac
-import hashlib
+import re
 
 
 # Standard time converter - Converts a string into a seconds-based time interval
@@ -54,12 +52,30 @@ class Premium(commands.Cog):
 
         qulib.module_configuration(self.module_name, self.is_restricted_module, self.module_dependencies)
 
+        # Main Config.ini Configuration
+        if 'Premium' not in config.sections():
+            config.add_section('Economy')
+            config.set('Premium', 'WebhookAuth', '<Enter Patreon webhook secret here>')
+
+        with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
+            config.write(config_file)
+        config_file.close()
+
+        with open(os.path.join(bot_path, 'config.ini'), 'r', encoding="utf_8") as config_file:
+            config.read_file(config_file)
+            self.patreon_auth = config.get('Premium', 'WebhookAuth')
+        config_file.close()
+
         self.webhook_task = self.bot.loop.create_task(self.webhook())
+
+        # Starting module-related tasks
+        self.expired_premium_subscriptions.start()  # pylint: disable=no-member
 
         print(f'Module {self.__class__.__name__} loaded')
 
     def cog_unload(self):
         self.webhook_task.cancel()  # pylint: disable=no-member
+        self.expired_premium_subscriptions.cancel()  # pylint: disable=no-member
 
     async def webhook(self):
         async def webhook_handler(request):
@@ -67,7 +83,7 @@ class Premium(commands.Cog):
                 message_signature = request.headers.get('X-Patreon-Signature')
                 data = await request.text()
 
-                calculated_signature = hmac.new(b"ONSZFHWDM8Q4w02d97wiFZEPAqF0a5iQLrwpAbH7DacQHcEY9x5Rl2pcGIVVTZ85", data.encode(), hashlib.md5).hexdigest()
+                calculated_signature = hmac.new(str.encode(self.patreon_auth), data.encode(), hashlib.md5).hexdigest()
                 if calculated_signature == message_signature:
                     event_type = request.headers.get('X-Patreon-Event')
                     json_data = await request.json()
@@ -126,6 +142,11 @@ class Premium(commands.Cog):
 
         site = web.TCPSite(web_runner, host="0.0.0.0", port=5555, ssl_context=ssl_context)
         await site.start()
+
+    @tasks.loop(hours=1.0, reconnect=True)
+    async def expired_premium_subscriptions(self):
+        time_on_iter = int(datetime.utcnow().timestamp())
+        await self.PremiumHandler.clear_expired(time_on_iter)
 
     @commands.group(cls=ExtendedGroup, name='premium', hidden=True, permissions=['Bot Owner'])
     @commands.guild_only()

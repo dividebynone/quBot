@@ -26,7 +26,7 @@ class PremiumTier(enum.IntEnum):
 
 
 class PremiumType(enum.IntEnum):
-    Patreon = 1
+    Unlimited = 1
     Limited = 2
 
 
@@ -46,7 +46,7 @@ class PremiumHandler(object):
     @classmethod
     async def add_patreon_premium(self, user_id: int, tier: PremiumTier):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'premium.db')) as cursor:
-            cursor.execute("INSERT OR REPLACE INTO users (user_id, tier, type) VALUES(?, ?, ?)", (user_id, int(tier), int(PremiumType.Patreon)))
+            cursor.execute("INSERT OR REPLACE INTO users (user_id, tier, type) VALUES(?, ?, ?)", (user_id, int(tier), int(PremiumType.Unlimited)))
             return True if cursor.rowcount > 0 else False
 
     @classmethod
