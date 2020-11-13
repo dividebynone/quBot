@@ -103,6 +103,11 @@ json_lang_en = {
     "profiles_levelbar_not_found": "{}, I could not find the color you requested.",
     "command_levelbar_description": "Changes your profile's leveling bar color to the target one.",
     "command_levelbar_reset_description": "Resets your profile's leveling bar color back to default.",
+    "profiles_levelrole_reason": "User reached the level necessary to get the following roles.",
+    "profiles_levelroles_dashboard_desc": "This is an overview of all roles that can be received in this server by leveling up. They can be changed at any given time using the corresponding command, which can be found using the bot's help command.",
+    "profiles_levelroles_dashboard_empty": "No leveling role rewards are set up on this server",
+    "profiles_levelroles_dashboard_header": "Leveling roles for {}",
+    "commands_levelroles_dashboard_description": "Displays your server's leveling role reward settings.",
 
     "moderation_warnings_dashboard_description": "These are the current automatic warning action settings for **{}**. They can be configured and/or changed at any given time using the following command: {}",
     "moderation_warnings_dashboard_header": "Automatic Actions for {}",

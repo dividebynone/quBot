@@ -301,3 +301,47 @@ class ProfilesCustomization(object):
     async def clear_levelbar(self, user_id: int, guild_id: int):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
             cursor.execute("UPDATE profiles_customization SET levelbar=? WHERE user_id=? AND guild_id=?", (None, user_id, guild_id,))
+
+
+class LevelingRoles(object):
+
+    def __init__(self):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS leveling_roles (guild_id INTEGER, level INTEGER, role_id INTEGER NOT NULL, PRIMARY KEY (guild_id, level))")
+
+    @classmethod
+    async def add_role(self, guild_id: int, role_id: int, level: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("INSERT OR REPLACE INTO leveling_roles (guild_id, level, role_id) VALUES(?, ?, ?)", (guild_id, level, role_id,))
+            return True if cursor.rowcount > 0 else False
+
+    @classmethod
+    async def get_roles(self, guild_id: int, level: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT role_id FROM leveling_roles WHERE guild_id=? AND level<=?", (guild_id, level,))
+            output = cursor.fetchall()
+            return [x[0] for x in output] if output else None
+
+    @classmethod
+    async def get_all_roles(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT level, role_id FROM leveling_roles WHERE guild_id=? ORDER BY level ASC", (guild_id,))
+            output = cursor.fetchall()
+            return output
+
+    @classmethod
+    async def get_role_count(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT role_id FROM leveling_roles WHERE guild_id=?", (guild_id,))
+            output = cursor.fetchall()
+            return len(output) if output else 0
+
+    @classmethod
+    async def remove_role(self, guild_id: int, level: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM leveling_roles WHERE guild_id=? and level=?", (guild_id, level,))
+
+    @classmethod
+    async def reset_guild(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM leveling_roles WHERE guild_id=?", (guild_id,))
