@@ -396,7 +396,7 @@ class Profiles(commands.Cog):
                     if user_info['currency'] <= 0 or background_info['price'] > user_info['currency']:
                         embed = discord.Embed(title=lang["profiles_buy_insufficient_funds"].format(background_info['price'] - user_info['currency'], self.currency_symbol), color=self.embed_color)
                     else:
-                        await ctx.send(embed=discord.Embed(title=lang["profiles_buy_confirmation"].format(background_info['price'], self.currency_symbol), color=self.embed_color))
+                        await ctx.send(embed=discord.Embed(description=lang["profiles_buy_confirmation"].format(background_info['price'], self.currency_symbol), color=self.embed_color))
                         try:
                             msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
                             if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
@@ -595,17 +595,16 @@ class Profiles(commands.Cog):
     async def leveling_reset(self, ctx):
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
         if ctx.author.id == ctx.guild.owner.id:
-            await ctx.send(embed=discord.Embed(title=lang["profiles_leveling_reset_confirmation"], color=self.embed_color))
+            await ctx.send(embed=discord.Embed(title=lang["profiles_leveling_reset_confirmation_title"], description=lang["profiles_leveling_reset_confirmation"], color=self.embed_color))
             try:
                 msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
                 if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
                     await self.ProfilesHandler.reset_leveling(ctx.guild.id)
-                    embed = discord.Embed(title=lang["profiles_leveling_reset_message"], color=self.embed_color)
+                    await ctx.send(embed=discord.Embed(title=lang["profiles_leveling_reset_message"], color=self.embed_color))
                 else:
-                    embed = discord.Embed(title=lang["wait_for_cancelled"], color=self.embed_color)
+                    await ctx.send(lang["wait_for_cancelled"], delete_after=15)
             except asyncio.TimeoutError:
-                embed = discord.Embed(title=lang["wait_for_timeout"], color=self.embed_color)
-            await ctx.send(embed=embed)
+                await ctx.send(lang["wait_for_timeout"], delete_after=15)
 
     @commands.cooldown(10, 60, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
@@ -631,6 +630,23 @@ class Profiles(commands.Cog):
             lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
             await self.LevelingRoles.remove_role(ctx.guild.id, level)
             await ctx.send(embed=discord.Embed(title=lang["profiles_levelrole_remove_title"], description=lang["profiles_levelrole_remove"].format(level), color=self.embed_color))
+
+    @commands.cooldown(5, 60, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @levelrole.command(cls=ExtendedCommand, name='reset', description=main.lang["command_levelrole_reset_description"], aliases=['clear'], permissions=['Administrator'])
+    async def levelrole_reset(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await ctx.send(embed=discord.Embed(title=lang["profiles_lvlrole_reset_title"], description=lang["profiles_lvlrole_reset_confirmation"], color=self.embed_color))
+        try:
+            msg = await self.bot.wait_for('message', check=lambda m: (m.content.lower() in ['yes', 'y', 'no', 'n']) and m.channel == ctx.channel and m.author == ctx.author, timeout=60.0)
+            if msg.content.lower() == 'yes' or msg.content.lower() == 'y':
+                await self.LevelingRoles.reset_guild(ctx.guild.id)
+                await ctx.send(embed=discord.Embed(title=lang["profiles_lvlrole_reset_title"], description=lang["profiles_lvlrole_reset_desc"], color=self.embed_color))
+            else:
+                await ctx.send(lang["wait_for_cancelled"], delete_after=15)
+        except asyncio.TimeoutError:
+            await ctx.send(lang["wait_for_timeout"], delete_after=15)
 
     @commands.cooldown(5, 60, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
