@@ -5,15 +5,17 @@ import main
 import discord
 from PIL import Image, ImageDraw, ImageFont
 import libs.roundedrectangles  # noqa: F401
-from libs.profileshandler import ProfilesHandler, ProfileBackgrounds, LevelingToggle
+from libs.profileshandler import ProfilesHandler, ProfileBackgrounds, LevelingToggle, ProfilesCustomization
 from libs.prefixhandler import PrefixHandler
 from libs.qulib import user_get, user_set, ExtendedCommand, ExtendedGroup
-import libs.premiumhandler as premiumhandler
+import libs.premiumhandler as premium
+import libs.Colors as colors
 import asyncio
 import textwrap
 import math
 import io
 import os
+import re
 
 
 class Profiles(commands.Cog):
@@ -45,9 +47,10 @@ class Profiles(commands.Cog):
 
         self.ProfilesHandler = ProfilesHandler()
         self.ProfileBackgrounds = ProfileBackgrounds()
-        self.PremiumHandler = premiumhandler.PremiumHandler()
+        self.PremiumHandler = premium.PremiumHandler()
         self.LevelingToggle = LevelingToggle()
         self.PrefixHandler = PrefixHandler()
+        self.Customization = ProfilesCustomization()
         self.bio_char_limit = 150
 
         self.background_image = Image.open(os.path.join(main.bot_path, 'data', 'images', 'profile-background.jpg'))
@@ -151,11 +154,24 @@ class Profiles(commands.Cog):
             levelbar_image = Image.new('RGBA', (self.levelbar_size[0] * 3, self.levelbar_size[1] * 3), (0, 0, 0, 0))
             levelbar_draw = ImageDraw.Draw(levelbar_image)
 
-            levelbar_draw.rounded_rectangle([(0, 0), (self.levelbar_size[0] * 3, self.levelbar_size[1] * 3)], corner_radius=45, fill=(255, 255, 255, 255))
-            if (user_experience / user_next_lvl_experience) >= 0.06:
-                levelbar_draw.rounded_rectangle([(6, 6), ((int(self.levelbar_size[0] * (user_experience / user_next_lvl_experience)) * 3) - 6, (self.levelbar_size[1] * 3) - 6)], corner_radius=39, fill=(115, 139, 215, 255))
+            # Default color: (115, 139, 215, 255)
+            levelbar_color = await self.Customization.get_levelbar_color(ctx.author.id, ctx.guild.id) or "#738BD7"
+            luma = colors.calculate_luminance(levelbar_color)
+            if luma > 150:
+                levelbar_bg = "#555555"
+                text_color = "#000000"
+            elif luma > 40:
+                levelbar_bg = "#ffffff"
+                text_color = "#000000"
             else:
-                levelbar_draw.rounded_rectangle([(6, 6), ((int(self.levelbar_size[0] * (0.065)) * 3) - 6, (self.levelbar_size[1] * 3) - 6)], corner_radius=35, fill=(115, 139, 215, 255))
+                levelbar_bg = "#555555"
+                text_color = "#ffffff"
+
+            levelbar_draw.rounded_rectangle([(0, 0), (self.levelbar_size[0] * 3, self.levelbar_size[1] * 3)], corner_radius=45, fill=levelbar_bg)
+            if (user_experience / user_next_lvl_experience) >= 0.06:
+                levelbar_draw.rounded_rectangle([(6, 6), ((int(self.levelbar_size[0] * (user_experience / user_next_lvl_experience)) * 3) - 6, (self.levelbar_size[1] * 3) - 6)], corner_radius=39, fill=levelbar_color)
+            else:
+                levelbar_draw.rounded_rectangle([(6, 6), ((int(self.levelbar_size[0] * (0.065)) * 3) - 6, (self.levelbar_size[1] * 3) - 6)], corner_radius=35, fill=levelbar_color)
 
             levelbar_image = levelbar_image.resize((self.levelbar_size[0], self.levelbar_size[1]), Image.ANTIALIAS)
             image.paste(levelbar_image, (175, 92), levelbar_image)
@@ -164,7 +180,7 @@ class Profiles(commands.Cog):
 
             xp_message = f'{user_experience:,}/{user_next_lvl_experience:,} {lang["exp_string"]}' if not disabled_leveling else lang["profile_disabled_exp"]
             xp_w, xp_h = self.body_font.getsize(xp_message)
-            draw.text(((175 + (self.levelbar_size[0] - xp_w) / 2), (90 + (self.levelbar_size[1] - xp_h) / 2)), xp_message, fill=(0, 0, 0, 255), font=self.body_font)
+            draw.text(((175 + (self.levelbar_size[0] - xp_w) / 2), (92 + (self.levelbar_size[1] - xp_h) / 2)), xp_message, fill=text_color, font=self.body_font)
 
             if not disabled_leveling:
                 level_message = f'{lang["level_string"]}: {user_level}'
@@ -202,9 +218,9 @@ class Profiles(commands.Cog):
 
             # Premium Badge
             tier = await self.PremiumHandler.get_tier(user.id)
-            if tier == premiumhandler.PremiumTier.Standard:
+            if tier == premium.PremiumTier.Standard:
                 image.paste(self.premium_badge, (20, 110), mask=self.premium_badge)
-            elif tier == premiumhandler.PremiumTier.Plus:
+            elif tier == premium.PremiumTier.Plus:
                 image.paste(self.premium_plus_badge, (20, 110), mask=self.premium_plus_badge)
 
             # Sending image
@@ -230,6 +246,34 @@ class Profiles(commands.Cog):
             await ProfilesHandler.set_bio(ctx.author.id, ctx.guild.id, None)
             embed = discord.Embed(title=lang["profile_bio_reset"], color=self.embed_color)
         await ctx.author.send(embed=embed)
+
+    @commands.cooldown(10, 30, commands.BucketType.member)
+    @commands.group(cls=ExtendedGroup, name='levelbar', invoke_without_command=True, description=main.lang["command_levelbar_description"], usage="<color>", aliases=['lbar'], permissions=['Premium Only'])
+    @premium.premium_only()
+    @commands.guild_only()
+    async def levelbar_customization(self, ctx, *, color: str):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            r = re.compile('^#(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$')
+            if r.match(color):
+                await self.Customization.set_levelbar_color(ctx.author.id, ctx.guild.id, color)
+            else:
+                hex_value = colors.get_color(color)
+                if hex_value:
+                    await self.Customization.set_levelbar_color(ctx.author.id, ctx.guild.id, hex_value)
+                else:
+                    await ctx.send(embed=discord.Embed(title=lang["profiles_customization_not_found_title"], description=lang["profiles_levelbar_not_found"].format(ctx.author.mention), color=self.embed_color))
+                    return
+            await ctx.send(embed=discord.Embed(title=lang["profiles_customization_title"], description=lang["profiles_levelbar_success"].format(ctx.author.mention, color.title()), color=self.embed_color))
+
+    @commands.cooldown(10, 30, commands.BucketType.member)
+    @levelbar_customization.command(cls=ExtendedCommand, name='reset', description=main.lang["command_levelbar_reset_description"], aliases=['default', 'clear'], permissions=['Premium Only'])
+    @premium.premium_only()
+    @commands.guild_only()
+    async def levelbar_customization_reset(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await self.Customization.clear_levelbar(ctx.author.id, ctx.guild.id)
+        await ctx.send(embed=discord.Embed(title=lang["profiles_customization_reset_title"], description=lang["profiles_levelbar_reset_description"].format(ctx.author.mention), color=self.embed_color))
 
     @commands.cooldown(5, 30, commands.BucketType.member)
     @commands.group(name='background', invoke_without_command=True, help=main.lang["command_background_help"], description=main.lang["command_background_description"], usage="{category or background id}", aliases=['backgrounds', 'bg', 'bgs'])

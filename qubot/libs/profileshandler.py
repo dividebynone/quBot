@@ -263,3 +263,41 @@ class LevelingToggle(object):
     async def enable_leveling(self, guild_id: int):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("DELETE FROM disabled_leveling WHERE guild_id=?", (guild_id,))
+
+
+class ProfilesCustomization(object):
+
+    def __init__(self):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS profiles_customization (user_id INTEGER, guild_id INTEGER, levelbar BLOB, PRIMARY KEY (user_id, guild_id))")
+
+    @classmethod
+    async def get(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("INSERT OR IGNORE INTO profiles_customization (user_id, guild_id) VALUES(?, ?)", (user_id, guild_id,))
+            cursor.execute("SELECT levelbar FROM profiles_customization WHERE user_id=? AND guild_id=?", (user_id, guild_id,))
+            output = cursor.fetchone()
+            if not output:
+                return None
+            else:
+                output = list(output)
+                return_dict = dict(levelbar=output[0])
+                return return_dict
+
+    @classmethod
+    async def set_levelbar_color(self, user_id: int, guild_id: int, color_hex: str):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("INSERT OR IGNORE INTO profiles_customization (user_id, guild_id) VALUES(?, ?)", (user_id, guild_id,))
+            cursor.execute("UPDATE profiles_customization SET levelbar=? WHERE user_id=? AND guild_id=?", (color_hex, user_id, guild_id,))
+
+    @classmethod
+    async def get_levelbar_color(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("SELECT levelbar FROM profiles_customization WHERE user_id=? AND guild_id=?", (user_id, guild_id,))
+            output = cursor.fetchone()
+            return output[0] if output else None
+
+    @classmethod
+    async def clear_levelbar(self, user_id: int, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'users.db')) as cursor:
+            cursor.execute("UPDATE profiles_customization SET levelbar=? WHERE user_id=? AND guild_id=?", (None, user_id, guild_id,))

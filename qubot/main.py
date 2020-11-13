@@ -95,6 +95,15 @@ logger.addHandler(log_handler)
 # JSON files initialization/writing/loading
 
 json_lang_en = {
+    "profiles_customization_reset_title": "Color reset back to default",
+    "profiles_customization_title": "New color",
+    "profiles_customization_not_found_title": "Color not found",
+    "profiles_levelbar_reset_description": "{}, your leveling bar color has been reset back to default.",
+    "profiles_levelbar_success": "{}, your profile leveling bar color was successfully changed to: **{}**",
+    "profiles_levelbar_not_found": "{}, I could not find the color you requested.",
+    "command_levelbar_description": "Changes your profile's leveling bar color to the target one.",
+    "command_levelbar_reset_description": "Resets your profile's leveling bar color back to default.",
+
     "moderation_warnings_dashboard_description": "These are the current automatic warning action settings for **{}**. They can be configured and/or changed at any given time using the following command: {}",
     "moderation_warnings_dashboard_header": "Automatic Actions for {}",
     "moderation_not_configured": "Not configured",
@@ -338,7 +347,6 @@ json_lang_en = {
     "command_userid_description": "Returns the target individual's Discord ID.",
     "command_userid_help": "If no user is provided with the command, the bot will use the user who executed it.",
     "command_vote_description": "A help command that provides further information about bot voting.",
-    "command_vote_test_description": "Simulates a successful user vote for the bot.",
     "command_warn_description": "Warns the target user for a particular reason. As a result, this individual will receive a direct message from the bot.",
     "command_warnings_delete_description": "Deletes a specific warning that was issued to the target individual.",
     "command_warnings_description": "Displays a list of warnings for the target individual.",

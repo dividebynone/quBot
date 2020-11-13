@@ -5,7 +5,6 @@ import libs.votingtracker as votingtracker
 import libs.premiumhandler as premiumhandler
 from aiohttp import web
 from datetime import datetime, timedelta, timezone
-from libs.qulib import ExtendedCommand
 import aiohttp_cors
 import configparser
 import requests
@@ -167,20 +166,6 @@ class Voting(commands.Cog):
 
         site = web.TCPSite(web_runner, host="0.0.0.0", port=5050, ssl_context=ssl_context)
         await site.start()
-
-    @commands.group(name='vote', invoke_without_command=True, description=main.lang["command_vote_description"])
-    async def vote_command(self, ctx):
-        if not ctx.invoked_subcommand:
-            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.send(embed=discord.Embed(title=lang["voting_vote_embed_title"], description=lang["voting_vote_embed_description"].format(self.vote_reward, self.currency_symbol), color=self.embed_color))
-
-    @vote_command.command(cls=ExtendedCommand, name='test', description=main.lang["command_vote_test_description"], hidden=True, permissions=['Bot Owner'])
-    @commands.is_owner()
-    async def vote_test(self, ctx):
-        voting_info, vote_multiplier, premium_multiplier = await self.vote_handler(ctx.author.id, self.vote_reward)
-        if voting_info:
-            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-            await ctx.author.send(embed=discord.Embed(title=lang["voting_user_vote_embed_title"], description=lang["voting_user_vote_embed_description"].format("Testing facility", int(self.vote_reward * vote_multiplier * premium_multiplier), self.currency_symbol, voting_info['combo']), color=self.embed_color))
 
     async def vote_handler(self, user_id: int, vote_amount: int):
         try:

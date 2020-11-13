@@ -44,6 +44,7 @@ class Economy(commands.Cog):
         with open(os.path.join(bot_path, 'config.ini'), 'r', encoding="utf_8") as config_file:
             config.read_file(config_file)
             self.daily_amount = int(config.get('Economy', 'DailyAmount'))
+            self.vote_reward = int(int(config.get('Economy', 'DailyAmount')) / 2)
             self.currency_symbol = config.get('Economy', 'CurrencySymbol')
         config_file.close()
 
@@ -244,6 +245,11 @@ class Economy(commands.Cog):
                     await ctx.send(lang["economy_duel_author_no_funds"].format(ctx.author.mention))
             else:
                 await ctx.send(lang["economy_duel_duel_self"].format(ctx.author.mention))
+
+    @commands.command(name='vote', description=main.lang["command_vote_description"])
+    async def vote_command(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await ctx.send(embed=discord.Embed(title=lang["voting_vote_embed_title"], description=lang["voting_vote_embed_description"].format(self.vote_reward, self.currency_symbol), color=self.embed_color))
 
 
 def setup(bot):
