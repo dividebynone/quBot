@@ -36,6 +36,11 @@ class Profiles(commands.Cog):
             if 'CurrencySymbol' not in config['Economy']:
                 config.set('Economy', 'CurrencySymbol', '💵')
 
+        if 'Profiles' not in config.sections():
+            config.add_section('Profiles')
+            if 'MaxLevelingRoles' not in config['Economy']:
+                config.set('Profiles', 'MaxLevelingRoles', '20')
+
         with open(os.path.join(bot_path, 'config.ini'), 'w', encoding="utf_8") as config_file:
             config.write(config_file)
         config_file.close()
@@ -43,6 +48,7 @@ class Profiles(commands.Cog):
         with open(os.path.join(bot_path, 'config.ini'), 'r', encoding="utf_8") as config_file:
             config.read_file(config_file)
             self.currency_symbol = config.get('Economy', 'CurrencySymbol')
+            self.max_roles = int(config.get('Profiles', 'MaxLevelingRoles'))
         config_file.close()
 
         self.ProfilesHandler = profileshandler.ProfilesHandler()
@@ -52,6 +58,7 @@ class Profiles(commands.Cog):
         self.PrefixHandler = prefixhandler.PrefixHandler()
         self.Customization = profileshandler.ProfilesCustomization()
         self.LevelingRoles = profileshandler.LevelingRoles()
+        self.LevelingNotifications = profileshandler.LevelingNotifications()
         self.bio_char_limit = 150
 
         self.background_image = Image.open(os.path.join(main.bot_path, 'data', 'images', 'profile-background.jpg'))
@@ -126,6 +133,12 @@ class Profiles(commands.Cog):
                     pass
 
             await self.ProfilesHandler.update_experience(message.author.id, message.guild.id, user_data)
+
+    @commands.Cog.listener()
+    @commands.guild_only()
+    async def on_guild_remove(self, guild):
+        await self.LevelingRoles.reset_guild(guild.id)
+        await self.LevelingNotifications.reset_guild(guild.id)
 
     @commands.cooldown(5, 60, commands.BucketType.member)
     @commands.command(name='profile', help=main.lang["command_profile_help"], description=main.lang["command_profile_description"], aliases=['p', 'me', 'level'])
@@ -580,27 +593,38 @@ class Profiles(commands.Cog):
     @commands.cooldown(10, 60, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @commands.group(cls=ExtendedGroup, name='levelrole', invoke_without_command=True, permissions=['Administrator'])
+    @commands.group(cls=ExtendedGroup, name='levelrole', invoke_without_command=True, description=main.lang["command_levelrole_description"], aliases=['lvlrole', 'levelroles', 'lvlroles'], usage="<level> <role>", permissions=['Administrator'])
     async def levelrole(self, ctx, level: int, role: discord.Role):
         if not ctx.invoked_subcommand:
             if level > 0:
+                lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
                 role_count = await self.LevelingRoles.get_role_count(ctx.guild.id)
-                if role_count < 20:
+                if role_count < self.max_roles:
                     await self.LevelingRoles.add_role(ctx.guild.id, role.id, level)
-                    await ctx.send(f"Successfully added role '{str(role)}' as a Level {level} reward.")
+                    await ctx.send(embed=discord.Embed(title=lang["profiles_levelrole_title"], description=lang["profiles_levelrole_desc"].format(role.mention, level), color=self.embed_color))
                 else:
-                    await ctx.send(f"This server has reached the maximum number of roles allowed: {20}")
+                    await ctx.send(embed=discord.Embed(title=lang["profiles_levelrole_max_title"], description=lang["profiles_levelrole_max"].format(self.max_roles), color=self.embed_color))
 
     @commands.cooldown(5, 60, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    @levelrole.command(cls=ExtendedCommand, name='dashboard', description=main.lang["commands_levelroles_dashboard_description"], aliases=['settings', 'config'], permissions=['Administrator'])
+    @levelrole.command(cls=ExtendedCommand, name='remove', description=main.lang["command_levelrole_remove_description"], usage="<level>", aliases=['delete', 'del'], permissions=['Administrator'])
+    async def levelrole_remove(self, ctx, level: int):
+        if level > 0:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            await self.LevelingRoles.remove_role(ctx.guild.id, level)
+            await ctx.send(embed=discord.Embed(title=lang["profiles_levelrole_remove_title"], description=lang["profiles_levelrole_remove"].format(level), color=self.embed_color))
+
+    @commands.cooldown(5, 60, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @levelrole.command(cls=ExtendedCommand, name='dashboard', description=main.lang["command_levelrole_dashboard_description"], aliases=['settings', 'config'], permissions=['Administrator'])
     async def levelrole_dashboard(self, ctx):
         roles_set = await self.LevelingRoles.get_all_roles(ctx.guild.id)
         guild_roles = ctx.guild.roles
 
         lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
-        description = f'{lang["profiles_levelroles_dashboard_desc"]}\n\n'
+        description = f'{lang["profiles_levelrole_dashboard_desc"]}\n\n'
 
         if len(roles_set) > 0:
             for entry in roles_set:
@@ -613,10 +637,10 @@ class Profiles(commands.Cog):
                 if entry_role:
                     description += f'**{lang["level_string"]} {entry[0]}:** {role.mention}\n'
         else:
-            description += lang["profiles_levelroles_dashboard_empty"]
+            description += f'**{lang["profiles_levelrole_dashboard_empty"]}**'
 
         embed = discord.Embed(description=description, color=self.embed_color)
-        embed.set_author(name=lang["profiles_levelroles_dashboard_header"].format(ctx.guild.name), icon_url=str(ctx.guild.icon_url))
+        embed.set_author(name=lang["profiles_levelrole_dashboard_header"].format(ctx.guild.name), icon_url=str(ctx.guild.icon_url))
         await ctx.send(embed=embed)
 
 

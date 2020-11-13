@@ -1,5 +1,6 @@
 from libs.sqlhandler import sqlconnect
 import main
+import enum
 import os
 
 
@@ -345,3 +346,57 @@ class LevelingRoles(object):
     async def reset_guild(self, guild_id: int):
         with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
             cursor.execute("DELETE FROM leveling_roles WHERE guild_id=?", (guild_id,))
+
+
+class NotificationType(enum.IntEnum):
+    Disabled = 1
+    DM = 2
+    Default = 3
+    Channel = 4
+
+
+class LevelingNotifications(object):
+
+    def __init__(self):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("CREATE TABLE IF NOT EXISTS leveling_notifications (guild_id INTEGER PRIMARY KEY, type INTEGER, message BLOB, channel INTEGER)")
+
+    @classmethod
+    async def change_type(self, guild_id: int, notification_type: NotificationType):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("INSERT OR REPLACE INTO leveling_notifications (guild_id) VALUES(?)", (guild_id,))
+            cursor.execute("UPDATE leveling_notifications SET type=? WHERE guild_id=?", (int(notification_type), guild_id,))
+            return True if cursor.rowcount > 0 else False
+
+    @classmethod
+    async def change_message(self, guild_id: int, message: str):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("INSERT OR REPLACE INTO leveling_notifications (guild_id) VALUES(?)", (guild_id,))
+            cursor.execute("UPDATE leveling_notifications SET message=? WHERE guild_id=?", (message, guild_id,))
+            return True if cursor.rowcount > 0 else False
+
+    @classmethod
+    async def set_channel(self, guild_id: int, notification_type: NotificationType, channel_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("INSERT OR REPLACE INTO leveling_notifications (guild_id) VALUES(?)", (guild_id,))
+            cursor.execute("UPDATE leveling_notifications SET type=?, channel=? WHERE guild_id=?", (int(notification_type), channel_id, guild_id,))
+            return True if cursor.rowcount > 0 else False
+
+    @classmethod
+    async def get_channel(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT channel FROM leveling_notifications WHERE guild_id=?", (guild_id,))
+            output = cursor.fetchone()
+            return output[0] if output else None
+
+    @classmethod
+    async def get_guild(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("SELECT type, message, channel FROM leveling_notifications WHERE guild_id=?", (guild_id,))
+            output = cursor.fetchone()
+            return output[0] if output else None
+
+    @classmethod
+    async def reset_guild(self, guild_id: int):
+        with sqlconnect(os.path.join(main.bot_path, 'databases', 'servers.db')) as cursor:
+            cursor.execute("DELETE FROM leveling_notifications WHERE guild_id=?", (guild_id,))
