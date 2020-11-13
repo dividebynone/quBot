@@ -1,18 +1,18 @@
+from libs.qulib import user_get, user_set, ExtendedCommand, ExtendedGroup
 from discord.ext import commands
 from main import config, bot_path
-import libs.qulib as qulib
-import main
-import discord
 from PIL import Image, ImageDraw, ImageFont
 import libs.roundedrectangles  # noqa: F401
 import libs.profileshandler as profileshandler
 import libs.prefixhandler as prefixhandler
-from libs.qulib import user_get, user_set, ExtendedCommand, ExtendedGroup
 import libs.premiumhandler as premium
 import libs.Colors as colors
-import asyncio
+import libs.qulib as qulib
 import textwrap
+import asyncio
+import discord
 import math
+import main
 import io
 import os
 import re
@@ -119,16 +119,33 @@ class Profiles(commands.Cog):
                 role_ids = await self.LevelingRoles.get_roles(message.guild.id, user_data['level'])
 
                 try:
-                    guild_roles = message.guild.roles
-                    roles_to_add = []
-                    for role in guild_roles:
-                        if role.id in role_ids:
-                            roles_to_add.append(role)
+                    if role_ids:
+                        guild_roles = message.guild.roles
+                        roles_to_add = []
+                        for role in guild_roles:
+                            if role.id in role_ids:
+                                roles_to_add.append(role)
 
-                    if len(roles_to_add) > 0:
-                        await message.author.add_roles(*roles_to_add, reason=lang["profiles_levelrole_reason"])
+                        if len(roles_to_add) > 0:
+                            await message.author.add_roles(*roles_to_add, reason=lang["profiles_levelrole_reason"])
 
-                    await message.channel.send(lang["profile_level_up_message"].format(message.author.mention, user_data['level']))
+                    action = message.channel
+                    lvlup_message = lang["profile_level_up_message"].format(message.author.mention, user_data['level'])
+
+                    leveling_settings = await self.LevelingNotifications.get_guild(message.guild.id)
+                    if leveling_settings:
+                        if leveling_settings[0] == profileshandler.NotificationType.DM:
+                            action = message.author
+                            lvlup_message = lang["profile_level_up_message_dm"].format(message.author.mention, user_data['level'], message.guild.name)
+                        elif leveling_settings[0] == profileshandler.NotificationType.Channel and leveling_settings[1]:
+                            channel = message.guild.get_channel(leveling_settings[1])
+                            if not channel:
+                                await self.LevelingNotifications.reset_guild(message.guild.id)
+                            else:
+                                action = channel
+
+                    if action:
+                        await action.send(lvlup_message)
                 except discord.errors.Forbidden:
                     pass
 
@@ -642,6 +659,56 @@ class Profiles(commands.Cog):
         embed = discord.Embed(description=description, color=self.embed_color)
         embed.set_author(name=lang["profiles_levelrole_dashboard_header"].format(ctx.guild.name), icon_url=str(ctx.guild.icon_url))
         await ctx.send(embed=embed)
+
+    @commands.cooldown(10, 60, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @commands.group(cls=ExtendedGroup, name='levelnotify', invoke_without_command=True, description=main.lang["command_lvlnotify_description"], aliases=['lvlnotify', 'lvln'], permissions=['Administrator'])
+    async def leveling_notify(self, ctx):
+        if not ctx.invoked_subcommand:
+            lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+            embed = discord.Embed(description=lang["profile_lvlnotify_desc"], color=self.embed_color)
+            embed.set_author(name=lang["profile_lvlnotify_header"].format(ctx.guild.name), icon_url=str(ctx.guild.icon_url))
+            leveling_settings = await self.LevelingNotifications.get_guild(ctx.guild.id)
+            type_dict = {int(profileshandler.NotificationType.DM): lang["dm_string"], None: lang["default_string"]}
+            if leveling_settings and leveling_settings[1]:
+                channel = ctx.guild.get_channel(leveling_settings[1])
+                if not channel:
+                    await self.LevelingNotifications.reset_guild(ctx.guild.id)
+                else:
+                    type_dict[int(profileshandler.NotificationType.Channel)] = f'{lang["channel_string"]}: {channel.mention}'
+            embed.add_field(name=lang["profile_lvlnotify_type"], value=(type_dict[leveling_settings[0]] if leveling_settings else lang["default_string"]), inline=True)
+            await ctx.send(embed=embed)
+
+    @commands.cooldown(10, 60, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @leveling_notify.command(cls=ExtendedCommand, name='default', description=main.lang["command_lvlnotify_default_description"], aliases=['reset'], permissions=['Administrator'])
+    async def leveling_notify_default(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await self.LevelingNotifications.reset_guild(ctx.guild.id)
+        await ctx.send(embed=discord.Embed(title=lang["profile_lvlnotify_reset_title"], description=lang["profile_lvlnotify_reset"], color=self.embed_color))
+
+    @commands.cooldown(10, 60, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @leveling_notify.command(cls=ExtendedCommand, name='dm', description=main.lang["command_lvlnotify_dm_description"], permissions=['Administrator'])
+    async def leveling_notify_dm(self, ctx):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        await self.LevelingNotifications.change_type(ctx.guild.id, profileshandler.NotificationType.DM)
+        await ctx.send(embed=discord.Embed(title=lang["profile_lvlnotify_change_title"], description=lang["profile_lvlnotify_change_dm"], color=self.embed_color))
+
+    @commands.cooldown(10, 60, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @leveling_notify.command(cls=ExtendedCommand, name='channel', description=main.lang["command_lvlnotify_channel_description"], usage="<channel>", aliases=['chnl'], permissions=['Administrator'])
+    async def leveling_notify_channel(self, ctx, channel: discord.TextChannel):
+        lang = main.get_lang(ctx.guild.id) if ctx.guild else main.lang
+        if ctx.guild.me.permissions_in(channel).send_messages:
+            await self.LevelingNotifications.set_channel(ctx.guild.id, channel.id)
+            await ctx.send(embed=discord.Embed(title=lang["profile_lvlnotify_change_title"], description=lang["profile_lvlnotify_change_channel"].format(channel.mention), color=self.embed_color))
+        else:
+            await ctx.send(lang["profile_lvlnotify_channel_permissions"], delete_after=15)
 
 
 def setup(bot):
