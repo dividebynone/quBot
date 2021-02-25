@@ -59,7 +59,7 @@ My intentions are to support QuBot by occasionally pushing new versions. If the 
 
 ## License
 
-The bot was released under the [**MIT License**](#license)
+The bot was released under the [**GPL-3.0 License**](#license)
 
 The QuBot Framework is meant to be freely used by anyone who is interested in running their own instance of the bot.
 
